@@ -4,7 +4,7 @@ package com.feng.shortlink.admin.common.convention.errorcode;
  * @author FENGXIN
  * @date 2024/9/26
  * @project feng-shortlink
- * @description
+ * @description 异常码接口
  **/
 public interface IErrorCode {
     /**

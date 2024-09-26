@@ -6,7 +6,7 @@ import com.feng.shortlink.admin.common.convention.errorcode.IErrorCode;
  * @author FENGXIN
  * @date 2024/9/26
  * @project feng-shortlink
- * @description 用户异常码
+ * @description 用户异常码规定
  **/
 public enum UserErrorCodeEnum implements IErrorCode {
     USER_NULL("B000200","用户不存在"),

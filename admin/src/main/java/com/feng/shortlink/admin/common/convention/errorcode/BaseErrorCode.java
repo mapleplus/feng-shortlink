@@ -4,7 +4,7 @@ package com.feng.shortlink.admin.common.convention.errorcode;
  * @author FENGXIN
  * @date 2024/9/26
  * @project feng-shortlink
- * @description 异常码规定
+ * @description 基本异常码规定
  **/
 public enum BaseErrorCode implements IErrorCode {
     // ========== 一级宏观错误码 客户端错误 ==========
