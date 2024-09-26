@@ -8,6 +8,8 @@ import com.feng.shortlink.admin.dao.entity.UserDO;
 import com.feng.shortlink.admin.dao.mapper.UserMapper;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
 import com.feng.shortlink.admin.service.UserService;
+import lombok.RequiredArgsConstructor;
+import org.redisson.api.RBloomFilter;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +20,11 @@ import org.springframework.stereotype.Service;
  * @description
  **/
 @Service
+@RequiredArgsConstructor
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
+    // 构造器注入布隆过滤器
+    private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
+    
     /**
      * 根据给定的用户名检索用户。
      *
@@ -40,15 +46,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
     
     /**
-     * 检查用户名是否存在于数据库中。
+     * 检查用户名是否存在于Cache中。
      *
      * @param username 要检查的用户名。
      * @return 如果用户名不存在于数据库中则返回 {@code true}，否则返回 {@code false}。
      */
     @Override
     public Boolean hasUserName (String username) {
-        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<> ();
-        queryWrapper.eq (UserDO::getUsername , username);
-        return baseMapper.selectCount (queryWrapper) == 0;
+        return userRegisterCachePenetrationBloomFilter.contains (username);
     }
 }
