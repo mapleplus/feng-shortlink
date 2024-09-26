@@ -1,5 +1,7 @@
 package com.feng.shortlink.admin.controller;
 
+import com.feng.shortlink.admin.common.convention.result.Result;
+import com.feng.shortlink.admin.common.enums.UserErrorCodeEnum;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
 import com.feng.shortlink.admin.service.UserService;
 import jakarta.annotation.Resource;
@@ -19,7 +21,12 @@ public class UserController {
     private UserService userService;
     
     @GetMapping("/api/fenglink/v1/user/{username}")
-    public UserRespDTO getUserByUserName(@PathVariable String username) {
-        return userService.getUserByUserName(username);
+    public Result<UserRespDTO> getUserByUserName(@PathVariable String username) {
+        UserRespDTO userByUserName = userService.getUserByUserName (username);
+        if (userByUserName == null ){
+            return new Result<UserRespDTO> ().setCode (UserErrorCodeEnum.USER_NULL.code ()).setMessage (UserErrorCodeEnum.USER_NULL.message ()).setData (userByUserName);
+        }else {
+            return new Result<UserRespDTO> ().setCode ("0").setMessage ("欢迎你 " + userByUserName.getRealName ()).setData (userByUserName);
+        }
     }
 }
