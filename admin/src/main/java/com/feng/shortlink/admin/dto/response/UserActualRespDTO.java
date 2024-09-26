@@ -1,7 +1,5 @@
 package com.feng.shortlink.admin.dto.response;
 
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import com.feng.shortlink.admin.common.serializer.PhoneDesensitizationSerializer;
 import lombok.Data;
 
 /**
@@ -11,7 +9,7 @@ import lombok.Data;
  * @description
  **/
 @Data
-public class UserRespDTO {
+public class UserActualRespDTO {
     
     /**
      * 用户的唯一标识
@@ -30,9 +28,7 @@ public class UserRespDTO {
     
     /**
      * 用户电话号码
-     * &#064;JsonSerialize  json提供的手机号序列化器 这里用于脱敏展示
      */
-    @JsonSerialize(using = PhoneDesensitizationSerializer.class)
     private String phone;
     
     /**

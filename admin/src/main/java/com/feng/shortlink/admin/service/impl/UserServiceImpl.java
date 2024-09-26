@@ -38,4 +38,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         BeanUtils.copyProperties (userDO, result);
         return result;
     }
+    
+    /**
+     * 检查用户名是否存在于数据库中。
+     *
+     * @param username 要检查的用户名。
+     * @return 如果用户名不存在于数据库中则返回 {@code true}，否则返回 {@code false}。
+     */
+    @Override
+    public Boolean hasUserName (String username) {
+        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<> ();
+        queryWrapper.eq (UserDO::getUsername , username);
+        return baseMapper.selectCount (queryWrapper) == 0;
+    }
 }

@@ -12,4 +12,6 @@ import com.feng.shortlink.admin.dto.response.UserRespDTO;
  **/
 public interface UserService extends IService<UserDO>{
     UserRespDTO getUserByUserName (String username);
+    
+    Boolean hasUserName (String username);
 }
