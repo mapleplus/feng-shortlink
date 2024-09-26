@@ -6,7 +6,7 @@
     <artifactId>feng-shortlink</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>feng-shortlink</name>
-    <description>枫链接</description>
+    <description>枫短链</description>
     <modules>
         <module>project</module>
         <module>admin</module>
@@ -112,7 +112,7 @@
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.3.4</version>
+                <version>3.0.7</version>
             </plugin>
         </plugins>
     </build>

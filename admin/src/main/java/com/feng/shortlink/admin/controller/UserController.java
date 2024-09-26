@@ -1,5 +1,8 @@
 package com.feng.shortlink.admin.controller;
 
+import com.feng.shortlink.admin.dto.response.UserRespDTO;
+import com.feng.shortlink.admin.service.UserService;
+import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -12,9 +15,11 @@ import org.springframework.web.bind.annotation.RestController;
  **/
 @RestController
 public class UserController {
+    @Resource
+    private UserService userService;
     
     @GetMapping("/api/fenglink/v1/user/{username}")
-    public String getUserByUserName(@PathVariable String username) {
-        return username;
+    public UserRespDTO getUserByUserName(@PathVariable String username) {
+        return userService.getUserByUserName(username);
     }
 }
