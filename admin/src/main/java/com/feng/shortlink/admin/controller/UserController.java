@@ -3,13 +3,12 @@ package com.feng.shortlink.admin.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
+import com.feng.shortlink.admin.dto.request.RegisterUserReqDTO;
 import com.feng.shortlink.admin.dto.response.UserActualRespDTO;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
 import com.feng.shortlink.admin.service.UserService;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author FENGXIN
@@ -53,5 +52,17 @@ public class UserController {
     @GetMapping("/api/fenglink/v1/user/has-username")
     public Result<Boolean> hasUserName (String username) {
         return Results.success (userService.hasUserName(username));
+    }
+    
+    /**
+     * 处理注册新用户的HTTP POST请求。
+     *
+     * @param registerUserReqDTO 包含新用户注册详细信息的{@link RegisterUserReqDTO}对象
+     * @return 一个{@link Result}对象，包含空数据但表示成功
+     */
+    @PostMapping("/api/fenglink/v1/user")
+    public Result<Void> registerUser (@RequestBody RegisterUserReqDTO registerUserReqDTO) {
+        userService.registerUser (registerUserReqDTO);
+        return Results.success ();
     }
 }

@@ -2,6 +2,7 @@ package com.feng.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.feng.shortlink.admin.dao.entity.UserDO;
+import com.feng.shortlink.admin.dto.request.RegisterUserReqDTO;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
 
 /**
@@ -14,4 +15,7 @@ public interface UserService extends IService<UserDO>{
     UserRespDTO getUserByUserName (String username);
     
     Boolean hasUserName (String username);
+    
+    void registerUser (RegisterUserReqDTO registerUserReqDTO);
+    
 }
