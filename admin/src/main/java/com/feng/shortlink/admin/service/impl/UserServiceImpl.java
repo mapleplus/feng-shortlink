@@ -1,14 +1,18 @@
 package com.feng.shortlink.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.lang.UUID;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.admin.common.convention.exception.ClientException;
 import com.feng.shortlink.admin.common.enums.UserErrorCodeEnum;
 import com.feng.shortlink.admin.dao.entity.UserDO;
 import com.feng.shortlink.admin.dao.mapper.UserMapper;
+import com.feng.shortlink.admin.dto.request.LoginUserReqDTO;
 import com.feng.shortlink.admin.dto.request.RegisterUserReqDTO;
 import com.feng.shortlink.admin.dto.request.UpdateUserReqDTO;
+import com.feng.shortlink.admin.dto.response.UserLoginRespDTO;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
 import com.feng.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,9 +20,11 @@ import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
 import static com.feng.shortlink.admin.common.constant.RedisCacheConstant.LOCK_SHORTLINK_USER_REGISTER_KEY;
+import static com.feng.shortlink.admin.common.constant.RedisCacheConstant.SHORTLINK_USER_LOGIN_KEY;
 
 /**
  * @author FENGXIN
@@ -33,6 +39,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
     // 使用redis
     private final RedissonClient redissonClient;
+    private final StringRedisTemplate stringRedisTemplate;
     /**
      * 根据给定的用户名检索用户。
      *
@@ -107,5 +114,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         LambdaQueryWrapper<UserDO> updateWrapper = new LambdaQueryWrapper<UserDO>()
                 .eq(UserDO::getUsername, requestParams.getUsername ());
         baseMapper.update (BeanUtil.toBean (requestParams , UserDO.class) , updateWrapper);
+    }
+    
+    /**
+     * Handles the login process for a user.
+     *
+     * @param requestParams The login request parameters including user credentials.
+     * @return The response DTO containing user login details, such as authentication token.
+     */
+    @Override
+    public UserLoginRespDTO login (LoginUserReqDTO requestParams) {
+        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<UserDO>()
+                .eq (UserDO::getUsername, requestParams.getUsername ())
+                .eq (UserDO::getPassword, requestParams.getPassword ())
+                .eq (UserDO::getDelFlag, 0);
+        UserDO userDO = baseMapper.selectOne (queryWrapper);
+        if (userDO == null) {
+            throw new ClientException (UserErrorCodeEnum.USER_NULL);
+        }
+        // 防止用户恶意刷登录token 使redis崩溃
+        Boolean hasKey = stringRedisTemplate.hasKey (SHORTLINK_USER_LOGIN_KEY + userDO.getUsername ());
+        if (Boolean.TRUE.equals (hasKey)){
+            throw new ClientException (UserErrorCodeEnum.USER_LOGIN_ERROR);
+        }
+        // 存在 登录成功 存入redis
+        String token = UUID.randomUUID ().toString ();
+        String jsonString = JSON.toJSONString (userDO);
+        stringRedisTemplate.opsForHash ().put (SHORTLINK_USER_LOGIN_KEY + userDO.getUsername (),token, jsonString);
+        return new UserLoginRespDTO (token);
+    }
+    
+    @Override
+    public Boolean checkLogin (String username , String token) {
+        return stringRedisTemplate.opsForHash ().hasKey (SHORTLINK_USER_LOGIN_KEY + username, token);
     }
 }
