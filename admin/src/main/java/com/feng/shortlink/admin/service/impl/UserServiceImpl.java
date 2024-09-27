@@ -12,8 +12,12 @@ import com.feng.shortlink.admin.dto.response.UserRespDTO;
 import com.feng.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
+
+import static com.feng.shortlink.admin.common.constant.RedisCacheConstant.LOCK_SHORTLINK_USER_REGISTER_KEY;
 
 /**
  * @author FENGXIN
@@ -26,7 +30,8 @@ import org.springframework.stereotype.Service;
 public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements UserService {
     // 构造器注入布隆过滤器
     private final RBloomFilter<String> userRegisterCachePenetrationBloomFilter;
-    
+    // 使用redis
+    private final RedissonClient redissonClient;
     /**
      * 根据给定的用户名检索用户。
      *
@@ -68,12 +73,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         if (!hasUserName (registerUserReqDTO.getUsername ())){
             throw new ClientException (UserErrorCodeEnum.USER_NAME_EXISTS);
         }
-        // 新增用户
-        int insert = baseMapper.insert (BeanUtil.toBean (registerUserReqDTO , UserDO.class));
-        if (insert < 1) {
-            throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
+        // 给register username上分布式锁 防止恶意注册
+        RLock lock = redissonClient.getLock (LOCK_SHORTLINK_USER_REGISTER_KEY + registerUserReqDTO.getUsername ());
+        try {
+            boolean tryLock = lock.tryLock ();
+            if (tryLock) {
+                // 新增用户
+                int insert = baseMapper.insert (BeanUtil.toBean (registerUserReqDTO , UserDO.class));
+                if (insert < 1) {
+                    throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
+                }
+                // 添加用户名到布隆过滤器
+                userRegisterCachePenetrationBloomFilter.add (registerUserReqDTO.getUsername ());
+                return;
+            }
+            throw new ClientException (UserErrorCodeEnum.USER_NAME_EXISTS);
+        } finally {
+            // 释放锁
+            lock.unlock ();
         }
-        // 添加用户名到布隆过滤器
-        userRegisterCachePenetrationBloomFilter.add (registerUserReqDTO.getUsername ());
+        
+        
     }
 }

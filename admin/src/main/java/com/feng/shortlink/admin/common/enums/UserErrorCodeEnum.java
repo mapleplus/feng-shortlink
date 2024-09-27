@@ -9,10 +9,10 @@ import com.feng.shortlink.admin.common.convention.errorcode.IErrorCode;
  * @description 用户异常码规定
  **/
 public enum UserErrorCodeEnum implements IErrorCode {
-    USER_NULL("B000200","用户不存在"),
-    USER_EXISTS ("B000201","用户已存在"),
-    USER_NAME_NULL("B000202","用户名不存在"),
-    USER_NAME_EXISTS("B000203","用户名已存在"),
+    USER_NAME_NULL("B000200","用户名不存在"),
+    USER_NAME_EXISTS("B000201","用户名已存在"),
+    USER_NULL("B000202","用户不存在"),
+    USER_EXISTS ("B000203","用户已存在"),
     USER_SAVE_ERROR("B000204","用户新增失败")
     ;
     
