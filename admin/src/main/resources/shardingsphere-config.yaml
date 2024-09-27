@@ -53,7 +53,7 @@ rules:
     encryptors:
       # 自定义加密算法名称
       common_encryptor:
-        # 加密算法类型
+        # 加密算法类型 可逆加密
         type: AES
         props:
           # AES 加密密钥

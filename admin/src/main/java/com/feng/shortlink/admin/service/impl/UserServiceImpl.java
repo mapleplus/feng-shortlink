@@ -8,6 +8,7 @@ import com.feng.shortlink.admin.common.enums.UserErrorCodeEnum;
 import com.feng.shortlink.admin.dao.entity.UserDO;
 import com.feng.shortlink.admin.dao.mapper.UserMapper;
 import com.feng.shortlink.admin.dto.request.RegisterUserReqDTO;
+import com.feng.shortlink.admin.dto.request.UpdateUserReqDTO;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
 import com.feng.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -66,25 +67,25 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     /**
      * 在系统中注册一个新用户。
      *
-     * @param registerUserReqDTO 包含要注册用户的详细信息的数据传输对象。
+     * @param requestParams 包含要注册用户的详细信息的数据传输对象。
      */
     @Override
-    public void registerUser (RegisterUserReqDTO registerUserReqDTO) {
-        if (!hasUserName (registerUserReqDTO.getUsername ())){
+    public void registerUser (RegisterUserReqDTO requestParams) {
+        if (!hasUserName (requestParams.getUsername ())){
             throw new ClientException (UserErrorCodeEnum.USER_NAME_EXISTS);
         }
         // 给register username上分布式锁 防止恶意注册
-        RLock lock = redissonClient.getLock (LOCK_SHORTLINK_USER_REGISTER_KEY + registerUserReqDTO.getUsername ());
+        RLock lock = redissonClient.getLock (LOCK_SHORTLINK_USER_REGISTER_KEY + requestParams.getUsername ());
         try {
             boolean tryLock = lock.tryLock ();
             if (tryLock) {
                 // 新增用户
-                int insert = baseMapper.insert (BeanUtil.toBean (registerUserReqDTO , UserDO.class));
+                int insert = baseMapper.insert (BeanUtil.toBean (requestParams , UserDO.class));
                 if (insert < 1) {
                     throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
                 }
                 // 添加用户名到布隆过滤器
-                userRegisterCachePenetrationBloomFilter.add (registerUserReqDTO.getUsername ());
+                userRegisterCachePenetrationBloomFilter.add (requestParams.getUsername ());
                 return;
             }
             throw new ClientException (UserErrorCodeEnum.USER_NAME_EXISTS);
@@ -94,5 +95,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }
         
         
+    }
+    
+    /**
+     * 更新用户信息。
+     *
+     * @param requestParams 包含要更新用户的详细信息的数据传输对象。
+     */
+    @Override
+    public void updateUser (UpdateUserReqDTO requestParams) {
+        LambdaQueryWrapper<UserDO> updateWrapper = new LambdaQueryWrapper<UserDO>()
+                .eq(UserDO::getUsername, requestParams.getUsername ());
+        baseMapper.update (BeanUtil.toBean (requestParams , UserDO.class) , updateWrapper);
     }
 }

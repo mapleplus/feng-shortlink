@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
 import com.feng.shortlink.admin.dto.request.RegisterUserReqDTO;
+import com.feng.shortlink.admin.dto.request.UpdateUserReqDTO;
 import com.feng.shortlink.admin.dto.response.UserActualRespDTO;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
 import com.feng.shortlink.admin.service.UserService;
@@ -61,8 +62,14 @@ public class UserController {
      * @return 一个{@link Result}对象，包含空数据但表示成功
      */
     @PostMapping("/api/fenglink/v1/user")
-    public Result<Void> registerUser (@RequestBody RegisterUserReqDTO registerUserReqDTO) {
-        userService.registerUser (registerUserReqDTO);
+    public Result<Void> registerUser (@RequestBody RegisterUserReqDTO requestParams) {
+        userService.registerUser (requestParams);
+        return Results.success ();
+    }
+    
+    @PutMapping("/api/fenglink/v1/user")
+    public Result<Void> updateUser (@RequestBody UpdateUserReqDTO requestParams) {
+        userService.updateUser (requestParams);
         return Results.success ();
     }
 }
