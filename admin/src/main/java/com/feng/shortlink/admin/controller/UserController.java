@@ -69,7 +69,6 @@ public class UserController {
         return Results.success ();
     }
     
-    
     /**
      * 处理更新用户的HTTP PUT请求。
      *
@@ -93,8 +92,28 @@ public class UserController {
         return Results.success (userService.login(requestParams));
     }
     
+    /**
+     * 检查用户登录状态
+     *
+     * @param username 用户名
+     * @param token 授权令牌
+     * @return 用户是否已登录的结果
+     */
     @GetMapping("/api/short-link/admin/v1/user/check-login")
     public Result<Boolean> checkLogin (@RequestParam("username") String username,@RequestHeader("Authorization") String token){
         return Results.success (userService.checkLogin (username,token));
+    }
+    
+    /**
+     * 用户登出
+     *
+     * @param username 用户名
+     * @param token 授权令牌
+     * @return 成功响应结果
+     */
+    @DeleteMapping("/api/short-link/admin/v1/user/logout")
+    public Result<Void> logout (@RequestParam("username") String username,@RequestHeader("Authorization") String token){
+        userService.logout(username,token);
+        return Results.success ();
     }
 }

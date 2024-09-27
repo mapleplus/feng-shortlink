@@ -23,8 +23,11 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.concurrent.TimeUnit;
+
 import static com.feng.shortlink.admin.common.constant.RedisCacheConstant.LOCK_SHORTLINK_USER_REGISTER_KEY;
 import static com.feng.shortlink.admin.common.constant.RedisCacheConstant.SHORTLINK_USER_LOGIN_KEY;
+import static com.feng.shortlink.admin.common.enums.UserErrorCodeEnum.USER_LOGOUT_ERROR;
 
 /**
  * @author FENGXIN
@@ -40,6 +43,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     // 使用redis
     private final RedissonClient redissonClient;
     private final StringRedisTemplate stringRedisTemplate;
+    
     /**
      * 根据给定的用户名检索用户。
      *
@@ -117,35 +121,61 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
     
     /**
-     * Handles the login process for a user.
+     * 处理用户的登录过程。
      *
-     * @param requestParams The login request parameters including user credentials.
-     * @return The response DTO containing user login details, such as authentication token.
+     * @param requestParams 包含用户凭据的登录请求参数。
+     * @return 包含用户登录详细信息的响应DTO，例如身份验证令牌。
      */
     @Override
     public UserLoginRespDTO login (LoginUserReqDTO requestParams) {
-        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<UserDO>()
-                .eq (UserDO::getUsername, requestParams.getUsername ())
-                .eq (UserDO::getPassword, requestParams.getPassword ())
-                .eq (UserDO::getDelFlag, 0);
+        LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<UserDO> ()
+                .eq (UserDO::getUsername , requestParams.getUsername ())
+                .eq (UserDO::getPassword , requestParams.getPassword ())
+                .eq (UserDO::getDelFlag , 0);
         UserDO userDO = baseMapper.selectOne (queryWrapper);
         if (userDO == null) {
             throw new ClientException (UserErrorCodeEnum.USER_NULL);
         }
         // 防止用户恶意刷登录token 使redis崩溃
         Boolean hasKey = stringRedisTemplate.hasKey (SHORTLINK_USER_LOGIN_KEY + userDO.getUsername ());
-        if (Boolean.TRUE.equals (hasKey)){
+        if (Boolean.TRUE.equals (hasKey)) {
             throw new ClientException (UserErrorCodeEnum.USER_LOGIN_ERROR);
         }
         // 存在 登录成功 存入redis
         String token = UUID.randomUUID ().toString ();
         String jsonString = JSON.toJSONString (userDO);
-        stringRedisTemplate.opsForHash ().put (SHORTLINK_USER_LOGIN_KEY + userDO.getUsername (),token, jsonString);
+        stringRedisTemplate.opsForHash ().put (SHORTLINK_USER_LOGIN_KEY + userDO.getUsername () , token , jsonString);
+        // 设置有效时间
+        stringRedisTemplate.expire (SHORTLINK_USER_LOGIN_KEY + userDO.getUsername () , 30L , TimeUnit.MINUTES);
         return new UserLoginRespDTO (token);
     }
     
+    /**
+     * 检查用户是否使用特定的令牌登录。
+     *
+     * @param username 要检查的用户名。
+     * @param token    用于验证用户登录状态的令牌。
+     * @return 如果用户使用给定令牌登录，则返回 {@code true}，否则返回 {@code false}。
+     */
     @Override
     public Boolean checkLogin (String username , String token) {
-        return stringRedisTemplate.opsForHash ().hasKey (SHORTLINK_USER_LOGIN_KEY + username, token);
+        return stringRedisTemplate.opsForHash ().hasKey (SHORTLINK_USER_LOGIN_KEY + username , token);
+    }
+    
+    /**
+     * 通过从Redis中删除用户的会话令牌来注销用户，如果用户当前已登录，
+     * 并在注销操作失败时抛出异常。
+     *
+     * @param username 要注销的用户用户名
+     * @param token    用于注销的用户会话令牌
+     * @throws ClientException 如果用户未登录或注销过程中出现错误
+     */
+    @Override
+    public void logout (String username , String token) {
+        if (Boolean.TRUE.equals (checkLogin (username , token))) {
+            stringRedisTemplate.opsForHash ().delete (SHORTLINK_USER_LOGIN_KEY + username , token);
+            return;
+        }
+        throw new ClientException (USER_LOGOUT_ERROR);
     }
 }
