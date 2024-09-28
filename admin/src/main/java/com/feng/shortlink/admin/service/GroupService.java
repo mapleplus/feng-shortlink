@@ -2,7 +2,7 @@ package com.feng.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.feng.shortlink.admin.dao.entity.GroupDO;
-import com.feng.shortlink.admin.dto.request.SaveShortLinkGroupDTO;
+import com.feng.shortlink.admin.dto.request.ShortLinkGroupSaveDTO;
 import com.feng.shortlink.admin.dto.response.GroupRespDTO;
 
 import java.util.List;
@@ -14,7 +14,7 @@ import java.util.List;
  * @description
  **/
 public interface GroupService extends IService<GroupDO> {
-    void saveGroupByGid (SaveShortLinkGroupDTO requestParams);
+    void saveGroupByGid (ShortLinkGroupSaveDTO requestParams);
     
     List<GroupRespDTO> getGroup ();
 }

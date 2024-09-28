@@ -2,7 +2,7 @@ package com.feng.shortlink.admin.controller;
 
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
-import com.feng.shortlink.admin.dto.request.SaveShortLinkGroupDTO;
+import com.feng.shortlink.admin.dto.request.ShortLinkGroupSaveDTO;
 import com.feng.shortlink.admin.dto.response.GroupRespDTO;
 import com.feng.shortlink.admin.service.GroupService;
 import lombok.RequiredArgsConstructor;
@@ -27,11 +27,11 @@ public class GroupController {
     /**
      * Handles the POST request to save group information based on the given group ID.
      *
-     * @param requestParams the group information encapsulated in a SaveShortLinkGroupDTO object
+     * @param requestParams the group information encapsulated in a ShortLinkGroupSaveDTO object
      * @return a Result object indicating the success of the operation
      */
     @PostMapping("/api/fenglink/v1/group")
-    public Result<Void> saveGroupByGid (@RequestBody SaveShortLinkGroupDTO requestParams) {
+    public Result<Void> saveGroupByGid (@RequestBody ShortLinkGroupSaveDTO requestParams) {
         // 调用 groupService 保存组信息
         groupService.saveGroupByGid (requestParams);
         // 返回成功结果

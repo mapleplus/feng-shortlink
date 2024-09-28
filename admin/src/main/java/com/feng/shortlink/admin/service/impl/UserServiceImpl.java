@@ -9,9 +9,9 @@ import com.feng.shortlink.admin.common.convention.exception.ClientException;
 import com.feng.shortlink.admin.common.enums.UserErrorCodeEnum;
 import com.feng.shortlink.admin.dao.entity.UserDO;
 import com.feng.shortlink.admin.dao.mapper.UserMapper;
-import com.feng.shortlink.admin.dto.request.LoginUserReqDTO;
-import com.feng.shortlink.admin.dto.request.RegisterUserReqDTO;
-import com.feng.shortlink.admin.dto.request.UpdateUserReqDTO;
+import com.feng.shortlink.admin.dto.request.UserLoginReqDTO;
+import com.feng.shortlink.admin.dto.request.UserRegisterReqDTO;
+import com.feng.shortlink.admin.dto.request.UserUpdateReqDTO;
 import com.feng.shortlink.admin.dto.response.UserLoginRespDTO;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
 import com.feng.shortlink.admin.service.UserService;
@@ -81,7 +81,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
      * @param requestParams 包含要注册用户的详细信息的数据传输对象。
      */
     @Override
-    public void registerUser (RegisterUserReqDTO requestParams) {
+    public void registerUser (UserRegisterReqDTO requestParams) {
         if (!hasUserName (requestParams.getUsername ())){
             throw new ClientException (UserErrorCodeEnum.USER_NAME_EXISTS);
         }
@@ -114,7 +114,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
      * @param requestParams 包含要更新用户的详细信息的数据传输对象。
      */
     @Override
-    public void updateUser (UpdateUserReqDTO requestParams) {
+    public void updateUser (UserUpdateReqDTO requestParams) {
         LambdaQueryWrapper<UserDO> updateWrapper = new LambdaQueryWrapper<UserDO>()
                 .eq(UserDO::getUsername, requestParams.getUsername ());
         baseMapper.update (BeanUtil.toBean (requestParams , UserDO.class) , updateWrapper);
@@ -127,7 +127,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
      * @return 包含用户登录详细信息的响应DTO，例如身份验证令牌。
      */
     @Override
-    public UserLoginRespDTO login (LoginUserReqDTO requestParams) {
+    public UserLoginRespDTO login (UserLoginReqDTO requestParams) {
         LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<UserDO> ()
                 .eq (UserDO::getUsername , requestParams.getUsername ())
                 .eq (UserDO::getPassword , requestParams.getPassword ())

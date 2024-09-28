@@ -3,9 +3,9 @@ package com.feng.shortlink.admin.controller;
 import cn.hutool.core.bean.BeanUtil;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
-import com.feng.shortlink.admin.dto.request.LoginUserReqDTO;
-import com.feng.shortlink.admin.dto.request.RegisterUserReqDTO;
-import com.feng.shortlink.admin.dto.request.UpdateUserReqDTO;
+import com.feng.shortlink.admin.dto.request.UserLoginReqDTO;
+import com.feng.shortlink.admin.dto.request.UserRegisterReqDTO;
+import com.feng.shortlink.admin.dto.request.UserUpdateReqDTO;
 import com.feng.shortlink.admin.dto.response.UserActualRespDTO;
 import com.feng.shortlink.admin.dto.response.UserLoginRespDTO;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
@@ -60,11 +60,11 @@ public class UserController {
     /**
      * 处理注册新用户的HTTP POST请求。
      *
-     * @param registerUserReqDTO 包含新用户注册详细信息的{@link RegisterUserReqDTO}对象
+     * @param registerUserReqDTO 包含新用户注册详细信息的{@link UserRegisterReqDTO}对象
      * @return 一个{@link Result}对象，包含空数据但表示成功
      */
     @PostMapping("/api/fenglink/v1/user")
-    public Result<Void> registerUser (@RequestBody RegisterUserReqDTO requestParams) {
+    public Result<Void> registerUser (@RequestBody UserRegisterReqDTO requestParams) {
         userService.registerUser (requestParams);
         return Results.success ();
     }
@@ -72,11 +72,11 @@ public class UserController {
     /**
      * 处理更新用户的HTTP PUT请求。
      *
-     * @param requestParams 包含更新用户详细信息的{@link UpdateUserReqDTO}对象
+     * @param requestParams 包含更新用户详细信息的{@link UserUpdateReqDTO}对象
      * @return 一个{@link Result}对象，包含空数据但表示成功
      */
     @PutMapping("/api/fenglink/v1/user")
-    public Result<Void> updateUser (@RequestBody UpdateUserReqDTO requestParams) {
+    public Result<Void> updateUser (@RequestBody UserUpdateReqDTO requestParams) {
         userService.updateUser (requestParams);
         return Results.success ();
     }
@@ -88,7 +88,7 @@ public class UserController {
      * @return 包含用户登录响应数据的 {@code Result<UserLoginRespDTO>} 对象
      */
     @PostMapping("/api/fenglink/v1/user/login")
-    public Result<UserLoginRespDTO> login (@RequestBody LoginUserReqDTO requestParams) {
+    public Result<UserLoginRespDTO> login (@RequestBody UserLoginReqDTO requestParams) {
         return Results.success (userService.login(requestParams));
     }
     
@@ -100,7 +100,7 @@ public class UserController {
      * @return 用户是否已登录的结果
      */
     @GetMapping("/api/short-link/admin/v1/user/check-login")
-    public Result<Boolean> checkLogin (@RequestParam("username") String username,@RequestHeader("Authorization") String token){
+    public Result<Boolean> checkLogin (@RequestParam("username") String username,@RequestParam("token") String token){
         return Results.success (userService.checkLogin (username,token));
     }
     
@@ -112,7 +112,7 @@ public class UserController {
      * @return 成功响应结果
      */
     @DeleteMapping("/api/short-link/admin/v1/user/logout")
-    public Result<Void> logout (@RequestParam("username") String username,@RequestHeader("Authorization") String token){
+    public Result<Void> logout (@RequestParam("username") String username,@RequestParam("token") String token){
         userService.logout(username,token);
         return Results.success ();
     }

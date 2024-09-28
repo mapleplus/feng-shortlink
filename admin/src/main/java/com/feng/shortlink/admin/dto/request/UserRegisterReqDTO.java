@@ -9,7 +9,7 @@ import lombok.Data;
  * @description 用户注册请求参数实体
  **/
 @Data
-public class RegisterUserReqDTO {
+public class UserRegisterReqDTO {
     
     /**
      * 用户名

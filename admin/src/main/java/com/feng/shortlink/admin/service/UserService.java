@@ -3,9 +3,9 @@ package com.feng.shortlink.admin.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.feng.shortlink.admin.common.convention.exception.ClientException;
 import com.feng.shortlink.admin.dao.entity.UserDO;
-import com.feng.shortlink.admin.dto.request.LoginUserReqDTO;
-import com.feng.shortlink.admin.dto.request.RegisterUserReqDTO;
-import com.feng.shortlink.admin.dto.request.UpdateUserReqDTO;
+import com.feng.shortlink.admin.dto.request.UserLoginReqDTO;
+import com.feng.shortlink.admin.dto.request.UserRegisterReqDTO;
+import com.feng.shortlink.admin.dto.request.UserUpdateReqDTO;
 import com.feng.shortlink.admin.dto.response.UserLoginRespDTO;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
 
@@ -39,14 +39,14 @@ public interface UserService extends IService<UserDO>{
      *
      * @param requestParams 包含要注册用户的详细信息的数据传输对象。
      */
-    void registerUser (RegisterUserReqDTO requestParams);
+    void registerUser (UserRegisterReqDTO requestParams);
     
     /**
      * 更新用户信息。
      *
      * @param requestParams 包含要更新用户的详细信息的数据传输对象。
      */
-    void updateUser (UpdateUserReqDTO requestParams);
+    void updateUser (UserUpdateReqDTO requestParams);
     
     /**
      * 处理用户的登录过程。
@@ -54,7 +54,7 @@ public interface UserService extends IService<UserDO>{
      * @param requestParams 包含用户凭据的登录请求参数。
      * @return 包含用户登录详细信息的响应DTO，例如身份验证令牌。
      */
-    UserLoginRespDTO login (LoginUserReqDTO requestParams);
+    UserLoginRespDTO login (UserLoginReqDTO requestParams);
     
     /**
      * 检查用户是否使用特定的令牌登录。

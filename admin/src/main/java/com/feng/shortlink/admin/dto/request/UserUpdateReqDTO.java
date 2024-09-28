@@ -9,7 +9,7 @@ import lombok.Data;
  * @description
  **/
 @Data
-public class LoginUserReqDTO {
+public class UserUpdateReqDTO {
     /**
      * 用户名
      */
@@ -19,4 +19,19 @@ public class LoginUserReqDTO {
      * 用户密码
      */
     private String password;
+    
+    /**
+     * 用户真实姓名
+     */
+    private String realName;
+    
+    /**
+     * 用户电话号码
+     */
+    private String phone;
+    
+    /**
+     * 用户邮箱地址
+     */
+    private String mail;
 }
