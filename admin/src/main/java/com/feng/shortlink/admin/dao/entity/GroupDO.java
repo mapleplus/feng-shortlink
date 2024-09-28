@@ -17,14 +17,19 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class GroupDO extends BaseDO {
+    // 主键ID
     private Long id;
     
+    // 组ID
     private String gid;
     
+    // 组名
     private String name;
     
+    // 用户名
     private String username;
     
+    // 排序顺序
     private Integer sortOrder;
     
 }
