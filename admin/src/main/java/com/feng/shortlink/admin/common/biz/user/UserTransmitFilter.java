@@ -38,6 +38,7 @@ public class UserTransmitFilter implements Filter {
         String requestUri = httpServletRequest.getRequestURI ();
         
         // 其它url时将用户存入userContext
+        // 如果包含则放行
         if(!IGNORE_URL.contains (requestUri)){
             if(!("/api/fenglink/v1/user".equals (requestUri) && "POST".equals (httpServletRequest.getMethod ()))){
                 // 获取头信息

@@ -32,4 +32,6 @@ public class GroupDO extends BaseDO {
     // 排序顺序
     private Integer sortOrder;
     
+    // 删除标识
+    private Integer delFlag;
 }

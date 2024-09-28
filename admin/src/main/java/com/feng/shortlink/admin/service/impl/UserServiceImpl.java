@@ -146,7 +146,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         String jsonString = JSON.toJSONString (userDO);
         stringRedisTemplate.opsForHash ().put (SHORTLINK_USER_LOGIN_KEY + userDO.getUsername () , token , jsonString);
         // 设置有效时间
-        stringRedisTemplate.expire (SHORTLINK_USER_LOGIN_KEY + userDO.getUsername () , 30L , TimeUnit.MINUTES);
+        stringRedisTemplate.expire (SHORTLINK_USER_LOGIN_KEY + userDO.getUsername () , 30L , TimeUnit.DAYS);
         return new UserLoginRespDTO (token);
     }
     
