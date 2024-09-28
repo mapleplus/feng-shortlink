@@ -6,7 +6,7 @@ import lombok.Data;
  * @author FENGXIN
  * @date 2024/9/27
  * @project feng-shortlink
- * @description
+ * @description 用户更新请求参数
  **/
 @Data
 public class UserUpdateReqDTO {

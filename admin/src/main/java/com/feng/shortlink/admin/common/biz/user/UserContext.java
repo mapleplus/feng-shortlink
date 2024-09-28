@@ -8,9 +8,12 @@ import java.util.Optional;
  * @author FENGXIN
  * @date 2024/9/28
  * @project feng-shortlink
- * @description
+ * @description 用户上下文 存放当前线程的用户
  **/
 public final class UserContext {
+    /**
+     * 这里使用alibaba的ttl线程池 父子线程、没有关系的线程也可以数据传递
+     */
     private static final ThreadLocal<UserInfoDTO> USER_THREAD_LOCAL = new TransmittableThreadLocal<> ();
     
     /**

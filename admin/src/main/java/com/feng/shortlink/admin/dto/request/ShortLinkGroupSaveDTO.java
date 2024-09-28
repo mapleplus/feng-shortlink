@@ -10,5 +10,9 @@ import lombok.Data;
  **/
 @Data
 public class ShortLinkGroupSaveDTO {
+    
+    /**
+     * 分组名称
+     */
     private String name;
 }
