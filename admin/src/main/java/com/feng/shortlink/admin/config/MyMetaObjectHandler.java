@@ -11,7 +11,7 @@ import java.util.Date;
  * @author FENGXIN
  * @date 2024/9/27
  * @project feng-shortlink
- * @description
+ * @description mp自动填充
  **/
 @Slf4j
 @Component

@@ -1,11 +1,9 @@
 package com.feng.shortlink.admin.dao.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.feng.shortlink.admin.common.database.BaseDO;
 import lombok.Data;
-
-import java.util.Date;
+import lombok.EqualsAndHashCode;
 
 /**
  * @author FENGXIN
@@ -13,9 +11,10 @@ import java.util.Date;
  * @project feng-shortlink
  * @description 用户实体
  **/
+@EqualsAndHashCode(callSuper = true)
 @Data
 @TableName("t_user")
-public class UserDO {
+public class UserDO extends BaseDO {
     
     /**
      * 用户的唯一标识
@@ -52,21 +51,4 @@ public class UserDO {
      */
     private Long deletionTime;
     
-    /**
-     * 创建时间
-     */
-    @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
-    
-    /**
-     * 更新时间
-     */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
-    private Date updateTime;
-    
-    /**
-     * 删除标记（0 表示未删除，1 表示已删除）
-     */
-    @TableField(fill = FieldFill.INSERT)
-    private Integer delFlag;
 }
