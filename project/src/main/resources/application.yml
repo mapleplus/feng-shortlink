@@ -1,2 +1,19 @@
 server:
   port: 8001
+spring:
+  datasource:
+    username: root
+    password: 51213002
+    url: jdbc:mysql://127.0.0.1:3306/feng_shortlink
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-test-query: select 1
+      connection-timeout: 20000
+      idle-timeout: 300000
+      maximum-pool-size: 5
+      minimum-idle: 5
+  data:
+    redis:
+      host: 192.168.187.101
+      port: 6379
+      password: 51213002
