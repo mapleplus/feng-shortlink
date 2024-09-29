@@ -3,8 +3,7 @@ package com.feng.shortlink.project.dao.entity;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.feng.shortlink.project.common.database.BaseDO;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 
 import java.sql.Date;
 
@@ -16,6 +15,9 @@ import java.sql.Date;
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @TableName("t_link")
 public class ShortLinkDO extends BaseDO {
     /** ID */
