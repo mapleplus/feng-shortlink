@@ -104,8 +104,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             // 释放锁
             lock.unlock ();
         }
-        
-        
     }
     
     /**

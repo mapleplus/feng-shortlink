@@ -30,7 +30,7 @@ public class UserController {
      * @param username 要检索的用户名
      * @return 包含用户详细信息的 {@code Result<UserRespDTO>} 对象，如果找到该用户
      */
-    @GetMapping("/api/fenglink/v1/user/{username}")
+    @GetMapping("/api/fenglink/v1/admin/user/{username}")
     public Result<UserRespDTO> getUserByUserName (@PathVariable String username) {
         return Results.success (userService.getUserByUserName (username));
     }
@@ -41,7 +41,7 @@ public class UserController {
      * @param username 要检索的用户名
      * @return 包含实际用户详细信息的 {@code Result<UserActualRespDTO>} 对象，如果找到该用户
      */
-    @GetMapping("/api/fenglink/v1/actual/user/{username}")
+    @GetMapping("/api/fenglink/v1/admin/actual/user/{username}")
     public Result<UserActualRespDTO> getActualUserByUserName (@PathVariable String username) {
         return Results.success (BeanUtil.toBean (userService.getUserByUserName (username) , UserActualRespDTO.class));
     }
@@ -52,7 +52,7 @@ public class UserController {
      * @param username 要检查的用户名
      * @return 包含布尔值的 Result 对象，表示用户名是否存在
      */
-    @GetMapping("/api/fenglink/v1/user/has-username")
+    @GetMapping("/api/fenglink/v1/admin/user/has-username")
     public Result<Boolean> hasUserName (String username) {
         return Results.success (userService.hasUserName(username));
     }
@@ -63,7 +63,7 @@ public class UserController {
      * @param registerUserReqDTO 包含新用户注册详细信息的{@link UserRegisterReqDTO}对象
      * @return 一个{@link Result}对象，包含空数据但表示成功
      */
-    @PostMapping("/api/fenglink/v1/user")
+    @PostMapping("/api/fenglink/v1/admin/user")
     public Result<Void> registerUser (@RequestBody UserRegisterReqDTO requestParams) {
         userService.registerUser (requestParams);
         return Results.success ();
@@ -75,7 +75,7 @@ public class UserController {
      * @param requestParams 包含更新用户详细信息的{@link UserUpdateReqDTO}对象
      * @return 一个{@link Result}对象，包含空数据但表示成功
      */
-    @PutMapping("/api/fenglink/v1/user")
+    @PutMapping("/api/fenglink/v1/admin/user")
     public Result<Void> updateUser (@RequestBody UserUpdateReqDTO requestParams) {
         userService.updateUser (requestParams);
         return Results.success ();
@@ -87,7 +87,7 @@ public class UserController {
      * @param requestParams 包含用户登录信息的 {@code UserLoginRespDTO} 对象
      * @return 包含用户登录响应数据的 {@code Result<UserLoginRespDTO>} 对象
      */
-    @PostMapping("/api/fenglink/v1/user/login")
+    @PostMapping("/api/fenglink/v1/admin/user/login")
     public Result<UserLoginRespDTO> login (@RequestBody UserLoginReqDTO requestParams) {
         return Results.success (userService.login(requestParams));
     }
@@ -99,7 +99,7 @@ public class UserController {
      * @param token 授权令牌
      * @return 用户是否已登录的结果
      */
-    @GetMapping("/api/short-link/admin/v1/user/check-login")
+    @GetMapping("/api/short-link/v1/admin/user/check-login")
     public Result<Boolean> checkLogin (@RequestParam("username") String username,@RequestParam("token") String token){
         return Results.success (userService.checkLogin (username,token));
     }
@@ -111,7 +111,7 @@ public class UserController {
      * @param token 授权令牌
      * @return 成功响应结果
      */
-    @DeleteMapping("/api/short-link/admin/v1/user/logout")
+    @DeleteMapping("/api/short-link/v1/admin/user/logout")
     public Result<Void> logout (@RequestParam("username") String username,@RequestParam("token") String token){
         userService.logout(username,token);
         return Results.success ();

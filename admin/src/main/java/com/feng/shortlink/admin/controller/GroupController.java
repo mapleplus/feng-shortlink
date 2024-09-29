@@ -29,7 +29,7 @@ public class GroupController {
      * @param requestParam 包含组信息的ShortLinkGroupSaveDTO对象
      * @return 指示操作成功的Result对象
      */
-    @PostMapping("/api/fenglink/v1/group")
+    @PostMapping("/api/fenglink/v1/admin/group")
     public Result<Void> saveGroupByGid (@RequestBody ShortLinkGroupSaveDTO requestParam) {
         // 调用 groupService 保存组信息
         groupService.saveGroupByGid (requestParam);
@@ -42,7 +42,7 @@ public class GroupController {
      *
      * @return 包含GroupRespDTO对象列表的Result对象
      */
-    @GetMapping("/api/fenglink/v1/group")
+    @GetMapping("/api/fenglink/v1/admin/group")
     public Result<List<GroupRespDTO>> getGroup () {
         return Results.success (groupService.getGroup ());
     }
@@ -53,7 +53,7 @@ public class GroupController {
      * @param requestParam 包含要更新的组的详细信息的数据传输对象
      * @return 指示操作成功或失败的Result对象
      */
-    @PutMapping("/api/fenglink/v1/group")
+    @PutMapping("/api/fenglink/v1/admin/group")
     public Result<Void> updateGroup (@RequestBody ShortLinkGroupUpdateDTO requestParam) {
         groupService.updateGroup (requestParam);
         return Results.success ();
@@ -65,7 +65,7 @@ public class GroupController {
      * @param gid 要删除的组ID
      * @return 指示删除操作成功或失败的结果
      */
-    @DeleteMapping("/api/fenglink/v1/group")
+    @DeleteMapping("/api/fenglink/v1/admin/group")
     public Result<Void> deleteGroup (@RequestParam String gid) {
         groupService.deleteGroup (gid);
         return Results.success ();
@@ -77,7 +77,7 @@ public class GroupController {
      * @param requestParam 包含组排序信息的ShortLinkGroupSortDTO列表
      * @return 指示操作成功的Result<Void>
      */
-    @PostMapping("/api/fenglink/v1/group/sort")
+    @PostMapping("/api/fenglink/v1/admin/group/sort")
     public Result<Void> sortGroup (@RequestBody List<ShortLinkGroupSortDTO> requestParam) {
         groupService.sortGroup (requestParam);
         return Results.success ();

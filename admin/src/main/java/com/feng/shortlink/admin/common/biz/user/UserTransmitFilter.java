@@ -26,9 +26,9 @@ public class UserTransmitFilter implements Filter {
     private final StringRedisTemplate stringRedisTemplate;
     // 放行的url
     private final List<String> IGNORE_URL = List.of (
-            "/api/fenglink/v1/user/login",
-            "/api/fenglink/v1/user/has-username",
-            "/api/fenglink/v1/user"
+            "/api/fenglink/v1/admin/user/login",
+            "/api/fenglink/v1/admin/user/has-username",
+            "/api/fenglink/v1/admin/user"
     );
     @Override
     public void doFilter(ServletRequest servletRequest
@@ -40,7 +40,7 @@ public class UserTransmitFilter implements Filter {
         // 其它url时将用户存入userContext
         // 如果包含则放行
         if(!IGNORE_URL.contains (requestUri)){
-            if(!("/api/fenglink/v1/user".equals (requestUri) && "POST".equals (httpServletRequest.getMethod ()))){
+            if(!("/api/fenglink/v1/admin/user".equals (requestUri) && "POST".equals (httpServletRequest.getMethod ()))){
                 // 获取头信息
                 String userName = httpServletRequest.getHeader("username");
                 String token = httpServletRequest.getHeader("token");
