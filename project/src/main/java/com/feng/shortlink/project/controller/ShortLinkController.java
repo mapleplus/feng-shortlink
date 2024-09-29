@@ -24,13 +24,13 @@ public class ShortLinkController {
     private final ShortLinkService shortLinkService;
     
     /**
-     * Handles the request to save a new short link.
+     * 处理保存新短链接的请求。
      *
-     * @param requestParam the request parameters that include details about the short link to be saved
-     * @return the response containing the details of the saved short link
+     * @param requestParam 包含有关要保存的短链接详细信息的请求参数
+     * @return 包含已保存短链接详细信息的响应
      */
     @PostMapping("/api/fenglink/v1/shortlink")
-    public Result<ShortLinkSaveRespDTO> saveShortLink(@RequestBody ShortLinkSaveReqDTO requestParam) {
-        return Results.success(shortLinkService.saveShortLink(requestParam));
+    public Result<ShortLinkSaveRespDTO> saveShortLink (@RequestBody ShortLinkSaveReqDTO requestParam) {
+        return Results.success (shortLinkService.saveShortLink (requestParam));
     }
 }

@@ -13,10 +13,10 @@ import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
  **/
 public interface ShortLinkService extends IService<ShortLinkDO> {
     /**
-     * Saves a short link based on provided request parameters.
+     * 根据提供的请求参数保存短链接。
      *
-     * @param requestParam the request parameters that include details about the short link to be saved
-     * @return the response containing the details of the saved short link
+     * @param requestParam 包含要保存的短链接详细信息的请求参数
+     * @return 包含保存的短链接详细信息的响应
      */
     ShortLinkSaveRespDTO saveShortLink (ShortLinkSaveReqDTO requestParam);
 }
