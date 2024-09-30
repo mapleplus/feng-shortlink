@@ -12,7 +12,7 @@ rules:
     tables:
       t_user:
         # 真实数据节点，比如数据库源以及数据库在数据库中真实存在的
-        actualDataNodes: ds_0.t_user${0..15}
+        actualDataNodes: ds_0.t_user_${0..15}
         # 分表策略
         tableStrategy:
           # 用于单分片键的标准分片场景
@@ -21,10 +21,28 @@ rules:
             shardingColumn: username
             # 分片算法，对应 rules[0].shardingAlgorithms
             shardingAlgorithmName: user_table_hash_mod
+      t_group:
+        # 真实数据节点，比如数据库源以及数据库在数据库中真实存在的
+        actualDataNodes: ds_0.t_group_${0..15}
+        # 分表策略
+        tableStrategy:
+          # 用于单分片键的标准分片场景
+          standard:
+            # 分片键
+            shardingColumn: username
+            # 分片算法，对应 rules[0].shardingAlgorithms
+            shardingAlgorithmName: group_table_hash_mod
     # 分片算法
     shardingAlgorithms:
       # 数据表分片算法
       user_table_hash_mod:
+        # 根据分片键 Hash 分片
+        type: HASH_MOD
+        # 分片数量
+        props:
+          sharding-count: 16
+      # 数据表分片算法
+      group_table_hash_mod:
         # 根据分片键 Hash 分片
         type: HASH_MOD
         # 分片数量

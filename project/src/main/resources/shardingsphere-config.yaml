@@ -12,7 +12,7 @@ rules:
     tables:
       t_link:
         # 真实数据节点，比如数据库源以及数据库在数据库中真实存在的
-        actualDataNodes: ds_0.t_link${0..15}
+        actualDataNodes: ds_0.t_link_${0..15}
         # 分表策略
         tableStrategy:
           # 用于单分片键的标准分片场景
