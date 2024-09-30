@@ -36,13 +36,13 @@ public class ShortLinkController {
     }
     
     /**
-     * 页面短链接
+     * 分页查询短链接
      *
      * @param requestParam 请求参数
      * @return {@code Result<IPage<ShortLinkPageRespDTO>> }
      */
     @GetMapping("/api/fenglink/v1/shortlink")
-    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink (@RequestBody ShortLinkPageReqDTO requestParam) {
+    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink ( ShortLinkPageReqDTO requestParam) {
         return Results.success (shortLinkService.pageShortLink(requestParam));
     }
 }
