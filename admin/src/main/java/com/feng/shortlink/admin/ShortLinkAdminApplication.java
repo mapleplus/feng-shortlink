@@ -12,9 +12,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  **/
 @SpringBootApplication
 @MapperScan("com.feng.shortlink.admin.dao.mapper")
-public class ShortLinkAdmin {
+public class ShortLinkAdminApplication {
     public static void main(String[] args) {
-        SpringApplication.run(ShortLinkAdmin.class, args);
+        SpringApplication.run(ShortLinkAdminApplication.class, args);
     }
     
 }
