@@ -49,8 +49,12 @@ public class ShortLinkController {
         return Results.success (shortLinkService.pageShortLink(requestParam));
     }
     
-    
-    
+    /**
+     * 列出短链接组
+     *
+     * @param requestParam 请求参数
+     * @return {@code Result<List<ShortLinkGroupQueryRespDTO>> }
+     */
     @GetMapping("/api/fenglink/v1/shortlink/group")
     public Result<List<ShortLinkGroupQueryRespDTO>> listShortLinkGroup (@RequestParam List<String> requestParam) {
         return Results.success (shortLinkService.listShortLinkGroup(requestParam));

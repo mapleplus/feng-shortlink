@@ -34,7 +34,7 @@ public class ShortLinkController {
         return shortLinkService.saveShortLink(requestParam);
     }
     /**
-     * 页面短链接
+     * 分页查询短链接
      *
      * @param requestParam 请求参数
      * @return {@code Result<IPage<ShortLinkPageRespDTO>> }

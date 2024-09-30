@@ -51,5 +51,4 @@ public interface ShortLinkService {
         return JSON.parseObject(responsePage, new TypeReference<> (){});
     }
     
-    
 }
