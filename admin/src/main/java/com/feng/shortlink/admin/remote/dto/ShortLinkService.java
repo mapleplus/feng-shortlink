@@ -30,7 +30,8 @@ public interface ShortLinkService {
      */
     default Result<ShortLinkSaveRespDTO> saveShortLink (ShortLinkSaveReqDTO requestParam){
         String response = HttpUtil.post ("http://127.0.0.1:8001/api/fenglink/v1/shortlink" , JSON.toJSONString (requestParam));
-        return JSON.parseObject (response , new TypeReference<> () {
+        /* 自动确定要转换的类型 Result中含有泛型需要说明转换*/
+        return JSON.parseObject (response ,new TypeReference<> () {
         });
     }
     

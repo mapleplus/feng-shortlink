@@ -20,6 +20,7 @@ import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.BeanUtils;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -90,9 +91,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         try {
             boolean tryLock = lock.tryLock ();
             if (tryLock) {
-                // 新增用户
-                int insert = baseMapper.insert (BeanUtil.toBean (requestParams , UserDO.class));
-                if (insert < 1) {
+                try {
+                    // 新增用户
+                    int insert = baseMapper.insert (BeanUtil.toBean (requestParams , UserDO.class));
+                    if (insert < 1) {
+                        throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
+                    }
+                } catch (DuplicateKeyException e){
                     throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
                 }
                 // 添加用户名到布隆过滤器
