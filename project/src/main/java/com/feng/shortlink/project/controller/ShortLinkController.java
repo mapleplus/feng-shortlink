@@ -5,12 +5,15 @@ import com.feng.shortlink.project.common.convention.result.Result;
 import com.feng.shortlink.project.common.convention.result.Results;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
 import com.feng.shortlink.project.service.ShortLinkService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author FENGXIN
@@ -44,5 +47,12 @@ public class ShortLinkController {
     @GetMapping("/api/fenglink/v1/shortlink")
     public Result<IPage<ShortLinkPageRespDTO>> pageShortLink ( ShortLinkPageReqDTO requestParam) {
         return Results.success (shortLinkService.pageShortLink(requestParam));
+    }
+    
+    
+    
+    @GetMapping("/api/fenglink/v1/shortlink/group")
+    public Result<List<ShortLinkGroupQueryRespDTO>> listShortLinkGroup (@RequestParam List<String> requestParam) {
+        return Results.success (shortLinkService.listShortLinkGroup(requestParam));
     }
 }

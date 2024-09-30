@@ -5,8 +5,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.feng.shortlink.project.dao.entity.ShortLinkDO;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
+
+import java.util.List;
 
 /**
  * @author FENGXIN
@@ -30,4 +33,6 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      * @return {@code IPage<ShortLinkPageRespDTO> }
      */
     IPage<ShortLinkPageRespDTO> pageShortLink (ShortLinkPageReqDTO requestParam);
+    
+    List<ShortLinkGroupQueryRespDTO> listShortLinkGroup (List<String> requestParam);
 }

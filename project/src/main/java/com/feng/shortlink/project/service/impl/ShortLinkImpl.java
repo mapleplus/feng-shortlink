@@ -2,6 +2,7 @@ package com.feng.shortlink.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.project.common.convention.exception.ServiceException;
@@ -9,6 +10,7 @@ import com.feng.shortlink.project.dao.entity.ShortLinkDO;
 import com.feng.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
 import com.feng.shortlink.project.service.ShortLinkService;
@@ -18,6 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author FENGXIN
@@ -94,6 +99,17 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 .eq (ShortLinkDO::getEnableStatus,0);
         ShortLinkPageReqDTO selectPage = baseMapper.selectPage (requestParam , lambdaQueryWrapper);
         return selectPage.convert (each -> BeanUtil.copyProperties (each,ShortLinkPageRespDTO.class));
+    }
+    
+    @Override
+    public List<ShortLinkGroupQueryRespDTO> listShortLinkGroup (List<String> requestParam) {
+        QueryWrapper<ShortLinkDO> queryWrapper = new QueryWrapper<ShortLinkDO> ()
+                .select ("gid as gid","COUNT(*) AS groupCount")
+                .eq ("enable_status",0)
+                .in ("gid",requestParam)
+                .groupBy ("gid");
+        List<Map<String, Object>> listLinkGroup = baseMapper.selectMaps (queryWrapper);
+        return BeanUtil.copyToList (listLinkGroup, ShortLinkGroupQueryRespDTO.class);
     }
     
     /**
