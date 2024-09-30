@@ -1,11 +1,15 @@
 package com.feng.shortlink.project.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.project.common.convention.exception.ServiceException;
 import com.feng.shortlink.project.dao.entity.ShortLinkDO;
 import com.feng.shortlink.project.dao.mapper.ShortLinkMapper;
+import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
 import com.feng.shortlink.project.service.ShortLinkService;
 import com.feng.shortlink.project.util.HashUtil;
@@ -46,6 +50,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 .originUrl (requestParam.getOriginUrl ())
                 .clickNum (0)
                 .gid (requestParam.getGid ())
+                .favicon (requestParam.getFavicon ())
                 .enableStatus (0)
                 .createdType (requestParam.getCreatedType ())
                 .validDateType (requestParam.getValidDateType ())
@@ -73,6 +78,22 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 .gid (savedLinkDO.getGid ())
                 .originUrl (savedLinkDO.getOriginUrl ())
                 .build ();
+    }
+    
+    /**
+     * 页面短链接
+     *
+     * @param requestParam 请求参数
+     * @return {@code IPage<ShortLinkPageRespDTO> }
+     */
+    @Override
+    public IPage<ShortLinkPageRespDTO> pageShortLink (ShortLinkPageReqDTO requestParam) {
+        LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
+                .eq (ShortLinkDO::getDelFlag , 0)
+                .eq (ShortLinkDO::getGid , requestParam.getGid ())
+                .eq (ShortLinkDO::getEnableStatus,0);
+        ShortLinkPageReqDTO selectPage = baseMapper.selectPage (requestParam , lambdaQueryWrapper);
+        return selectPage.convert (each -> BeanUtil.copyProperties (each,ShortLinkPageRespDTO.class));
     }
     
     /**

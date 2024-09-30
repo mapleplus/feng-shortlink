@@ -16,11 +16,12 @@ public class ShortLinkAdminTest {
              id              bigint auto_increment comment 'ID'
                  primary key,
              domain          varchar(128)  null comment '域名',
-             short_uri       varchar(8)    null comment '短链接',
+             short_uri       varchar(8)    CHARACTER SET utf8mb3 COLLATE utf8mb3_bin  null comment '短链接',
              full_short_url  varchar(128)  null comment '完整短链接',
              origin_url      varchar(1024) null comment '原始链接',
              click_num       int default 0 null comment '点击量',
              gid             varchar(32)   null comment '分组标识',
+             favicon         varchar(256)  null comment '网站图标',
              enable_status   tinyint(1)    null comment '启用标识 0：已启用 1：未启用',
              created_type    tinyint(1)    null comment '创建类型 0：接口 1：控制台',
              valid_date_type tinyint(1)    null comment '有效期类型 0：永久有效 1：用户自定义',
