@@ -26,4 +26,9 @@ public class GroupRespDTO {
      */
     private Integer sortOrder;
     
+    /**
+     * 组计数
+     */
+    private Integer groupCount;
+    
 }
