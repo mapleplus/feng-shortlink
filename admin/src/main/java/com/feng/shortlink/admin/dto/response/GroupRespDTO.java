@@ -11,15 +11,19 @@ import lombok.Data;
 @Data
 public class GroupRespDTO {
     
-    // 组ID
+    /**
+     * GID
+     */
     private String gid;
     
-    // 组名
+    /**
+     * 组名
+     */
     private String name;
     
-    // 用户名
-    private String username;
-    
-    // 排序顺序
+    /**
+     * 排序顺序
+     */
     private Integer sortOrder;
+    
 }
