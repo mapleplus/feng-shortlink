@@ -28,6 +28,11 @@ public class ShortLinkSaveReqDTO {
     /** 分组标识 */
     private String gid;
     
+    /**
+     * 网站图标
+     */
+    private String favicon;
+    
     /** 创建类型 0：接口 1：控制台 */
     private Integer createdType;
     
