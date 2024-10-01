@@ -7,7 +7,6 @@ import com.feng.shortlink.admin.common.biz.user.UserContext;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.dao.entity.GroupDO;
 import com.feng.shortlink.admin.dao.mapper.GroupMapper;
-import com.feng.shortlink.admin.dto.request.ShortLinkGroupSaveDTO;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupSortDTO;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupUpdateDTO;
 import com.feng.shortlink.admin.dto.response.GroupRespDTO;
@@ -35,17 +34,28 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     /**
      * 使用随机生成的全局唯一GID保存一个组。通过检查数据库中的现有记录来确保GID唯一。
      *
-     * @param requestParams 保存组所需的参数，封装在ShortLinkGroupSaveDTO对象中。
+     * @param requestParam 保存组所需的参数，封装在ShortLinkGroupSaveDTO对象中。
      */
     @Override
-    public void saveGroupByGid (ShortLinkGroupSaveDTO requestParams) {
+    public void saveGroupByGid (String requestParam) {
+        saveGroupByGid (UserContext.getUserName (), requestParam);
+    }
+    
+    /**
+     * 按 GID 存储组
+     *
+     * @param username     用户名
+     * @param requestParam 请求参数
+     */
+    @Override
+    public void saveGroupByGid (String username,String requestParam) {
         // 生成随机gid
         String gid = RandomIDGenerator.generateRandomGid ();
         // 保证gid全局不重复
         while (true) {
             LambdaQueryWrapper<GroupDO> queryWrapper = new LambdaQueryWrapper<GroupDO> ()
                     .eq (GroupDO::getGid , gid)
-                    .eq (GroupDO::getUsername , UserContext.getUserName ());
+                    .eq (GroupDO::getUsername , username);
             // gid唯一就退出循环
             if (baseMapper.selectOne (queryWrapper) == null) {
                 break;
@@ -54,8 +64,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         }
         GroupDO groupDO = GroupDO.builder ()
                 .gid (gid)
-                .name (requestParams.getName ())
-                .username (UserContext.getUserName ())
+                .name (requestParam)
+                .username (username)
                 .sortOrder (0)
                 .delFlag (0)
                 .build ();

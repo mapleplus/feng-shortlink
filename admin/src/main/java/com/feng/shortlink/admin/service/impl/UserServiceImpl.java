@@ -14,6 +14,7 @@ import com.feng.shortlink.admin.dto.request.UserRegisterReqDTO;
 import com.feng.shortlink.admin.dto.request.UserUpdateReqDTO;
 import com.feng.shortlink.admin.dto.response.UserLoginRespDTO;
 import com.feng.shortlink.admin.dto.response.UserRespDTO;
+import com.feng.shortlink.admin.service.GroupService;
 import com.feng.shortlink.admin.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.redisson.api.RBloomFilter;
@@ -44,6 +45,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     // 使用redis
     private final RedissonClient redissonClient;
     private final StringRedisTemplate stringRedisTemplate;
+    private final GroupService groupService;
     
     /**
      * 根据给定的用户名检索用户。
@@ -102,6 +104,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
                 }
                 // 添加用户名到布隆过滤器
                 userRegisterCachePenetrationBloomFilter.add (requestParams.getUsername ());
+                // 提供短链接默认分组给用户
+                groupService.saveGroupByGid (requestParams.getUsername (),"默认分组");
                 return;
             }
             throw new ClientException (UserErrorCodeEnum.USER_NAME_EXISTS);

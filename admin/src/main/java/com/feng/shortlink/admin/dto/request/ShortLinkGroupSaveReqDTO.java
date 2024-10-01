@@ -9,7 +9,7 @@ import lombok.Data;
  * @description 新增短链接分组请求参数
  **/
 @Data
-public class ShortLinkGroupSaveDTO {
+public class ShortLinkGroupSaveReqDTO {
     
     /**
      * 分组名称

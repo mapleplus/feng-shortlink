@@ -2,7 +2,6 @@ package com.feng.shortlink.admin.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.feng.shortlink.admin.dao.entity.GroupDO;
-import com.feng.shortlink.admin.dto.request.ShortLinkGroupSaveDTO;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupSortDTO;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupUpdateDTO;
 import com.feng.shortlink.admin.dto.response.GroupRespDTO;
@@ -21,8 +20,8 @@ public interface GroupService extends IService<GroupDO> {
      *
      * @param requestParam 包含分组详细信息的数据传输对象
      */
-    void saveGroupByGid (ShortLinkGroupSaveDTO requestParam);
-    
+    void saveGroupByGid (String responseParam);
+    void saveGroupByGid (String username,String responseParam);
     /**
      * 获取所有分组信息
      *
