@@ -1,5 +1,6 @@
 package com.feng.shortlink.admin.remote.dto.request;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -40,6 +41,7 @@ public class ShortLinkSaveReqDTO {
     private Integer validDateType;
     
     /** 有效期 */
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT + 8")
     private Date validDate;
     
     /** 描述 */
