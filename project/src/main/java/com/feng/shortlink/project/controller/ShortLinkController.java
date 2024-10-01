@@ -50,7 +50,7 @@ public class ShortLinkController {
     }
     
     /**
-     * 列出短链接组
+     * 查询短链接组中短链接的数量
      *
      * @param requestParam 请求参数
      * @return {@code Result<List<ShortLinkGroupQueryRespDTO>> }

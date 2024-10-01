@@ -81,11 +81,11 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         Result<List<ShortLinkGroupQueryRespDTO>> result = shortLinkService
                 .listShortLinkGroup (groupRespDTOList.stream ().map (GroupRespDTO::getGid).collect (Collectors.toList ()));
         // 设置分组数量
-        groupRespDTOList.forEach (groupRespDTO -> {
-            result.getData ().stream ()
-                    .filter (each -> Objects.equals(each.getGid(), groupRespDTO.getGid()))
-                    .forEach (each -> groupRespDTO.setGroupCount (each.getGroupCount ()));
-        });
+        groupRespDTOList.forEach (groupRespDTO -> result.getData ().stream ()
+                // gid相等再设置数量
+                .filter (each -> Objects.equals(each.getGid(), groupRespDTO.getGid()))
+                // 设置每组的数量
+                .forEach (each -> groupRespDTO.setGroupCount (each.getGroupCount ())));
         return groupRespDTOList;
     }
     
