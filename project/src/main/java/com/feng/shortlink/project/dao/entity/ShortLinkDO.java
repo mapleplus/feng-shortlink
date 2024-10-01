@@ -41,9 +41,7 @@ public class ShortLinkDO extends BaseDO {
     /** 分组标识 */
     private String gid;
     
-    /**
-     * 网站图标
-     */
+    /** 网站图标 */
     private String favicon;
     
     /** 启用标识 0：已启用 1：未启用 */

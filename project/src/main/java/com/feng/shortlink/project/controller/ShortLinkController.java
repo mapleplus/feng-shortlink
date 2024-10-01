@@ -5,6 +5,7 @@ import com.feng.shortlink.project.common.convention.result.Result;
 import com.feng.shortlink.project.common.convention.result.Results;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.project.dto.request.ShortLinkUpdateReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
@@ -36,6 +37,16 @@ public class ShortLinkController {
     @PostMapping("/api/fenglink/v1/shortlink")
     public Result<ShortLinkSaveRespDTO> saveShortLink (@RequestBody ShortLinkSaveReqDTO requestParam) {
         return Results.success (shortLinkService.saveShortLink (requestParam));
+    }
+    
+    /**
+     * 处理修改短链接的请求。
+     *
+     * @param requestParam 包含有关要修改的短链接详细信息的请求参数
+     */
+    @PostMapping("/api/fenglink/v1/shortlink/update")
+    public void updateShortLink (@RequestBody ShortLinkUpdateReqDTO requestParam) {
+        shortLinkService.updateShortLink (requestParam);
     }
     
     /**

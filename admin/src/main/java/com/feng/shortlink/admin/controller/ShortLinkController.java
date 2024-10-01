@@ -2,9 +2,11 @@ package com.feng.shortlink.admin.controller;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.admin.common.convention.result.Result;
+import com.feng.shortlink.admin.common.convention.result.Results;
 import com.feng.shortlink.admin.remote.ShortLinkService;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.admin.remote.dto.request.ShortLinkUpdateReqDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkSaveRespDTO;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -33,6 +35,19 @@ public class ShortLinkController {
         shortLinkService = new ShortLinkService () {};
         return shortLinkService.saveShortLink(requestParam);
     }
+    
+    /**
+     * 处理修改短链接的请求。
+     *
+     * @param requestParam 包含有关要修改的短链接详细信息的请求参数
+     */
+    @PostMapping("/api/fenglink/v1/admin/shortlink/update")
+    public Result<Void> updateShortLink (@RequestBody ShortLinkUpdateReqDTO requestParam) {
+        shortLinkService = new ShortLinkService () {};
+        shortLinkService.updateShortLink (requestParam);
+        return Results.success ();
+    }
+    
     /**
      * 分页查询短链接
      *

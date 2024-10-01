@@ -3,13 +3,17 @@ package com.feng.shortlink.project.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.feng.shortlink.project.common.convention.exception.ClientException;
 import com.feng.shortlink.project.common.convention.exception.ServiceException;
+import com.feng.shortlink.project.common.enums.ValidDateTypeEnum;
 import com.feng.shortlink.project.dao.entity.ShortLinkDO;
 import com.feng.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.project.dto.request.ShortLinkUpdateReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
@@ -23,6 +27,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author FENGXIN
@@ -86,7 +91,61 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     }
     
     /**
-     * 页面短链接
+     * 更新短链接
+     *
+     * @param requestParam 请求参数
+     */
+    @Override
+    public void updateShortLink (ShortLinkUpdateReqDTO requestParam) {
+        // 查询db里的短链接
+        LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
+                .eq (ShortLinkDO::getGid , requestParam.getGid ())
+                .eq (ShortLinkDO::getFullShortUrl , requestParam.getFullShortUrl ())
+                .eq (ShortLinkDO::getEnableStatus , 0)
+                .eq (ShortLinkDO::getDelFlag , 0);
+        ShortLinkDO selectOne = baseMapper.selectOne (lambdaQueryWrapper);
+        if (selectOne == null) {
+            throw new ClientException ("短链接不存在此分组");
+        }
+        // 设置更新或插入的短链接
+        ShortLinkDO shortLinkDO = ShortLinkDO.builder ()
+                .domain (selectOne.getDomain ())
+                .shortUri (selectOne.getShortUri ())
+                .createdType (selectOne.getCreatedType ())
+                .originUrl (selectOne.getOriginUrl ())
+                .clickNum (selectOne.getClickNum ())
+                // 可更新的参数
+                .fullShortUrl (requestParam.getFullShortUrl ())
+                .gid (requestParam.getGid ())
+                .originUrl (requestParam.getOriginUrl ())
+                .favicon (requestParam.getFavicon ())
+                .describe (requestParam.getDescribe ())
+                .validDateType (requestParam.getValidDateType ())
+                .validDate (requestParam.getValidDate ())
+                .build ();
+        if (Objects.equals (selectOne.getGid () , requestParam.getGid ())) {
+            // gid一致 说明在同一组 直接新增 gid用谁的都可以
+            LambdaUpdateWrapper<ShortLinkDO> lambdaUpdateWrapper = new LambdaUpdateWrapper<ShortLinkDO>()
+                    .eq (ShortLinkDO::getGid , requestParam.getGid ())
+                    .eq (ShortLinkDO::getFullShortUrl , requestParam.getFullShortUrl ())
+                    .eq (ShortLinkDO::getEnableStatus , 0)
+                    .eq (ShortLinkDO::getDelFlag , 0)
+                    .set (Objects.equals (requestParam.getValidDateType (),ValidDateTypeEnum.PERMANENT.getValue ()),ShortLinkDO::getValidDateType , null );
+            baseMapper.update (shortLinkDO,lambdaUpdateWrapper);
+        }else {
+            // gid 不一致 说明需要换组 需要删除之前的短链接gid用delectOne的 再新增到新组里
+            LambdaUpdateWrapper<ShortLinkDO> lambdaUpdateWrapper = new LambdaUpdateWrapper<ShortLinkDO>()
+                    .eq (ShortLinkDO::getGid , selectOne.getGid ())
+                    .eq (ShortLinkDO::getFullShortUrl , requestParam.getFullShortUrl ())
+                    .eq (ShortLinkDO::getEnableStatus , 0)
+                    .eq (ShortLinkDO::getDelFlag , 0);
+            baseMapper.delete (lambdaUpdateWrapper);
+            baseMapper.insert (shortLinkDO);
+        }
+    }
+    
+    /**
+     * 分页查询短链接
      *
      * @param requestParam 请求参数
      * @return {@code IPage<ShortLinkPageRespDTO> }
@@ -101,6 +160,12 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         return selectPage.convert (each -> BeanUtil.copyProperties (each,ShortLinkPageRespDTO.class));
     }
     
+    /**
+     * 查询短链接组的短链接数量
+     *
+     * @param requestParam 请求参数
+     * @return {@code List<ShortLinkGroupQueryRespDTO> }
+     */
     @Override
     public List<ShortLinkGroupQueryRespDTO> listShortLinkGroup (List<String> requestParam) {
         QueryWrapper<ShortLinkDO> queryWrapper = new QueryWrapper<ShortLinkDO> ()

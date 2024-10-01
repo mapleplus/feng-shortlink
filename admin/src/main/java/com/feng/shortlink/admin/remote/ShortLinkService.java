@@ -8,6 +8,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.admin.remote.dto.request.ShortLinkUpdateReqDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkSaveRespDTO;
@@ -36,7 +37,14 @@ public interface ShortLinkService {
         return JSON.parseObject (response ,new TypeReference<> () {});
     }
     
-    
+    /**
+     * 处理修改短链接的请求。
+     *
+     * @param requestParam 包含有关要修改的短链接详细信息的请求参数
+     */
+    default void updateShortLink ( ShortLinkUpdateReqDTO requestParam) {
+        HttpUtil.post ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/update" , JSON.toJSONString (requestParam));
+    }
     /**
      * 分页查询短链接
      *
@@ -51,7 +59,6 @@ public interface ShortLinkService {
         String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/fenglink/v1/shortlink" , requestMap);
         return JSON.parseObject(responsePage, new TypeReference<> (){});
     }
-    
     
     /**
      * 查询短链接组中短链接的数量
