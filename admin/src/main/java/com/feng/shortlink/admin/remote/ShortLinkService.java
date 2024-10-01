@@ -1,4 +1,4 @@
-package com.feng.shortlink.admin.remote.dto;
+package com.feng.shortlink.admin.remote;
 
 
 import cn.hutool.http.HttpUtil;
@@ -8,10 +8,12 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.admin.remote.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkSaveRespDTO;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,6 +50,14 @@ public interface ShortLinkService {
         requestMap.put("current", requestParam.getCurrent());
         requestMap.put("size", requestParam.getSize());
         String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/fenglink/v1/shortlink" , requestMap);
+        return JSON.parseObject(responsePage, new TypeReference<> (){});
+    }
+    
+    
+    default Result<List<ShortLinkGroupQueryRespDTO>> listShortLinkGroup( List<String> requestParam){
+        Map<String,Object> requestMap = new HashMap<> ();
+        requestMap.put("requestParam", requestParam);
+        String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/group" , requestMap);
         return JSON.parseObject(responsePage, new TypeReference<> (){});
     }
     

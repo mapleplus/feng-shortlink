@@ -56,7 +56,7 @@ public class ShortLinkController {
      * @return {@code Result<List<ShortLinkGroupQueryRespDTO>> }
      */
     @GetMapping("/api/fenglink/v1/shortlink/group")
-    public Result<List<ShortLinkGroupQueryRespDTO>> listShortLinkGroup (@RequestParam List<String> requestParam) {
+    public Result<List<ShortLinkGroupQueryRespDTO>> listShortLinkGroup (@RequestParam("requestParam") List<String> requestParam) {
         return Results.success (shortLinkService.listShortLinkGroup(requestParam));
     }
 }

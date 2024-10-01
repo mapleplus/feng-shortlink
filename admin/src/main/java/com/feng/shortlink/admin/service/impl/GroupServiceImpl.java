@@ -4,18 +4,23 @@ import cn.hutool.core.bean.BeanUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.admin.common.biz.user.UserContext;
+import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.dao.entity.GroupDO;
 import com.feng.shortlink.admin.dao.mapper.GroupMapper;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupSaveDTO;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupSortDTO;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupUpdateDTO;
 import com.feng.shortlink.admin.dto.response.GroupRespDTO;
+import com.feng.shortlink.admin.remote.ShortLinkService;
+import com.feng.shortlink.admin.remote.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.admin.service.GroupService;
 import com.feng.shortlink.admin.util.RandomIDGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 /**
  * @author FENGXIN
@@ -26,7 +31,7 @@ import java.util.List;
 @Service
 @Slf4j
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
-    
+    ShortLinkService shortLinkService;
     /**
      * 使用随机生成的全局唯一GID保存一个组。通过检查数据库中的现有记录来确保GID唯一。
      *
@@ -69,7 +74,19 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                 .eq (GroupDO::getUsername , UserContext.getUserName ())
                 .eq (GroupDO::getDelFlag , 0)
                 .orderByAsc (GroupDO::getSortOrder , GroupDO::getUpdateTime);
-        return BeanUtil.copyToList (baseMapper.selectList (queryWrapper) , GroupRespDTO.class);
+        // 设置用户的分组数量
+        List<GroupRespDTO> groupRespDTOList = BeanUtil.copyToList (baseMapper.selectList (queryWrapper) , GroupRespDTO.class);
+        // 获取分组id 目的获取分组数量
+        shortLinkService = new ShortLinkService () {};
+        Result<List<ShortLinkGroupQueryRespDTO>> result = shortLinkService
+                .listShortLinkGroup (groupRespDTOList.stream ().map (GroupRespDTO::getGid).collect (Collectors.toList ()));
+        // 设置分组数量
+        groupRespDTOList.forEach (groupRespDTO -> {
+            result.getData ().stream ()
+                    .filter (each -> Objects.equals(each.getGid(), groupRespDTO.getGid()))
+                    .forEach (each -> groupRespDTO.setGroupCount (each.getGroupCount ()));
+        });
+        return groupRespDTOList;
     }
     
     /**
