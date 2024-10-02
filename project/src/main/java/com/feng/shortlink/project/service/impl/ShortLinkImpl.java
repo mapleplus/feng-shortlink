@@ -27,6 +27,9 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.redisson.api.RBloomFilter;
 import org.redisson.api.RLock;
 import org.redisson.api.RedissonClient;
@@ -78,7 +81,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 .originUrl (requestParam.getOriginUrl ())
                 .clickNum (0)
                 .gid (requestParam.getGid ())
-                .favicon (requestParam.getFavicon ())
+                .favicon (getFavicon (requestParam.getOriginUrl ()))
                 .enableStatus (0)
                 .createdType (requestParam.getCreatedType ())
                 .validDateType (requestParam.getValidDateType ())
@@ -358,6 +361,50 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             // 避免重复生成 加上时间毫秒下一次重新生成 不影响实际url
             originUrl += System.currentTimeMillis ();
             generatingCount++;
+        }
+    }
+    
+    /**
+     * 获取网站图标
+     *
+     * @param url 网址
+     * @return {@code String }
+     */
+    public String getFavicon(String url) {
+        try {
+            // 通过Jsoup连接到指定的URL并解析HTML文档
+            Document document = Jsoup.connect(url)
+                    // 设置超时时间
+                    .timeout(5000)
+                    .get();
+            // 尝试查找<link>标签中包含favicon的元素
+            Element iconElement = document.select("link[rel~=(icon|shortcut icon)]").first();
+            if (iconElement != null) {
+                String iconUrl = iconElement.attr("href");
+                return resolveUrl(url, iconUrl);
+            } else {
+                return "未找到网站图标";
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+    
+    /**
+     * 解析相对URL为绝对URL
+     *
+     * @param baseUrl 基本 URL
+     * @param iconUrl 图标路径
+     * @return {@code String 绝对路径}
+     */
+    private String resolveUrl(String baseUrl, String iconUrl) {
+        if (iconUrl.startsWith("http://") || iconUrl.startsWith("https://")) {
+            // 如果是绝对路径，直接返回
+            return iconUrl;
+        } else {
+            // 如果是相对路径，拼接成绝对路径
+            // 根据需要，可以使用URL的解析方法
+            return baseUrl + iconUrl;
         }
     }
 }

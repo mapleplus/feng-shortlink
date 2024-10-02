@@ -73,4 +73,11 @@ public interface ShortLinkService {
         return JSON.parseObject(responsePage, new TypeReference<> (){});
     }
     
+    
+    default Result<String> getTitle (String url) {
+        String response = HttpUtil.get ("http://127.0.0.1:8001/api/fenglink/v1/title?url=" + url);
+        /* 自动确定要转换的类型 Result中含有泛型需要说明转换*/
+        return JSON.parseObject (response ,new TypeReference<> () {});
+    }
+    
 }

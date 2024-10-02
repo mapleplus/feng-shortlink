@@ -28,7 +28,8 @@ public class UserTransmitFilter implements Filter {
     private final List<String> IGNORE_URL = List.of (
             "/api/fenglink/v1/admin/user/login",
             "/api/fenglink/v1/admin/user/has-username",
-            "/api/fenglink/v1/admin/user"
+            "/api/fenglink/v1/admin/user",
+            "/api/fenglink/v1/admin/title"
     );
     @Override
     public void doFilter(ServletRequest servletRequest

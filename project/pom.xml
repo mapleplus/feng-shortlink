@@ -76,7 +76,6 @@
             <artifactId>jsoup</artifactId>
             <version>1.15.4</version>
         </dependency>
-
     </dependencies>
 
 </project>
