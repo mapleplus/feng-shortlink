@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.project.common.convention.exception.ClientException;
 import com.feng.shortlink.project.common.convention.exception.ServiceException;
@@ -26,7 +27,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
 import org.springframework.dao.DuplicateKeyException;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +38,9 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+
+import static com.feng.shortlink.project.common.constant.RedisCacheConstant.LOCK_SHORTLINK_GOTO_KEY;
+import static com.feng.shortlink.project.common.constant.RedisCacheConstant.SHORTLINK_GOTO_KEY;
 
 /**
  * @author FENGXIN
@@ -48,7 +55,8 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     private final RBloomFilter<String> linkUriCreateCachePenetrationBloomFilter;
     private final ShortLinkMapper shortLinkMapper;
     private final LinkGotoMapper linkGotoMapper;
-    
+    private final StringRedisTemplate stringRedisTemplate;
+    private final RedissonClient redissonClient;
     /**
      * 根据给定的请求参数创建短链接。
      *
@@ -170,29 +178,63 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         // 获取服务名 如baidu.com
         String serverName = request.getServerName ();
         String fullLink = serverName + "/" + shortLink;
-        // 查询路由表中的短链接（短链接做分片键 因为短链接表用gid分片键 不能直接根据完整短链接快速查询结果）
-        LambdaQueryWrapper<LinkGotoDO> linkGotoDoLambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
-                .eq (LinkGotoDO::getFullShortUrl , fullLink);
-        LinkGotoDO linkGotoDO = linkGotoMapper.selectOne (linkGotoDoLambdaQueryWrapper);
-        if (linkGotoDO == null) {
-            // 严谨 需要进行封控
-            return;
-        }
-        // 使用路由表的gid快速查询短链接表的数据
-        LambdaQueryWrapper<ShortLinkDO> shortLinkDoLambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
-                .eq (ShortLinkDO::getGid , linkGotoDO.getGid ())
-                .eq (ShortLinkDO::getFullShortUrl , fullLink)
-                .eq (ShortLinkDO::getEnableStatus , 0)
-                .eq (ShortLinkDO::getDelFlag , 0);
-        ShortLinkDO shortLinkDO = baseMapper.selectOne (shortLinkDoLambdaQueryWrapper);
-        if (shortLinkDO != null) {
+        // 查询缓存的link
+        String originalLink = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_GOTO_KEY , fullLink));
+        // 如果缓存有数据直接返回
+        if (StringUtils.isNotBlank (originalLink)) {
             // 返回重定向链接
             try {
                 // 重定向
-                response.sendRedirect (shortLinkDO.getOriginUrl ());
+                response.sendRedirect (originalLink);
             } catch (IOException e) {
                 throw new ClientException ("短链接重定向失败");
             }
+        }
+        //如果缓存数据过期 获取分布式🔒查询数据库
+        RLock lock = redissonClient.getLock (String.format (LOCK_SHORTLINK_GOTO_KEY , fullLink));
+        lock.lock ();
+        try {
+            // 双重判断缓存数据 如果上一个线程已经在缓存设置新数据 可直接返回
+            // 查询缓存的link
+            originalLink = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_GOTO_KEY , fullLink));
+            // 如果缓存有数据直接返回
+            if (StringUtils.isNotBlank (originalLink)) {
+                // 返回重定向链接
+                try {
+                    // 重定向
+                    response.sendRedirect (originalLink);
+                } catch (IOException e) {
+                    throw new ClientException ("短链接重定向失败");
+                }
+            }
+            // 查询路由表中的短链接（短链接做分片键 因为短链接表用gid分片键 不能直接根据完整短链接快速查询结果）
+            LambdaQueryWrapper<LinkGotoDO> linkGotoDoLambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
+                    .eq (LinkGotoDO::getFullShortUrl , fullLink);
+            LinkGotoDO linkGotoDO = linkGotoMapper.selectOne (linkGotoDoLambdaQueryWrapper);
+            if (linkGotoDO == null) {
+                // 严谨 需要进行封控
+                return;
+            }
+            // 使用路由表的gid快速查询短链接表的数据
+            LambdaQueryWrapper<ShortLinkDO> shortLinkDoLambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
+                    .eq (ShortLinkDO::getGid , linkGotoDO.getGid ())
+                    .eq (ShortLinkDO::getFullShortUrl , fullLink)
+                    .eq (ShortLinkDO::getEnableStatus , 0)
+                    .eq (ShortLinkDO::getDelFlag , 0);
+            ShortLinkDO shortLinkDO = baseMapper.selectOne (shortLinkDoLambdaQueryWrapper);
+            if (shortLinkDO != null) {
+                // 返回重定向链接
+                try {
+                    // 设置缓存新数据
+                    stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_GOTO_KEY,fullLink),shortLinkDO.getOriginUrl ());
+                    // 重定向
+                    response.sendRedirect (shortLinkDO.getOriginUrl ());
+                } catch (IOException e) {
+                    throw new ClientException ("短链接重定向失败");
+                }
+            }
+        } finally {
+            lock.unlock ();
         }
     }
     
