@@ -36,6 +36,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -257,10 +258,20 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .eq (ShortLinkDO::getDelFlag , 0);
             ShortLinkDO shortLinkDO = baseMapper.selectOne (shortLinkDoLambdaQueryWrapper);
             if (shortLinkDO != null) {
+                // 如果数据库的链接过期
+                if (shortLinkDO.getValidDate () != null && shortLinkDO.getValidDate ().before (new Date ())){
+                    stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
+                    // 严谨 需要进行风控
+                    return;
+                }
                 // 返回重定向链接
                 try {
                     // 设置缓存新数据
-                    stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_GOTO_KEY,fullLink),shortLinkDO.getOriginUrl ());
+                    stringRedisTemplate.opsForValue ()
+                            .set (  String.format (SHORTLINK_GOTO_KEY , shortLinkDO.getFullShortUrl ())
+                                    ,shortLinkDO.getOriginUrl ()
+                                    , ShortLinkUtil.getShortLinkValidTime (shortLinkDO.getValidDate ())
+                                    ,TimeUnit.MILLISECONDS);
                     // 重定向
                     response.sendRedirect (shortLinkDO.getOriginUrl ());
                 } catch (IOException e) {
