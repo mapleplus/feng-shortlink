@@ -215,11 +215,21 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         boolean contains = linkUriCreateCachePenetrationBloomFilter.contains (fullLink);
         // 布隆过滤器不存在 则数据库也没有数据 直接返回
         if (!contains) {
+            try {
+                response.sendRedirect ("/page/notfound");
+            } catch (IOException e) {
+                throw new ClientException ("重定向不存在页面失败");
+            }
             return;
         }
         // 布隆过滤器存在值 判断缓存是否有link空值
         String linkIsNull = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink));
         if (StringUtils.isNotBlank (linkIsNull)) {
+            try {
+                response.sendRedirect ("/page/notfound");
+            } catch (IOException e) {
+                throw new ClientException ("重定向不存在页面失败");
+            }
             return;
         }
         // 缓存没有空值
@@ -248,6 +258,11 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 // 设置空值 直接返回 该链接在数据库是不存在值的 但是布隆过滤器没有删除值
                 stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
                 // 严谨 需要进行风控
+                try {
+                    response.sendRedirect ("/page/notfound");
+                } catch (IOException e) {
+                    throw new ClientException ("重定向不存在页面失败");
+                }
                 return;
             }
             // 使用路由表的gid快速查询短链接表的数据
@@ -262,6 +277,11 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 if (shortLinkDO.getValidDate () != null && shortLinkDO.getValidDate ().before (new Date ())){
                     stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
                     // 严谨 需要进行风控
+                    try {
+                        response.sendRedirect ("/page/notfound");
+                    } catch (IOException e) {
+                        throw new ClientException ("重定向不存在页面失败");
+                    }
                     return;
                 }
                 // 返回重定向链接
