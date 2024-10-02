@@ -39,8 +39,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import static com.feng.shortlink.project.common.constant.RedisCacheConstant.LOCK_SHORTLINK_GOTO_KEY;
-import static com.feng.shortlink.project.common.constant.RedisCacheConstant.SHORTLINK_GOTO_KEY;
+import static com.feng.shortlink.project.common.constant.RedisCacheConstant.*;
 
 /**
  * @author FENGXIN
@@ -190,6 +189,18 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 throw new ClientException ("短链接重定向失败");
             }
         }
+        // 如果缓存没有数据 查询布隆过滤器（短链接存入数据库是就添加入了布隆过滤器）
+        boolean contains = linkUriCreateCachePenetrationBloomFilter.contains (fullLink);
+        // 布隆过滤器不存在 则数据库也没有数据 直接返回
+        if (!contains) {
+            return;
+        }
+        // 布隆过滤器存在值 判断缓存是否有link空值
+        String linkIsNull = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink));
+        if (StringUtils.isNotBlank (linkIsNull)) {
+            return;
+        }
+        // 缓存没有空值
         //如果缓存数据过期 获取分布式🔒查询数据库
         RLock lock = redissonClient.getLock (String.format (LOCK_SHORTLINK_GOTO_KEY , fullLink));
         lock.lock ();
@@ -212,7 +223,9 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .eq (LinkGotoDO::getFullShortUrl , fullLink);
             LinkGotoDO linkGotoDO = linkGotoMapper.selectOne (linkGotoDoLambdaQueryWrapper);
             if (linkGotoDO == null) {
-                // 严谨 需要进行封控
+                // 设置空值 直接返回 该链接在数据库是不存在值的 但是布隆过滤器没有删除值
+                stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-");
+                // 严谨 需要进行风控
                 return;
             }
             // 使用路由表的gid快速查询短链接表的数据
