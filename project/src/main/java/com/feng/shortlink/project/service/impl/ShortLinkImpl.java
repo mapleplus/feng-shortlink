@@ -22,6 +22,7 @@ import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
 import com.feng.shortlink.project.service.ShortLinkService;
 import com.feng.shortlink.project.util.HashUtil;
+import com.feng.shortlink.project.util.ShortLinkUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -38,6 +39,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 import static com.feng.shortlink.project.common.constant.RedisCacheConstant.*;
 
@@ -103,6 +105,12 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         }
         // 不冲突 添加短链接进入布隆过滤器 并响应前端
         linkUriCreateCachePenetrationBloomFilter.add (fullLink);
+        // 缓存预热
+        stringRedisTemplate.opsForValue ()
+                .set (  String.format (SHORTLINK_GOTO_KEY , fullLink)
+                        ,requestParam.getOriginUrl ()
+                        , ShortLinkUtil.getShortLinkValidTime (requestParam.getValidDate ())
+                        ,TimeUnit.MILLISECONDS);
         return ShortLinkSaveRespDTO.builder ()
                 .fullShortUrl (savedLinkDO.getFullShortUrl ())
                 .gid (savedLinkDO.getGid ())
@@ -151,10 +159,17 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .eq (ShortLinkDO::getFullShortUrl , requestParam.getFullShortUrl ())
                     .eq (ShortLinkDO::getEnableStatus , 0)
                     .eq (ShortLinkDO::getDelFlag , 0)
+                    // 如果是永久有效 则不设置有效期
                     .set (Objects.equals (requestParam.getValidDateType (),ValidDateTypeEnum.PERMANENT.getValue ()),ShortLinkDO::getValidDateType , null );
             baseMapper.update (shortLinkDO,lambdaUpdateWrapper);
+            // 更新缓存的有效期
+            stringRedisTemplate.opsForValue ()
+                    .set (  String.format (SHORTLINK_GOTO_KEY , requestParam.getFullShortUrl ())
+                            ,requestParam.getOriginUrl ()
+                            , ShortLinkUtil.getShortLinkValidTime (requestParam.getValidDate ())
+                            ,TimeUnit.MILLISECONDS);
         }else {
-            // gid 不一致 说明需要换组 需要删除之前的短链接gid用delectOne的 再新增到新组里
+            // gid 不一致 说明需要换组 需要删除之前的短链接gid用selectOne的 再新增到新组里
             LambdaUpdateWrapper<ShortLinkDO> lambdaUpdateWrapper = new LambdaUpdateWrapper<ShortLinkDO>()
                     .eq (ShortLinkDO::getGid , selectOne.getGid ())
                     .eq (ShortLinkDO::getFullShortUrl , requestParam.getFullShortUrl ())
@@ -162,6 +177,12 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .eq (ShortLinkDO::getDelFlag , 0);
             baseMapper.delete (lambdaUpdateWrapper);
             baseMapper.insert (shortLinkDO);
+            // 更新缓存的有效期
+            stringRedisTemplate.opsForValue ()
+                    .set (  String.format (SHORTLINK_GOTO_KEY , requestParam.getFullShortUrl ())
+                            ,requestParam.getOriginUrl ()
+                            , ShortLinkUtil.getShortLinkValidTime (requestParam.getValidDate ())
+                            ,TimeUnit.MILLISECONDS);
         }
     }
     
@@ -224,7 +245,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             LinkGotoDO linkGotoDO = linkGotoMapper.selectOne (linkGotoDoLambdaQueryWrapper);
             if (linkGotoDO == null) {
                 // 设置空值 直接返回 该链接在数据库是不存在值的 但是布隆过滤器没有删除值
-                stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-");
+                stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
                 // 严谨 需要进行风控
                 return;
             }
