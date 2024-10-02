@@ -9,7 +9,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.project.common.convention.exception.ClientException;
 import com.feng.shortlink.project.common.convention.exception.ServiceException;
 import com.feng.shortlink.project.common.enums.ValidDateTypeEnum;
+import com.feng.shortlink.project.dao.entity.LinkGotoDO;
 import com.feng.shortlink.project.dao.entity.ShortLinkDO;
+import com.feng.shortlink.project.dao.mapper.LinkGotoMapper;
 import com.feng.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
@@ -19,12 +21,16 @@ import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
 import com.feng.shortlink.project.service.ShortLinkService;
 import com.feng.shortlink.project.util.HashUtil;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RBloomFilter;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -40,9 +46,11 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> implements ShortLinkService {
     private final RBloomFilter<String> linkUriCreateCachePenetrationBloomFilter;
+    private final ShortLinkMapper shortLinkMapper;
+    private final LinkGotoMapper linkGotoMapper;
     
     /**
-     * 根据给定的请求参数保存短链接。
+     * 根据给定的请求参数创建短链接。
      *
      * @param requestParam 包含原始URL、域名、分组标识符和其他元数据的请求参数
      * @return 包含新创建的短链接详细信息的响应数据传输对象
@@ -67,8 +75,13 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 .validDate (requestParam.getValidDate ())
                 .describe (requestParam.getDescribe ())
                 .build ();
+        LinkGotoDO linkGotoDO = LinkGotoDO.builder ()
+                .gid (requestParam.getGid ())
+                .fullShortUrl (fullLink)
+                .build ();
         try {
             baseMapper.insert (savedLinkDO);
+            linkGotoMapper.insert (linkGotoDO);
         } catch (DuplicateKeyException e) {
             // TODO 为什么布隆过滤器判断不存在后还要查询数据库校验？
             // 防止数据库误判 在抛出此异常后查询数据库校验是否真的短链接冲突
@@ -96,6 +109,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
      * @param requestParam 请求参数
      */
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void updateShortLink (ShortLinkUpdateReqDTO requestParam) {
         // 查询db里的短链接
         LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
@@ -141,6 +155,44 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .eq (ShortLinkDO::getDelFlag , 0);
             baseMapper.delete (lambdaUpdateWrapper);
             baseMapper.insert (shortLinkDO);
+        }
+    }
+    
+    /**
+     * 跳转链接
+     *
+     * @param shortLink 短链接
+     * @param request 请求
+     * @param response  响应
+     */
+    @Override
+    public void restoreLink (String shortLink , HttpServletRequest request , HttpServletResponse response) {
+        // 获取服务名 如baidu.com
+        String serverName = request.getServerName ();
+        String fullLink = serverName + "/" + shortLink;
+        // 查询路由表中的短链接（短链接做分片键 因为短链接表用gid分片键 不能直接根据完整短链接快速查询结果）
+        LambdaQueryWrapper<LinkGotoDO> linkGotoDoLambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
+                .eq (LinkGotoDO::getFullShortUrl , fullLink);
+        LinkGotoDO linkGotoDO = linkGotoMapper.selectOne (linkGotoDoLambdaQueryWrapper);
+        if (linkGotoDO == null) {
+            // 严谨 需要进行封控
+            return;
+        }
+        // 使用路由表的gid快速查询短链接表的数据
+        LambdaQueryWrapper<ShortLinkDO> shortLinkDoLambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
+                .eq (ShortLinkDO::getGid , linkGotoDO.getGid ())
+                .eq (ShortLinkDO::getFullShortUrl , fullLink)
+                .eq (ShortLinkDO::getEnableStatus , 0)
+                .eq (ShortLinkDO::getDelFlag , 0);
+        ShortLinkDO shortLinkDO = baseMapper.selectOne (shortLinkDoLambdaQueryWrapper);
+        if (shortLinkDO != null) {
+            // 返回重定向链接
+            try {
+                // 重定向
+                response.sendRedirect (shortLinkDO.getOriginUrl ());
+            } catch (IOException e) {
+                throw new ClientException ("短链接重定向失败");
+            }
         }
     }
     

@@ -9,6 +9,8 @@ import com.feng.shortlink.project.dto.request.ShortLinkUpdateReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -28,14 +30,34 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
     ShortLinkSaveRespDTO saveShortLink (ShortLinkSaveReqDTO requestParam);
     
     /**
-     * 页面短链接
+     * 分页查询短链接
      *
      * @param requestParam 请求参数
      * @return {@code IPage<ShortLinkPageRespDTO> }
      */
     IPage<ShortLinkPageRespDTO> pageShortLink (ShortLinkPageReqDTO requestParam);
     
+    /**
+     * 列出短链接组
+     *
+     * @param requestParam 请求参数
+     * @return {@code List<ShortLinkGroupQueryRespDTO> }
+     */
     List<ShortLinkGroupQueryRespDTO> listShortLinkGroup (List<String> requestParam);
     
+    /**
+     * 更新短链接
+     *
+     * @param requestParam 请求参数
+     */
     void updateShortLink (ShortLinkUpdateReqDTO requestParam);
+    
+    /**
+     * 跳转链接
+     *
+     * @param shortLink 短链接
+     * @param request 请求
+     * @param response  响应
+     */
+    void restoreLink (String shortLink , HttpServletRequest request , HttpServletResponse response);
 }

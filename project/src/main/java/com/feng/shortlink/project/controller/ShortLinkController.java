@@ -10,6 +10,8 @@ import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
 import com.feng.shortlink.project.service.ShortLinkService;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +31,7 @@ public class ShortLinkController {
     private final ShortLinkService shortLinkService;
     
     /**
-     * 处理保存新短链接的请求。
+     * 处理创建新短链接的请求。
      *
      * @param requestParam 包含有关要保存的短链接详细信息的请求参数
      * @return 包含已保存短链接详细信息的响应
@@ -60,6 +62,17 @@ public class ShortLinkController {
         return Results.success (shortLinkService.pageShortLink(requestParam));
     }
     
+    /**
+     * 跳转链接
+     *
+     * @param shortLink 短链接
+     * @param request 请求
+     * @param response  响应
+     */
+    @GetMapping("/{short-link}")
+    public void restoreLink (@PathVariable("short-link") String shortLink, HttpServletRequest request, HttpServletResponse response) {
+        shortLinkService.restoreLink(shortLink,request,response);
+    }
     /**
      * 查询短链接组中短链接的数量
      *
