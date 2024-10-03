@@ -58,7 +58,6 @@ import static com.feng.shortlink.project.common.constant.RedisCacheConstant.*;
 @RequiredArgsConstructor
 public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> implements ShortLinkService {
     private final RBloomFilter<String> linkUriCreateCachePenetrationBloomFilter;
-    private final ShortLinkMapper shortLinkMapper;
     private final LinkGotoMapper linkGotoMapper;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
@@ -275,31 +274,29 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .eq (ShortLinkDO::getEnableStatus , 0)
                     .eq (ShortLinkDO::getDelFlag , 0);
             ShortLinkDO shortLinkDO = baseMapper.selectOne (shortLinkDoLambdaQueryWrapper);
-            if (shortLinkDO != null) {
+            if (shortLinkDO == null || shortLinkDO.getValidDate ().before (new Date ())) {
                 // 如果数据库的链接过期
-                if (shortLinkDO.getValidDate () != null && shortLinkDO.getValidDate ().before (new Date ())){
-                    stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
-                    // 严谨 需要进行风控
-                    try {
-                        response.sendRedirect ("/page/notfound");
-                    } catch (IOException e) {
-                        throw new ClientException ("重定向不存在页面失败");
-                    }
-                    return;
-                }
-                // 返回重定向链接
+                stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
+                // 严谨 需要进行风控
                 try {
-                    // 设置缓存新数据
-                    stringRedisTemplate.opsForValue ()
-                            .set (  String.format (SHORTLINK_GOTO_KEY , shortLinkDO.getFullShortUrl ())
-                                    ,shortLinkDO.getOriginUrl ()
-                                    , ShortLinkUtil.getShortLinkValidTime (shortLinkDO.getValidDate ())
-                                    ,TimeUnit.MILLISECONDS);
-                    // 重定向
-                    response.sendRedirect (shortLinkDO.getOriginUrl ());
+                    response.sendRedirect ("/page/notfound");
                 } catch (IOException e) {
-                    throw new ClientException ("短链接重定向失败");
+                    throw new ClientException ("重定向不存在页面失败");
                 }
+                return;
+            }
+            // 返回重定向链接
+            try {
+                // 设置缓存新数据
+                stringRedisTemplate.opsForValue ()
+                        .set (  String.format (SHORTLINK_GOTO_KEY , shortLinkDO.getFullShortUrl ())
+                                ,shortLinkDO.getOriginUrl ()
+                                , ShortLinkUtil.getShortLinkValidTime (shortLinkDO.getValidDate ())
+                                ,TimeUnit.MILLISECONDS);
+                // 重定向
+                response.sendRedirect (shortLinkDO.getOriginUrl ());
+            } catch (IOException e) {
+                throw new ClientException ("短链接重定向失败");
             }
         } finally {
             lock.unlock ();
