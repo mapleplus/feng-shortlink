@@ -7,7 +7,7 @@ import com.feng.shortlink.admin.common.convention.exception.ServiceException;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.dao.entity.GroupDO;
 import com.feng.shortlink.admin.dao.mapper.GroupMapper;
-import com.feng.shortlink.admin.remote.ShortLinkService;
+import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkRecycleBinPageReqDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.admin.service.RecycleBinService;
@@ -22,14 +22,14 @@ import java.util.stream.Collectors;
  * @author FENGXIN
  * @date 2024/10/3
  * @project feng-shortlink
- * @description
+ * @description 回收站查询实现
  **/
 @Slf4j
 @RequiredArgsConstructor
 @Service
 public class RecycleBinServiceImpl implements RecycleBinService {
     private final GroupMapper groupMapper;
-    private final ShortLinkService shortLinkService = new ShortLinkService () {};
+    private final ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService () {};
     @Override
     public Result<IPage<ShortLinkPageRespDTO>> pageRecycleBinShortLink (ShortLinkRecycleBinPageReqDTO requestParam) {
         LambdaQueryWrapper<GroupDO> queryWrapper = new LambdaQueryWrapper<GroupDO>()
@@ -41,6 +41,6 @@ public class RecycleBinServiceImpl implements RecycleBinService {
         }
         requestParam.setGidList (groupDOList.stream().map (GroupDO::getGid).collect(Collectors.toList()));
         log.info ("Gid List: {}" , requestParam.getGidList ());
-        return shortLinkService.pageRecycleBinShortLink (requestParam);
+        return shortLinkRemoteService.pageRecycleBinShortLink (requestParam);
     }
 }

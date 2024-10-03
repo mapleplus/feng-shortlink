@@ -9,7 +9,7 @@ import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
  * @author FENGXIN
  * @date 2024/10/3
  * @project feng-shortlink
- * @description
+ * @description 回收站查询接口
  **/
 public interface RecycleBinService {
     Result<IPage<ShortLinkPageRespDTO>> pageRecycleBinShortLink (ShortLinkRecycleBinPageReqDTO requestParam);
