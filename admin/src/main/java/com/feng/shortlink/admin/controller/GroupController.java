@@ -15,7 +15,7 @@ import java.util.List;
  * @author FENGXIN
  * @date 2024/9/28
  * @project feng-shortlink
- * @description
+ * @description 短链接分组控制层
  **/
 @RestController
 @RequiredArgsConstructor

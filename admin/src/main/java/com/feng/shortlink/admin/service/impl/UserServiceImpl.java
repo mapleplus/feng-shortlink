@@ -35,7 +35,7 @@ import static com.feng.shortlink.admin.common.enums.UserErrorCodeEnum.USER_LOGOU
  * @author FENGXIN
  * @date 2024/9/26
  * @project feng-shortlink
- * @description UserServiceImpl
+ * @description 用户管理实现
  **/
 @Service
 @RequiredArgsConstructor
@@ -47,12 +47,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     private final StringRedisTemplate stringRedisTemplate;
     private final GroupService groupService;
     
-    /**
-     * 根据给定的用户名检索用户。
-     *
-     * @param username 要检索的用户名。
-     * @return 指定用户名的用户详细信息。
-     */
     @Override
     public UserRespDTO getUserByUserName (String username) {
         LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<>();
@@ -67,22 +61,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         return result;
     }
     
-    /**
-     * 检查用户名是否存在于Cache中。
-     * 布隆过滤器存储用户名
-     * @param username 要检查的用户名。
-     * @return 如果用户名不存在于数据库中则返回 {@code true}，否则返回 {@code false}。
-     */
     @Override
     public Boolean hasUserName (String username) {
         return !userRegisterCachePenetrationBloomFilter.contains (username);
     }
-    
-    /**
-     * 在系统中注册一个新用户。
-     *
-     * @param requestParams 包含要注册用户的详细信息的数据传输对象。
-     */
+
     @Override
     public void registerUser (UserRegisterReqDTO requestParams) {
         if (!hasUserName (requestParams.getUsername ())){
@@ -115,11 +98,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }
     }
     
-    /**
-     * 更新用户信息。
-     *
-     * @param requestParams 包含要更新用户的详细信息的数据传输对象。
-     */
     @Override
     public void updateUser (UserUpdateReqDTO requestParams) {
         LambdaQueryWrapper<UserDO> updateWrapper = new LambdaQueryWrapper<UserDO>()
@@ -127,12 +105,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         baseMapper.update (BeanUtil.toBean (requestParams , UserDO.class) , updateWrapper);
     }
     
-    /**
-     * 处理用户的登录过程。
-     *
-     * @param requestParams 包含用户凭据的登录请求参数。
-     * @return 包含用户登录详细信息的响应DTO，例如身份验证令牌。
-     */
     @Override
     public UserLoginRespDTO login (UserLoginReqDTO requestParams) {
         LambdaQueryWrapper<UserDO> queryWrapper = new LambdaQueryWrapper<UserDO> ()
@@ -157,26 +129,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         return new UserLoginRespDTO (token);
     }
     
-    /**
-     * 检查用户是否使用特定的令牌登录。
-     *
-     * @param username 要检查的用户名。
-     * @param token    用于验证用户登录状态的令牌。
-     * @return 如果用户使用给定令牌登录，则返回 {@code true}，否则返回 {@code false}。
-     */
     @Override
     public Boolean checkLogin (String username , String token) {
         return stringRedisTemplate.opsForHash ().hasKey (SHORTLINK_USER_LOGIN_KEY + username , token);
     }
     
-    /**
-     * 通过从Redis中删除用户的会话令牌来注销用户，如果用户当前已登录，
-     * 并在注销操作失败时抛出异常。
-     *
-     * @param username 要注销的用户用户名
-     * @param token    用于注销的用户会话令牌
-     * @throws ClientException 如果用户未登录或注销过程中出现错误
-     */
     @Override
     public void logout (String username , String token) {
         if (Boolean.TRUE.equals (checkLogin (username , token))) {

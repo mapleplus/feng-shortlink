@@ -15,7 +15,7 @@ import java.rmi.UnknownHostException;
  * @author FENGXIN
  * @date 2024/10/2
  * @project feng-shortlink
- * @description
+ * @description 获取网站标题业务实现
  **/
 @Service
 public class TitleServiceImpl implements TitleService {

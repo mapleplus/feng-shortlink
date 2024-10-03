@@ -11,7 +11,7 @@ import java.util.List;
  * @author FENGXIN
  * @date 2024/9/30
  * @project feng-shortlink
- * @description 分页查请求参数
+ * @description 分页查询回收站请求参数
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data

@@ -12,7 +12,7 @@ import java.util.List;
  * @author FENGXIN
  * @date 2024/9/28
  * @project feng-shortlink
- * @description
+ * @description 分组接口
  **/
 public interface GroupService extends IService<GroupDO> {
     /**

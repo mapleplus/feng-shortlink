@@ -3,7 +3,7 @@ package com.feng.shortlink.admin.controller;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
-import com.feng.shortlink.admin.remote.ShortLinkService;
+import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkSaveReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkUpdateReqDTO;
@@ -18,11 +18,11 @@ import org.springframework.web.bind.annotation.RestController;
  * @author FENGXIN
  * @date 2024/9/30
  * @project feng-shortlink
- * @description
+ * @description 短链接控制层
  **/
 @RestController
 public class ShortLinkController {
-    ShortLinkService shortLinkService;
+    ShortLinkRemoteService shortLinkRemoteService;
     
     /**
      * 新增短链接
@@ -32,8 +32,8 @@ public class ShortLinkController {
      */
     @PostMapping("/api/fenglink/v1/admin/shortlink")
     public Result<ShortLinkSaveRespDTO> saveShortLink (@RequestBody ShortLinkSaveReqDTO requestParam){
-        shortLinkService = new ShortLinkService () {};
-        return shortLinkService.saveShortLink(requestParam);
+        shortLinkRemoteService = new ShortLinkRemoteService () {};
+        return shortLinkRemoteService.saveShortLink(requestParam);
     }
     
     /**
@@ -43,8 +43,8 @@ public class ShortLinkController {
      */
     @PostMapping("/api/fenglink/v1/admin/shortlink/update")
     public Result<Void> updateShortLink (@RequestBody ShortLinkUpdateReqDTO requestParam) {
-        shortLinkService = new ShortLinkService () {};
-        shortLinkService.updateShortLink (requestParam);
+        shortLinkRemoteService = new ShortLinkRemoteService () {};
+        shortLinkRemoteService.updateShortLink (requestParam);
         return Results.success ();
     }
     
@@ -56,7 +56,7 @@ public class ShortLinkController {
      */
     @GetMapping("/api/fenglink/v1/admin/shortlink")
     public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkPageReqDTO requestParam) {
-        shortLinkService = new ShortLinkService () {};
-        return shortLinkService.pageShortLink(requestParam);
+        shortLinkRemoteService = new ShortLinkRemoteService () {};
+        return shortLinkRemoteService.pageShortLink(requestParam);
     }
 }

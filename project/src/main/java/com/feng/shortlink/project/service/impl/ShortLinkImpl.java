@@ -61,12 +61,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     private final LinkGotoMapper linkGotoMapper;
     private final StringRedisTemplate stringRedisTemplate;
     private final RedissonClient redissonClient;
-    /**
-     * 根据给定的请求参数创建短链接。
-     *
-     * @param requestParam 包含原始URL、域名、分组标识符和其他元数据的请求参数
-     * @return 包含新创建的短链接详细信息的响应数据传输对象
-     */
+    
     @Override
     public ShortLinkSaveRespDTO saveShortLink (ShortLinkSaveReqDTO requestParam) {
         // 生成短链接 一个originUrl可以有多个短链接 只是要求短链接不能重复
@@ -121,11 +116,6 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 .build ();
     }
     
-    /**
-     * 更新短链接
-     *
-     * @param requestParam 请求参数
-     */
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateShortLink (ShortLinkUpdateReqDTO requestParam) {
@@ -189,13 +179,6 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         }
     }
     
-    /**
-     * 跳转链接
-     *
-     * @param shortLink 短链接
-     * @param request 请求
-     * @param response  响应
-     */
     @Override
     public void restoreLink (String shortLink , HttpServletRequest request , HttpServletResponse response) {
         // 获取服务名 如baidu.com
@@ -303,12 +286,6 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         }
     }
     
-    /**
-     * 分页查询短链接
-     *
-     * @param requestParam 请求参数
-     * @return {@code IPage<ShortLinkPageRespDTO> }
-     */
     @Override
     public IPage<ShortLinkPageRespDTO> pageShortLink (ShortLinkPageReqDTO requestParam) {
         LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
@@ -323,13 +300,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             return result;
         });
     }
-    
-    /**
-     * 查询短链接组的短链接数量
-     *
-     * @param requestParam 请求参数
-     * @return {@code List<ShortLinkGroupQueryRespDTO> }
-     */
+
     @Override
     public List<ShortLinkGroupQueryRespDTO> listShortLinkGroup (List<String> requestParam) {
         QueryWrapper<ShortLinkDO> queryWrapper = new QueryWrapper<ShortLinkDO> ()

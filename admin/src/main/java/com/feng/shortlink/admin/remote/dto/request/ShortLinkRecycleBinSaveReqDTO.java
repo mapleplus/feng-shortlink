@@ -6,10 +6,10 @@ import lombok.Data;
  * @author FENGXIN
  * @date 2024/10/3
  * @project feng-shortlink
- * @description
+ * @description 短链接回收站请求
  **/
 @Data
-public class RecycleBinSaveReqDTO {
+public class ShortLinkRecycleBinSaveReqDTO {
     
     /**
      * GID

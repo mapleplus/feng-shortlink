@@ -8,7 +8,7 @@ import lombok.Data;
  * @author FENGXIN
  * @date 2024/9/26
  * @project feng-shortlink
- * @description
+ * @description 用户创建响应
  **/
 @Data
 public class UserRespDTO {

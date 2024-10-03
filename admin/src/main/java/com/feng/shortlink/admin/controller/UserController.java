@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
  * @author FENGXIN
  * @date 2024/9/25
  * @project feng-shortlink
- * @description 根据用户名查询用户信息
+ * @description 用户名管理控制层
  **/
 @RestController
 public class UserController {

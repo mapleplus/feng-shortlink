@@ -13,7 +13,7 @@ import com.feng.shortlink.admin.dto.response.UserRespDTO;
  * @author FENGXIN
  * @date 2024/9/26
  * @project feng-shortlink
- * @description
+ * @description 用户管理接口
  **/
 public interface UserService extends IService<UserDO>{
     

@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
  * @author FENGXIN
  * @date 2024/9/27
  * @project feng-shortlink
- * @description
+ * @description 用户登录响应
  **/
 @Data
 @NoArgsConstructor

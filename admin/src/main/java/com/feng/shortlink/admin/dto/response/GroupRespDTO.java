@@ -6,7 +6,7 @@ import lombok.Data;
  * @author FENGXIN
  * @date 2024/9/28
  * @project feng-shortlink
- * @description
+ * @description 短链接分组响应
  **/
 @Data
 public class GroupRespDTO {
