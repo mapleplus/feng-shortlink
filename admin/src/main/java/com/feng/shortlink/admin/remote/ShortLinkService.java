@@ -6,6 +6,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.admin.common.convention.result.Result;
+import com.feng.shortlink.admin.remote.dto.request.RecycleBinSaveReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkSaveReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkUpdateReqDTO;
@@ -78,6 +79,10 @@ public interface ShortLinkService {
         String response = HttpUtil.get ("http://127.0.0.1:8001/api/fenglink/v1/title?url=" + url);
         /* 自动确定要转换的类型 Result中含有泛型需要说明转换*/
         return JSON.parseObject (response ,new TypeReference<> () {});
+    }
+    
+    default void saveRecycleBin (RecycleBinSaveReqDTO requestParam) {
+        HttpUtil.post ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/recyclebin/save" , JSON.toJSONString (requestParam));
     }
     
 }
