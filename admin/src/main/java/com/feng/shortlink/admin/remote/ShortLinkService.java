@@ -46,6 +46,7 @@ public interface ShortLinkService {
     default void updateShortLink ( ShortLinkUpdateReqDTO requestParam) {
         HttpUtil.post ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/update" , JSON.toJSONString (requestParam));
     }
+    
     /**
      * 分页查询短链接
      *
@@ -74,15 +75,40 @@ public interface ShortLinkService {
         return JSON.parseObject(responsePage, new TypeReference<> (){});
     }
     
-    
+    /**
+     * 获取标题
+     *
+     * @param url 网址
+     * @return {@code Result<String> 标题}
+     */
     default Result<String> getTitle (String url) {
         String response = HttpUtil.get ("http://127.0.0.1:8001/api/fenglink/v1/title?url=" + url);
         /* 自动确定要转换的类型 Result中含有泛型需要说明转换*/
         return JSON.parseObject (response ,new TypeReference<> () {});
     }
     
+    /**
+     * 保存短链接到回收站
+     *
+     * @param requestParam 请求参数
+     */
     default void saveRecycleBin (RecycleBinSaveReqDTO requestParam) {
-        HttpUtil.post ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/recyclebin/save" , JSON.toJSONString (requestParam));
+        HttpUtil.post ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/recycle-bin" , JSON.toJSONString (requestParam));
+    }
+    
+    /**
+     * 分页查询回收站短链接
+     *
+     * @param requestParam 请求参数
+     * @return {@code Result<IPage<ShortLinkPageRespDTO>> }
+     */
+    default Result<IPage<ShortLinkPageRespDTO>> pageRecycleBinShortLink(ShortLinkPageReqDTO requestParam){
+        Map<String,Object> requestMap = new HashMap<> ();
+        requestMap.put("gid", requestParam.getGid());
+        requestMap.put("current", requestParam.getCurrent());
+        requestMap.put("size", requestParam.getSize());
+        String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/recycle-bin" , requestMap);
+        return JSON.parseObject(responsePage, new TypeReference<> (){});
     }
     
 }
