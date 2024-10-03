@@ -1,9 +1,10 @@
 package com.feng.shortlink.admin.remote.dto.request;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.feng.shortlink.admin.dao.entity.GroupDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+
+import java.util.List;
 
 /**
  * @author FENGXIN
@@ -13,9 +14,9 @@ import lombok.EqualsAndHashCode;
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ShortLinkPageReqDTO extends Page<GroupDO> {
+public class ShortLinkRecycleBinPageReqDTO extends Page {
     /**
      * 分组标识
      */
-    private String gid;
+    private List<String> gidList;
 }

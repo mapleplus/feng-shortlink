@@ -5,8 +5,9 @@ import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
 import com.feng.shortlink.admin.remote.ShortLinkService;
 import com.feng.shortlink.admin.remote.dto.request.RecycleBinSaveReqDTO;
-import com.feng.shortlink.admin.remote.dto.request.ShortLinkPageReqDTO;
+import com.feng.shortlink.admin.remote.dto.request.ShortLinkRecycleBinPageReqDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
+import com.feng.shortlink.admin.service.impl.RecycleBinServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequiredArgsConstructor
 public class RecycleBinController {
     private final ShortLinkService shortLinkService = new ShortLinkService () {};
+    private final RecycleBinServiceImpl recycleBinService;
     
     /**
      * 保存短链接到回收站
@@ -43,7 +45,7 @@ public class RecycleBinController {
      * @return {@code Result<IPage<ShortLinkPageRespDTO>> }
      */
     @GetMapping("/api/fenglink/v1/admin/shortlink/recycle-bin")
-    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkPageReqDTO requestParam) {
-        return shortLinkService.pageShortLink(requestParam);
+    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkRecycleBinPageReqDTO requestParam) {
+        return recycleBinService.pageRecycleBinShortLink(requestParam);
     }
 }

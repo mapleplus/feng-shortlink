@@ -6,10 +6,7 @@ import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.admin.common.convention.result.Result;
-import com.feng.shortlink.admin.remote.dto.request.RecycleBinSaveReqDTO;
-import com.feng.shortlink.admin.remote.dto.request.ShortLinkPageReqDTO;
-import com.feng.shortlink.admin.remote.dto.request.ShortLinkSaveReqDTO;
-import com.feng.shortlink.admin.remote.dto.request.ShortLinkUpdateReqDTO;
+import com.feng.shortlink.admin.remote.dto.request.*;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkSaveRespDTO;
@@ -18,12 +15,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 /**
  * @author FENGXIN
- * @date 2024/9/30
- * @project feng-shortlink
- * @description
- **/
+ */
 public interface ShortLinkService {
     
     /**
@@ -102,11 +97,12 @@ public interface ShortLinkService {
      * @param requestParam 请求参数
      * @return {@code Result<IPage<ShortLinkPageRespDTO>> }
      */
-    default Result<IPage<ShortLinkPageRespDTO>> pageRecycleBinShortLink(ShortLinkPageReqDTO requestParam){
+    default Result<IPage<ShortLinkPageRespDTO>> pageRecycleBinShortLink(ShortLinkRecycleBinPageReqDTO requestParam){
         Map<String,Object> requestMap = new HashMap<> ();
-        requestMap.put("gid", requestParam.getGid());
+        requestMap.put("gidList", requestParam.getGidList ());
         requestMap.put("current", requestParam.getCurrent());
         requestMap.put("size", requestParam.getSize());
+        System.out.println (JSON.toJSONString (requestMap));
         String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/recycle-bin" , requestMap);
         return JSON.parseObject(responsePage, new TypeReference<> (){});
     }

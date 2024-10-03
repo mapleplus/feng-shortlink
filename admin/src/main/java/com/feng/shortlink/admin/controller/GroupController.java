@@ -29,7 +29,7 @@ public class GroupController {
      * @return 指示操作成功的Result对象
      */
     @PostMapping("/api/fenglink/v1/admin/group")
-    public Result<Void> saveGroupByGid (@RequestParam String requestParam) {
+    public Result<Void> saveGroupByGid (@RequestParam("name") String requestParam) {
         // 调用 groupService 保存组信息
         groupService.saveGroupByGid (requestParam);
         // 返回成功结果

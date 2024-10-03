@@ -8,7 +8,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.project.dao.entity.ShortLinkDO;
 import com.feng.shortlink.project.dao.mapper.ShortLinkMapper;
 import com.feng.shortlink.project.dto.request.RecycleBinSaveReqDTO;
-import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
+import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinPageReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.service.RecycleBinService;
 import lombok.RequiredArgsConstructor;
@@ -42,12 +42,17 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
     }
     
     @Override
-    public IPage<ShortLinkPageRespDTO> pageRecycleBinShortLink (ShortLinkPageReqDTO requestParam) {
+    public IPage<ShortLinkPageRespDTO> pageRecycleBinShortLink (ShortLinkRecycleBinPageReqDTO requestParam) {
         LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
+                .in (ShortLinkDO::getGid , requestParam.getGidList ())
                 .eq (ShortLinkDO::getDelFlag , 0)
-                .eq (ShortLinkDO::getGid , requestParam.getGid ())
-                .eq (ShortLinkDO::getEnableStatus,1);
-        ShortLinkPageReqDTO selectPage = baseMapper.selectPage (requestParam , lambdaQueryWrapper);
-        return selectPage.convert (each -> BeanUtil.copyProperties (each,ShortLinkPageRespDTO.class));
+                .eq (ShortLinkDO::getEnableStatus,1)
+                .orderByDesc (ShortLinkDO::getUpdateTime);
+        IPage<ShortLinkDO> selectPage = baseMapper.selectPage (requestParam , lambdaQueryWrapper);
+        return selectPage.convert (each -> {
+            ShortLinkPageRespDTO result = BeanUtil.copyProperties (each , ShortLinkPageRespDTO.class);
+            result.setDomain ("http://" + result.getDomain ());
+            return result;
+        });
     }
 }

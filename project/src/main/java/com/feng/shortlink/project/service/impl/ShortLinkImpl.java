@@ -314,9 +314,14 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
                 .eq (ShortLinkDO::getDelFlag , 0)
                 .eq (ShortLinkDO::getGid , requestParam.getGid ())
-                .eq (ShortLinkDO::getEnableStatus,0);
-        ShortLinkPageReqDTO selectPage = baseMapper.selectPage (requestParam , lambdaQueryWrapper);
-        return selectPage.convert (each -> BeanUtil.copyProperties (each,ShortLinkPageRespDTO.class));
+                .eq (ShortLinkDO::getEnableStatus,0)
+                .orderByAsc (ShortLinkDO::getUpdateTime );
+        IPage<ShortLinkDO> selectPage = baseMapper.selectPage (requestParam , lambdaQueryWrapper);
+        return selectPage.convert (each -> {
+            ShortLinkPageRespDTO result = BeanUtil.copyProperties (each , ShortLinkPageRespDTO.class);
+            result.setDomain ("http://" + result.getDomain ());
+            return result;
+        });
     }
     
     /**
