@@ -15,3 +15,8 @@ spring:
     view:
       prefix: /templates/
       suffix: .html
+mybatis-plus:
+  global-config:
+    db-config:
+      logic-delete-value: 1  # 表示已删除的值
+      logic-not-delete-value: 0  # 表示未删除的值

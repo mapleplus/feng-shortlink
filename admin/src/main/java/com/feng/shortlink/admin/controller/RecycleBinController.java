@@ -6,6 +6,7 @@ import com.feng.shortlink.admin.common.convention.result.Results;
 import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkRecycleBinPageReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkRecycleBinRecoverReqDTO;
+import com.feng.shortlink.admin.remote.dto.request.ShortLinkRecycleBinRemoveReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkRecycleBinSaveReqDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.admin.service.impl.RecycleBinServiceImpl;
@@ -50,6 +51,15 @@ public class RecycleBinController {
     @PostMapping("/api/fenglink/v1/admin/shortlink/recycle-bin/recover")
     public Result<Void> recoverShortLink(@RequestBody ShortLinkRecycleBinRecoverReqDTO requestParam) {
         shortLinkRemoteService.recoverRecycleBin(requestParam);
+        return Results.success();
+    }
+    
+    /**
+     * 移除短链接
+     */
+    @PostMapping("/api/fenglink/v1/admin/shortlink/recycle-bin/remove")
+    public Result<Void> removeShortLink(@RequestBody ShortLinkRecycleBinRemoveReqDTO requestParam) {
+        shortLinkRemoteService.removeRecycleBin(requestParam);
         return Results.success();
     }
 }

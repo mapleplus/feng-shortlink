@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.project.common.convention.result.Result;
 import com.feng.shortlink.project.common.convention.result.Results;
 import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinRecoverReqDTO;
+import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinRemoveReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinSaveReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinPageReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
@@ -45,6 +46,15 @@ public class RecycleBinController {
     @PostMapping("/api/fenglink/v1/shortlink/recycle-bin/recover")
     public Result<Void> recoverShortLink(@RequestBody ShortLinkRecycleBinRecoverReqDTO requestParam) {
         recycleBinService.recoverRecycleBin(requestParam);
+        return Results.success();
+    }
+    
+    /**
+     * 移除短链接
+     */
+    @PostMapping("/api/fenglink/v1/shortlink/recycle-bin/remove")
+    public Result<Void> removeShortLink(@RequestBody ShortLinkRecycleBinRemoveReqDTO requestParam) {
+        recycleBinService.removeRecycleBin(requestParam);
         return Results.success();
     }
 }
