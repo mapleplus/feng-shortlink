@@ -319,13 +319,17 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                         .findFirst ()
                         .map (Cookie::getValue)
                         .ifPresentOrElse (each ->{
-                            Long add = stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink) , each);
-                            uvFlag.set (add != null && add > 0L);
+                            Long uvAdd = stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink) , each);
+                            uvFlag.set (uvAdd != null && uvAdd > 0L);
                         },generateCookieTask);
             }else {
                 // 没有cookie 第一次访问短链接 创建cookie并设置响应
                 generateCookieTask.run ();
             }
+            // 设置uip
+            String userIpAddress = ShortLinkUtil.getUserIpAddress (request);
+            Long uipAdd = stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UIP_KEY , fullShortLink) , userIpAddress);
+            boolean uipFlag = uipAdd != null && uipAdd > 0L;
             // gid, full_short_url, date, pv, uv, uip, hour, weekday, create_time, update_time, del_flag
             if (StrUtil.isBlank (gid)){
                 LambdaQueryWrapper<LinkGotoDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
@@ -343,7 +347,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .date (fullDate)
                     .pv (1)
                     .uv (uvFlag.get () ? 1 : 0)
-                    .uip (1)
+                    .uip (uipFlag ? 1 : 0)
                     .hour (hour)
                     .weekday (weekday)
                     .createTime (fullDate)
