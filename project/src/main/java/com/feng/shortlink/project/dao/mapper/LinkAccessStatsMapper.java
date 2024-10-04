@@ -9,7 +9,7 @@ import org.apache.ibatis.annotations.Param;
  * @author FENGXIN
  * @date 2024/10/4
  * @project feng-shortlink
- * @description
+ * @description 基础数据统计实体mapper
  **/
 public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
     @Override

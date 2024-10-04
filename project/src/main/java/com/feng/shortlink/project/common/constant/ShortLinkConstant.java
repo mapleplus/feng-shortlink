@@ -15,4 +15,5 @@ public class ShortLinkConstant {
      * 短链接有效时间
      */
     public static final Long SHORT_LINK_VALID_TIME = 2592000000L;
+    public static final String SHORT_LINK_LOCALE_STATS_URL = "https://restapi.amap.com/v3/ip";
 }

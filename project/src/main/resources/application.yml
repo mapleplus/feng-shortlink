@@ -20,3 +20,7 @@ mybatis-plus:
     db-config:
       logic-delete-value: 1  # 表示已删除的值
       logic-not-delete-value: 0  # 表示未删除的值
+short-link:
+  stats:
+    locale:
+      amap-key: d8ff1fbaa0db78890a8659a25ace740f
