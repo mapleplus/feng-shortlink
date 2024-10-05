@@ -50,6 +50,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import static com.feng.shortlink.project.common.constant.RedisCacheConstant.*;
 import static com.feng.shortlink.project.common.constant.ShortLinkConstant.SHORT_LINK_LOCALE_STATS_URL;
@@ -72,6 +73,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     private final LinkLocaleStatsMapper linkLocaleStatsMapper;
     private final LinkOsStatsMapper linkOsStatsMapper;
     private final LinkBrowserStatsMapper linkBrowserStatsMapper;
+    private final LinkAccessLogsMapper linkAccessLogsMapper;
     @Value ("${short-link.stats.locale.amap-key}")
     private String amapKey;
     @Override
@@ -313,19 +315,20 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         AtomicBoolean uvFlag = new AtomicBoolean ();
         Cookie[] cookies = request.getCookies ();
         try {
+            AtomicReference<String> uv = new AtomicReference<> ();
             // 添加cookie进入响应 并设置缓存用于校验下次访问是否已经存在
             Runnable generateCookieTask = () ->{
                 // 设置响应cookie
-                String uv = UUID.fastUUID ().toString ();
-                Cookie cookie = new Cookie ("uv",uv);
+                uv.set (UUID.fastUUID ().toString ());
+                Cookie cookie = new Cookie ("uv",uv.get ());
                 cookie.setMaxAge (60 * 60 * 24 * 30);
                 // 设置路径 只有当前短链接后缀访问时才携带cookie（不过也不影响 默认是当前路径及其子路径）
                 cookie.setPath (StrUtil.sub (fullShortLink,fullShortLink.indexOf ("/"),fullShortLink.length ()));
                 response.addCookie (cookie);
                 uvFlag.set (Boolean.TRUE);
-                stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink) , uv);
+                stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink) , uv.get ());
             };
-            // 判断请求是否已经含有用户cookie
+            // 首先判断请求是否已经含有用户cookie
             if(ArrayUtil.isNotEmpty (cookies)) {
                 // 已经拥有 设置缓存 并设置uv添加标志 使uv不叠加
                 Arrays.stream (cookies)
@@ -333,6 +336,8 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                         .findFirst ()
                         .map (Cookie::getValue)
                         .ifPresentOrElse (each ->{
+                            // 设置uv 方便后续使用
+                            uv.set(each);
                             Long uvAdd = stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink) , each);
                             uvFlag.set (uvAdd != null && uvAdd > 0L);
                         },generateCookieTask);
@@ -393,25 +398,37 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                         .build ();
                 linkLocaleStatsMapper.insert(linkLocaleStatsDO);
             }
-            
             // 操作系统统计
+            String os = ShortLinkUtil.getOperatingSystem (request);
             LinkOsStatsDO linkOsStatsDO = LinkOsStatsDO.builder ()
                     .gid (gid)
                     .fullShortUrl (fullShortLink)
                     .date (fullDate)
                     .cnt (1)
-                    .os (ShortLinkUtil.getOperatingSystem (request))
+                    .os (os)
                     .build ();
             linkOsStatsMapper.shortLinkBrowserState (linkOsStatsDO);
             // 浏览器统计
+            String browser = ShortLinkUtil.getBrowser (request);
             LinkBrowserStatsDO linkBrowserStatsDO = LinkBrowserStatsDO.builder ()
                     .gid (gid)
                     .fullShortUrl (fullShortLink)
                     .date (fullDate)
                     .cnt (1)
-                    .browser (ShortLinkUtil.getBrowser (request))
+                    .browser (browser)
                     .build ();
             linkBrowserStatsMapper.shortLinkBrowserState (linkBrowserStatsDO);
+            // 日志统计
+            LinkAccessLogsDO linkAccessLogsDO = LinkAccessLogsDO.builder ()
+                    .gid (gid)
+                    .fullShortUrl (fullShortLink)
+                    .ip (userIpAddress)
+                    .user (uv.get ())
+                    .os (os)
+                    .browser (browser)
+                    .cnt (1)
+                    .build ();
+            linkAccessLogsMapper.insert (linkAccessLogsDO);
         } catch (Throwable ex) {
             log.error ("短链接统计异常{}" , ex.getMessage ());
         }
