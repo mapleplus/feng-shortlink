@@ -75,6 +75,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     private final LinkBrowserStatsMapper linkBrowserStatsMapper;
     private final LinkAccessLogsMapper linkAccessLogsMapper;
     private final LinkDeviceStatsMapper linkDeviceStatsMapper;
+    private final LinkNetworkStatsMapper linkNetworkStatsMapper;
     @Value ("${short-link.stats.locale.amap-key}")
     private String amapKey;
     @Override
@@ -443,6 +444,16 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .device (ShortLinkUtil.getDevice (request))
                     .build ();
             linkDeviceStatsMapper.shortLinkDeviceState (linkDeviceStatsDO);
+            
+            // 访问网络统计
+            LinkNetworkStatsDO linkNetworkStatsDO = LinkNetworkStatsDO.builder ()
+                    .gid (gid)
+                    .fullShortUrl (fullShortLink)
+                    .date (fullDate)
+                    .cnt (1)
+                    .network (ShortLinkUtil.getUserNetwork (request))
+                    .build ();
+            linkNetworkStatsMapper.shortLinkNetworkState (linkNetworkStatsDO);
         } catch (Throwable ex) {
             log.error ("短链接统计异常{}" , ex.getMessage ());
         }

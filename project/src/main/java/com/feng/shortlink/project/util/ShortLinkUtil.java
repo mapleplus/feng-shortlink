@@ -113,4 +113,17 @@ public class ShortLinkUtil {
         }
         return "PC";
     }
+    
+    /**
+     * 获取用户访问的网络信息
+     *
+     * @param request HTTP 请求对象
+     * @return 用户的网络信息
+     */
+    public static String getUserNetwork(HttpServletRequest request) {
+        String actualIp = getUserIpAddress(request);
+        // 这里简单判断IP地址范围，您可能需要更复杂的逻辑
+        // 例如，通过调用IP地址库或调用第三方服务来判断网络类型
+        return actualIp.startsWith("192.168.") || actualIp.startsWith("10.") ? "WIFI" : "Mobile";
+    }
 }
