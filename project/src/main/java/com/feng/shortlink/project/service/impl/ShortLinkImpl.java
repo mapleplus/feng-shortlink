@@ -74,6 +74,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     private final LinkOsStatsMapper linkOsStatsMapper;
     private final LinkBrowserStatsMapper linkBrowserStatsMapper;
     private final LinkAccessLogsMapper linkAccessLogsMapper;
+    private final LinkDeviceStatsMapper linkDeviceStatsMapper;
     @Value ("${short-link.stats.locale.amap-key}")
     private String amapKey;
     @Override
@@ -372,7 +373,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .createTime (fullDate)
                     .updateTime (fullDate)
                     .build ();
-            linkAccessStatsMapper.insert(linkAccessStatsDO);
+            linkAccessStatsMapper.shortLinkAccessState (linkAccessStatsDO);
             
             // 地区统计
             // 通过http工具访问高德地图接口获取地区
@@ -396,8 +397,9 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                         .country ("中国")
                         .cnt (1)
                         .build ();
-                linkLocaleStatsMapper.insert(linkLocaleStatsDO);
+                linkLocaleStatsMapper.shortLinkLocaleState (linkLocaleStatsDO);
             }
+            
             // 操作系统统计
             String os = ShortLinkUtil.getOperatingSystem (request);
             LinkOsStatsDO linkOsStatsDO = LinkOsStatsDO.builder ()
@@ -408,6 +410,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .os (os)
                     .build ();
             linkOsStatsMapper.shortLinkBrowserState (linkOsStatsDO);
+            
             // 浏览器统计
             String browser = ShortLinkUtil.getBrowser (request);
             LinkBrowserStatsDO linkBrowserStatsDO = LinkBrowserStatsDO.builder ()
@@ -418,6 +421,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .browser (browser)
                     .build ();
             linkBrowserStatsMapper.shortLinkBrowserState (linkBrowserStatsDO);
+            
             // 日志统计
             LinkAccessLogsDO linkAccessLogsDO = LinkAccessLogsDO.builder ()
                     .gid (gid)
@@ -428,7 +432,17 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .browser (browser)
                     .cnt (1)
                     .build ();
-            linkAccessLogsMapper.insert (linkAccessLogsDO);
+            linkAccessLogsMapper.shortLinkBrowserState (linkAccessLogsDO);
+            
+            // 访问设备统计
+            LinkDeviceStatsDO linkDeviceStatsDO = LinkDeviceStatsDO.builder ()
+                    .gid (gid)
+                    .fullShortUrl (fullShortLink)
+                    .date (fullDate)
+                    .cnt (1)
+                    .device (ShortLinkUtil.getDevice (request))
+                    .build ();
+            linkDeviceStatsMapper.shortLinkDeviceState (linkDeviceStatsDO);
         } catch (Throwable ex) {
             log.error ("短链接统计异常{}" , ex.getMessage ());
         }
