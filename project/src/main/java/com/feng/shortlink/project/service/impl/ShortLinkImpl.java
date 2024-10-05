@@ -387,7 +387,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             // 如果状态🐎是10000则表示成功获取
             if(StrUtil.isNotBlank (infocode) && StrUtil.equals (infocode,"10000")){
                 String province = localeObject.getString ("province");
-                boolean unKnown = StrUtil.isBlank (province);
+                boolean unKnown = StrUtil.equals (province,"[]");
                 LinkLocaleStatsDO linkLocaleStatsDO = LinkLocaleStatsDO.builder ()
                         .gid (gid)
                         .fullShortUrl (fullShortLink)

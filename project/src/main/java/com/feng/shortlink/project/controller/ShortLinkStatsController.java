@@ -7,7 +7,6 @@ import com.feng.shortlink.project.dto.response.ShortLinkStatsRespDTO;
 import com.feng.shortlink.project.service.ShortLinkStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -23,7 +22,7 @@ public class ShortLinkStatsController {
     private final ShortLinkStatsService shortLinkStatsService;
     
     @GetMapping("/api/short-link/v1/stats")
-    public Result<ShortLinkStatsRespDTO> getShortLinkStats(@RequestBody ShortLinkStatsReqDTO requestParam) {
+    public Result<ShortLinkStatsRespDTO> getShortLinkStats(ShortLinkStatsReqDTO requestParam) {
         return Results.success (shortLinkStatsService.getShortLinkStats (requestParam));
     }
 }

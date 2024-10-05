@@ -16,6 +16,12 @@ import static com.feng.shortlink.project.common.constant.ShortLinkConstant.SHORT
  * @description
  **/
 public class ShortLinkUtil {
+    /**
+     * 获取短链接有效时间
+     *
+     * @param validTime 有效时间
+     * @return {@code Long }
+     */
     public static Long getShortLinkValidTime(Date validTime) {
         return Optional.ofNullable(validTime)
                 .map(each -> DateUtil.between (new Date (),validTime, DateUnit.MS))
