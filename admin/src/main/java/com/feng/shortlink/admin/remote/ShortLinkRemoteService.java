@@ -1,6 +1,7 @@
 package com.feng.shortlink.admin.remote;
 
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.TypeReference;
@@ -10,6 +11,7 @@ import com.feng.shortlink.admin.remote.dto.request.*;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkSaveRespDTO;
+import com.feng.shortlink.admin.remote.dto.response.ShortLinkStatsRespDTO;
 
 import java.util.HashMap;
 import java.util.List;
@@ -107,4 +109,8 @@ public interface ShortLinkRemoteService {
         HttpUtil.post ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/recycle-bin/remove" , JSON.toJSONString (requestParam));
     }
     
+    default Result<ShortLinkStatsRespDTO> getShortLinkStats (ShortLinkStatsReqDTO requestParam){
+        String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/short-link/v1/stats", BeanUtil.beanToMap(requestParam));
+        return JSON.parseObject(responsePage, new TypeReference<> (){});
+    }
 }

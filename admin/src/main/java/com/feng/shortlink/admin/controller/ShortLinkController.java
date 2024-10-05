@@ -6,9 +6,11 @@ import com.feng.shortlink.admin.common.convention.result.Results;
 import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.admin.remote.dto.request.ShortLinkStatsReqDTO;
 import com.feng.shortlink.admin.remote.dto.request.ShortLinkUpdateReqDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkSaveRespDTO;
+import com.feng.shortlink.admin.remote.dto.response.ShortLinkStatsRespDTO;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
  **/
 @RestController
 public class ShortLinkController {
-    ShortLinkRemoteService shortLinkRemoteService;
+    ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService () {};
     
     /**
      * 新增短链接
@@ -32,7 +34,6 @@ public class ShortLinkController {
      */
     @PostMapping("/api/fenglink/v1/admin/shortlink")
     public Result<ShortLinkSaveRespDTO> saveShortLink (@RequestBody ShortLinkSaveReqDTO requestParam){
-        shortLinkRemoteService = new ShortLinkRemoteService () {};
         return shortLinkRemoteService.saveShortLink(requestParam);
     }
     
@@ -43,7 +44,6 @@ public class ShortLinkController {
      */
     @PostMapping("/api/fenglink/v1/admin/shortlink/update")
     public Result<Void> updateShortLink (@RequestBody ShortLinkUpdateReqDTO requestParam) {
-        shortLinkRemoteService = new ShortLinkRemoteService () {};
         shortLinkRemoteService.updateShortLink (requestParam);
         return Results.success ();
     }
@@ -56,7 +56,11 @@ public class ShortLinkController {
      */
     @GetMapping("/api/fenglink/v1/admin/shortlink")
     public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkPageReqDTO requestParam) {
-        shortLinkRemoteService = new ShortLinkRemoteService () {};
         return shortLinkRemoteService.pageShortLink(requestParam);
+    }
+    
+    @GetMapping("/api/short-link/v1/admin/stats")
+    public Result<ShortLinkStatsRespDTO> getShortLinkStats(@RequestBody ShortLinkStatsReqDTO requestParam) {
+        return shortLinkRemoteService.getShortLinkStats (requestParam);
     }
 }
