@@ -1,6 +1,10 @@
 package com.feng.shortlink.project.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import groovy.transform.builder.Builder;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -10,6 +14,10 @@ import java.util.Date;
  * @project feng-shortlink
  * @description 短链接基础访问监控响应参数
  **/
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ShortLinkStatsAccessDailyRespDTO {
     /**
      * 日期
