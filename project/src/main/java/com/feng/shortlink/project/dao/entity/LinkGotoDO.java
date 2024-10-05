@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
  * @author FENGXIN
  * @date 2024/10/2
  * @project feng-shortlink
- * @description
+ * @description 短链接路由实体
  **/
 @Data
 @TableName("t_link_goto")

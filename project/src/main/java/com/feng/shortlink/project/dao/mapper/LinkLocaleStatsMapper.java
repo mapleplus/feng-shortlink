@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Param;
  * @author FENGXIN
  * @date 2024/10/4
  * @project feng-shortlink
- * @description 地区统计实体mapper
+ * @description 地区统计mapper
  **/
 public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsDO> {
    

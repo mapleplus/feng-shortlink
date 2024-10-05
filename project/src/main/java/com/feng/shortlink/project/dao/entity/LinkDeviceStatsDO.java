@@ -10,7 +10,7 @@ import java.util.Date;
  * @author FENGXIN
  * @date 2024/10/5
  * @project feng-shortlink
- * @description
+ * @description 访问设备统计信息实体
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data
