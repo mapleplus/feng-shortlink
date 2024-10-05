@@ -15,6 +15,6 @@ public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsDO> {
     @Override
     @Insert(" INSERT INTO t_link_locale_stats (gid, full_short_url, date, cnt, province, city, adcode, country, create_time, update_time, del_flag) " +
             "VALUES (#{linkLocaleStats.gid}, #{linkLocaleStats.fullShortUrl}, #{linkLocaleStats.date}, #{linkLocaleStats.cnt}, #{linkLocaleStats.province}, #{linkLocaleStats.city}, #{linkLocaleStats.adcode}, #{linkLocaleStats.country}, NOW(), NOW(), 0) " +
-            "ON DUPLICATE KEY UPDATE cnt = cnt + #{linkLocaleStats.cnt};")
+            "ON DUPLICATE KEY UPDATE cnt = cnt + #{linkLocaleStats.cnt},update_time = VALUES(update_time);")
     int insert(@Param("linkLocaleStats") LinkLocaleStatsDO linkLocaleStatsDO);
 }
