@@ -18,14 +18,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.project.common.convention.exception.ClientException;
 import com.feng.shortlink.project.common.convention.exception.ServiceException;
 import com.feng.shortlink.project.common.enums.ValidDateTypeEnum;
-import com.feng.shortlink.project.dao.entity.LinkAccessStatsDO;
-import com.feng.shortlink.project.dao.entity.LinkGotoDO;
-import com.feng.shortlink.project.dao.entity.LinkLocaleStatsDO;
-import com.feng.shortlink.project.dao.entity.ShortLinkDO;
-import com.feng.shortlink.project.dao.mapper.LinkAccessStatsMapper;
-import com.feng.shortlink.project.dao.mapper.LinkGotoMapper;
-import com.feng.shortlink.project.dao.mapper.LinkLocaleStatsMapper;
-import com.feng.shortlink.project.dao.mapper.ShortLinkMapper;
+import com.feng.shortlink.project.dao.entity.*;
+import com.feng.shortlink.project.dao.mapper.*;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkUpdateReqDTO;
@@ -76,6 +70,8 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     private final RedissonClient redissonClient;
     private final LinkAccessStatsMapper linkAccessStatsMapper;
     private final LinkLocaleStatsMapper linkLocaleStatsMapper;
+    private final LinkOsStatsMapper linkOsStatsMapper;
+    private final LinkBrowserStatsMapper linkBrowserStatsMapper;
     @Value ("${short-link.stats.locale.amap-key}")
     private String amapKey;
     @Override
@@ -204,7 +200,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         String originalLink = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_GOTO_KEY , fullLink));
         // 如果缓存有数据直接返回
         if (StringUtils.isNotBlank (originalLink)) {
-            linkAccessStats(null,fullLink,request,response);
+            linkStats (null,fullLink,request,response);
             // 返回重定向链接
             try {
                 // 重定向
@@ -244,7 +240,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             originalLink = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_GOTO_KEY , fullLink));
             // 如果缓存有数据直接返回
             if (StringUtils.isNotBlank (originalLink)) {
-                linkAccessStats(null,fullLink,request,response);
+                linkStats (null,fullLink,request,response);
                 // 返回重定向链接
                 try {
                     // 重定向
@@ -286,7 +282,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 }
                 return;
             }
-            linkAccessStats(shortLinkDO.getGid (),fullLink,request,response);
+            linkStats (shortLinkDO.getGid (),fullLink,request,response);
             // 返回重定向链接
             try {
                 // 设置缓存新数据
@@ -305,7 +301,15 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
         }
     }
     
-    private void linkAccessStats(String gid,String fullShortLink,HttpServletRequest request , HttpServletResponse response) {
+    /**
+     * 链接统计
+     *
+     * @param gid           GID
+     * @param fullShortLink 完整短链接
+     * @param request       请求
+     * @param response      响应
+     */
+    private void linkStats (String gid, String fullShortLink, HttpServletRequest request , HttpServletResponse response) {
         AtomicBoolean uvFlag = new AtomicBoolean ();
         Cookie[] cookies = request.getCookies ();
         try {
@@ -340,6 +344,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             String userIpAddress = ShortLinkUtil.getUserIpAddress (request);
             Long uipAdd = stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UIP_KEY , fullShortLink) , userIpAddress);
             boolean uipFlag = uipAdd != null && uipAdd > 0L;
+            // 一般数据统计
             // gid, full_short_url, date, pv, uv, uip, hour, weekday, create_time, update_time, del_flag
             if (StrUtil.isBlank (gid)){
                 LambdaQueryWrapper<LinkGotoDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
@@ -347,7 +352,6 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 gid = linkGotoMapper.selectOne (lambdaQueryWrapper).getGid();
             }
             Date fullDate = DateUtil.date (new Date ());
-            log.info ("当前时间{}" , fullDate);
             int hour = DateUtil.hour (fullDate , true);
             Week dayOfWeekEnum = DateUtil.dayOfWeekEnum (fullDate);
             int weekday = dayOfWeekEnum.getIso8601Value ();
@@ -364,6 +368,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .updateTime (fullDate)
                     .build ();
             linkAccessStatsMapper.insert(linkAccessStatsDO);
+            
             // 地区统计
             // 通过http工具访问高德地图接口获取地区
             Map<String,Object> localParamMap = new HashMap<>();
@@ -372,6 +377,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             String localInfo = HttpUtil.get (SHORT_LINK_LOCALE_STATS_URL , localParamMap);
             JSONObject localeObject = JSON.parseObject (localInfo , JSONObject.class);
             String infocode = localeObject.getString ("infocode");
+            // 如果状态🐎是10000则表示成功获取
             if(StrUtil.isNotBlank (infocode) && StrUtil.equals (infocode,"10000")){
                 String province = localeObject.getString ("province");
                 boolean unKnown = StrUtil.isBlank (province);
@@ -387,6 +393,25 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                         .build ();
                 linkLocaleStatsMapper.insert(linkLocaleStatsDO);
             }
+            
+            // 操作系统统计
+            LinkOsStatsDO linkOsStatsDO = LinkOsStatsDO.builder ()
+                    .gid (gid)
+                    .fullShortUrl (fullShortLink)
+                    .date (fullDate)
+                    .cnt (1)
+                    .os (ShortLinkUtil.getOperatingSystem (request))
+                    .build ();
+            linkOsStatsMapper.shortLinkBrowserState (linkOsStatsDO);
+            // 浏览器统计
+            LinkBrowserStatsDO linkBrowserStatsDO = LinkBrowserStatsDO.builder ()
+                    .gid (gid)
+                    .fullShortUrl (fullShortLink)
+                    .date (fullDate)
+                    .cnt (1)
+                    .browser (ShortLinkUtil.getBrowser (request))
+                    .build ();
+            linkBrowserStatsMapper.shortLinkBrowserState (linkBrowserStatsDO);
         } catch (Throwable ex) {
             log.error ("短链接统计异常{}" , ex.getMessage ());
         }
