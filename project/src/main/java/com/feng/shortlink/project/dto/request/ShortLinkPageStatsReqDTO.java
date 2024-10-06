@@ -1,15 +1,19 @@
 package com.feng.shortlink.project.dto.request;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.feng.shortlink.project.dao.entity.LinkAccessLogsDO;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 /**
- * 短链接统计需要 DTO
- *
  * @author FENGXIN
  * @date 2024/10/5
- */
+ * @project feng-shortlink
+ * @description 分页查询短链接监控访问请求参数
+ **/
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class ShortLinkStatsReqDTO {
+public class ShortLinkPageStatsReqDTO extends Page<LinkAccessLogsDO> {
     /**
      * 完整短链接
      */

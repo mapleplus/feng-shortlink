@@ -1,6 +1,9 @@
 package com.feng.shortlink.project.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.feng.shortlink.project.dto.request.ShortLinkPageStatsReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsReqDTO;
+import com.feng.shortlink.project.dto.response.ShortLinkPageStatsRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkStatsRespDTO;
 
 /**
@@ -17,4 +20,6 @@ public interface ShortLinkStatsService {
      * @return 短链接监控数据
      */
     ShortLinkStatsRespDTO getShortLinkStats(ShortLinkStatsReqDTO requestParam);
+    
+    IPage<ShortLinkPageStatsRespDTO> pageShortLinkStats (ShortLinkPageStatsReqDTO requestParam);
 }

@@ -1,11 +1,12 @@
 package com.feng.shortlink.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import com.feng.shortlink.project.dao.entity.LinkAccessStatsDO;
-import com.feng.shortlink.project.dao.entity.LinkDeviceStatsDO;
-import com.feng.shortlink.project.dao.entity.LinkLocaleStatsDO;
-import com.feng.shortlink.project.dao.entity.LinkNetworkStatsDO;
+import cn.hutool.core.collection.CollectionUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.feng.shortlink.project.dao.entity.*;
 import com.feng.shortlink.project.dao.mapper.*;
+import com.feng.shortlink.project.dto.request.ShortLinkPageStatsReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsReqDTO;
 import com.feng.shortlink.project.dto.response.*;
 import com.feng.shortlink.project.service.ShortLinkStatsService;
@@ -213,5 +214,45 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .deviceStats (shortLinkDeviceRespDTOList)
                 .networkStats (shortLinkNetworkRespDTOList)
                 .build();
+    }
+    
+    @Override
+    public IPage<ShortLinkPageStatsRespDTO> pageShortLinkStats (ShortLinkPageStatsReqDTO requestParam) {
+        // 查询要请求的数据
+        LambdaQueryWrapper<LinkAccessLogsDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkAccessLogsDO> ()
+                .eq (LinkAccessLogsDO::getFullShortUrl, requestParam.getFullShortUrl ())
+                .eq (LinkAccessLogsDO::getGid, requestParam.getGid ())
+                .eq (LinkAccessLogsDO::getDelFlag,0)
+                .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate () +" 00:00:00",requestParam.getEndDate () + " 23:59:59")
+                .orderByAsc (LinkAccessLogsDO::getCreateTime );
+        IPage<LinkAccessLogsDO> pageStatsReqDTO = linkAccessLogsMapper.selectPage (requestParam , lambdaQueryWrapper);
+        // convert成响应对象
+        IPage<ShortLinkPageStatsRespDTO> result = pageStatsReqDTO.convert (each -> BeanUtil.toBean (each , ShortLinkPageStatsRespDTO.class));
+        // 设置db查询参数 设置uvType
+        List<String> userAccessLogsList = result.getRecords ().stream ()
+                .map (ShortLinkPageStatsRespDTO::getUser)
+                .toList ();
+        if (CollectionUtil.isEmpty(userAccessLogsList)) {
+            return result;
+        }
+        ShortLinkPageStatsDO logMapperRequestParam = ShortLinkPageStatsDO.builder ()
+                .fullShortUrl (requestParam.getFullShortUrl ())
+                .gid (requestParam.getGid ())
+                .startDate (requestParam.getStartDate ())
+                .endDate (requestParam.getEndDate ())
+                .userAccessLogsList (userAccessLogsList)
+                .build ();
+        List<HashMap<String, Object>> uvTypeList = linkAccessLogsMapper.listAccessRecordByShortLink (logMapperRequestParam);
+        // 设置uvType
+        result.getRecords ().forEach (each ->{
+            String uvType = uvTypeList.stream ()
+                    .filter (item -> Objects.equals (each.getUser (),item.get("user")))
+                    .findFirst ()
+                    .map(item -> item.get("uvType"))
+                    .orElse ("老访客")
+                    .toString ();
+            each.setUvType (uvType);
+        });
+        return result;
     }
 }

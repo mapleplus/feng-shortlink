@@ -4,11 +4,9 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
 import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
-import com.feng.shortlink.admin.remote.dto.request.ShortLinkPageReqDTO;
-import com.feng.shortlink.admin.remote.dto.request.ShortLinkSaveReqDTO;
-import com.feng.shortlink.admin.remote.dto.request.ShortLinkStatsReqDTO;
-import com.feng.shortlink.admin.remote.dto.request.ShortLinkUpdateReqDTO;
+import com.feng.shortlink.admin.remote.dto.request.*;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
+import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageStatsRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkSaveRespDTO;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkStatsRespDTO;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -59,8 +57,22 @@ public class ShortLinkController {
         return shortLinkRemoteService.pageShortLink(requestParam);
     }
     
+    /**
+     * 获取短链接监控统计数据
+     *
+     * @param requestParam 请求参数
+     * @return {@code Result<ShortLinkStatsRespDTO> }
+     */
     @GetMapping("/api/short-link/v1/admin/stats")
     public Result<ShortLinkStatsRespDTO> getShortLinkStats(@RequestBody ShortLinkStatsReqDTO requestParam) {
         return shortLinkRemoteService.getShortLinkStats (requestParam);
+    }
+    
+    /**
+     * 分页短链接监控统计
+     */
+    @GetMapping("/api/short-link/v1/admin/stats/page")
+    public Result<IPage<ShortLinkPageStatsRespDTO>> pageShortLinkStats(@RequestBody ShortLinkPageStatsReqDTO requestParam) {
+        return shortLinkRemoteService.pageShortLinkStats (requestParam);
     }
 }

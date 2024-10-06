@@ -1,15 +1,15 @@
-package com.feng.shortlink.project.dto.request;
+package com.feng.shortlink.admin.remote.dto.request;
 
 import lombok.Data;
 
 /**
- * 短链接统计需要 DTO
- *
  * @author FENGXIN
  * @date 2024/10/5
- */
+ * @project feng-shortlink
+ * @description 分页查询短链接监控访问请求参数
+ **/
 @Data
-public class ShortLinkStatsReqDTO {
+public class ShortLinkPageStatsReqDTO {
     /**
      * 完整短链接
      */

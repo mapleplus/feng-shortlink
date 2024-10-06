@@ -8,10 +8,7 @@ import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.remote.dto.request.*;
-import com.feng.shortlink.admin.remote.dto.response.ShortLinkGroupQueryRespDTO;
-import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
-import com.feng.shortlink.admin.remote.dto.response.ShortLinkSaveRespDTO;
-import com.feng.shortlink.admin.remote.dto.response.ShortLinkStatsRespDTO;
+import com.feng.shortlink.admin.remote.dto.response.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -112,5 +109,14 @@ public interface ShortLinkRemoteService {
     default Result<ShortLinkStatsRespDTO> getShortLinkStats (ShortLinkStatsReqDTO requestParam){
         String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/short-link/v1/stats", BeanUtil.beanToMap(requestParam));
         return JSON.parseObject(responsePage, new TypeReference<> (){});
+    }
+    
+    default Result<IPage<ShortLinkPageStatsRespDTO>> pageShortLinkStats (ShortLinkPageStatsReqDTO requestParam){
+        Map<String, Object> stringObjectMap = BeanUtil.beanToMap(requestParam, false, true);
+        stringObjectMap.remove("orders");
+        stringObjectMap.remove("records");
+        String resultBodyStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/stats/page", stringObjectMap);
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {
+        });
     }
 }
