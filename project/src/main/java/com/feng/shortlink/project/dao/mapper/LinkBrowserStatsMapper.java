@@ -1,6 +1,7 @@
 package com.feng.shortlink.project.dao.mapper;
 
 import com.feng.shortlink.project.dao.entity.LinkBrowserStatsDO;
+import com.feng.shortlink.project.dto.request.ShortLinkStatsGroupReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsReqDTO;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
@@ -39,4 +40,19 @@ public interface LinkBrowserStatsMapper {
             "GROUP BY " +
             "    full_short_url, gid, date, browser;")
     List<HashMap<String, Object>> listBrowserStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
+    
+    /**
+     * 分组根据短链接获取指定日期内浏览器监控数据
+     */
+    @Select("SELECT " +
+            "    browser, " +
+            "    SUM(cnt) AS count " +
+            "FROM " +
+            "    t_link_browser_stats " +
+            "WHERE " +
+            "    gid = #{param.gid} " +
+            "    AND date BETWEEN #{param.startDate} and #{param.endDate} " +
+            "GROUP BY " +
+            "    gid, date, browser;")
+    List<HashMap<String, Object>> listBrowserStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
 }

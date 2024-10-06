@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.project.dao.entity.*;
 import com.feng.shortlink.project.dao.mapper.*;
 import com.feng.shortlink.project.dto.request.ShortLinkPageStatsReqDTO;
+import com.feng.shortlink.project.dto.request.ShortLinkStatsGroupReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsReqDTO;
 import com.feng.shortlink.project.dto.response.*;
 import com.feng.shortlink.project.service.ShortLinkStatsService;
@@ -135,7 +136,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .mapToInt (each -> Integer.parseInt (each.get("count").toString ()))
                 .sum ();
         listOsStatsByShortLink.forEach (each ->{
-            double ratio = (double) Integer.parseInt (each.get ("count").toString ()) / browserCnt;
+            double ratio = (double) Integer.parseInt (each.get ("count").toString ()) / osCnt;
             double actualRatio = Math.round (ratio * 100.0) / 100.0;
             ShortLinkStatsOsRespDTO build = ShortLinkStatsOsRespDTO.builder ()
                     .os (each.get ("os").toString ())
@@ -152,16 +153,18 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         int oldUserCnt = Integer.parseInt (uvTypeCntByShortLink.get ("oldUserCnt").toString ());
         int newUserCnt = Integer.parseInt (uvTypeCntByShortLink.get ("newUserCnt").toString ());
         int userCnt = oldUserCnt + newUserCnt;
-        double oldUserRatio = Math.round (oldUserCnt * 100.0) / 100.0;
-        double newUserRatio = Math.round (newUserCnt * 100.0) / 100.0;
+        double oldUserRatio = (double) oldUserCnt / userCnt;
+        double newUserRatio = (double) newUserCnt / userCnt;
+        double actualOldUserRatio = Math.round (oldUserRatio * 100.0) / 100.0;
+        double actualNewUserRatio = Math.round (newUserRatio * 100.0) / 100.0;
         ShortLinkStatsUvRespDTO oldUser = ShortLinkStatsUvRespDTO.builder ()
                 .uvType ("oldUser")
-                .ratio (oldUserRatio)
+                .ratio (actualOldUserRatio)
                 .cnt (oldUserCnt)
                 .build ();
         ShortLinkStatsUvRespDTO newUser = ShortLinkStatsUvRespDTO.builder ()
                 .uvType ("newUser")
-                .ratio (newUserRatio)
+                .ratio (actualNewUserRatio)
                 .cnt (newUserCnt)
                 .build ();
         shortLinkUvRespDTOList.add (oldUser);
@@ -193,7 +196,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .mapToInt (each -> Integer.parseInt (each.getCnt ().toString ()))
                 .sum ();
         listNetworkStatsByShortLink.forEach (each ->{
-            double ratio = (double) each.getCnt () / deviceCnt;
+            double ratio = (double) each.getCnt () / networkCnt;
             double actualRatio = Math.round (ratio * 100.0) / 100.0;
             ShortLinkStatsNetworkRespDTO build = ShortLinkStatsNetworkRespDTO.builder ()
                     .cnt (each.getCnt ())
@@ -254,5 +257,186 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             each.setUvType (uvType);
         });
         return result;
+    }
+    
+    @Override
+    public ShortLinkStatsGroupRespDTO groupShortLinkStats (ShortLinkStatsGroupReqDTO requestParam) {
+        /*
+        基础监控统计
+         */
+        List<LinkAccessStatsDO> listStatsByShortLinkGroup = linkAccessStatsMapper.listStatsByShortLinkGroup (requestParam);
+        /*
+        地区监控统计
+         */
+        List<ShortLinkStatsLocaleCNRespDTO> linkStatsLocaleCnRespDTOList = new ArrayList<> ();
+        List<LinkLocaleStatsDO> listLocaleByShortLinkGroup = linkLocaleStatsMapper.listLocaleByShortLinkGroup (requestParam);
+        // 统计所有地区访问数量
+        int localeStatsCnSum = listLocaleByShortLinkGroup
+                .stream ()
+                .mapToInt (LinkLocaleStatsDO::getCnt)
+                .sum ();
+        // 统计百分比 并赋值响应体
+        listLocaleByShortLinkGroup
+                .forEach (each ->{
+                    double ratio = (double) each.getCnt () /localeStatsCnSum;
+                    double actualRatio = Math.round (ratio * 100.0) / 100.0;
+                    ShortLinkStatsLocaleCNRespDTO build = ShortLinkStatsLocaleCNRespDTO.builder ()
+                            .cnt (each.getCnt ())
+                            .locale (each.getProvince ())
+                            .ratio (actualRatio)
+                            .build ();
+                    linkStatsLocaleCnRespDTOList.add (build);
+                });
+        /*
+        小时监控统计
+         */
+        List<Integer> hourStats = new ArrayList<> ();
+        List<LinkAccessStatsDO> listHourStatsByShortLinkGroup = linkAccessStatsMapper.listHourStatsByShortLinkGroup (requestParam);
+        for (int i = 0 ; i < 24 ; i++) {
+            // 统计该条短链接每小时的访问量 没有就设置0
+            AtomicInteger hour = new AtomicInteger (i);
+            int hourPv = listHourStatsByShortLinkGroup.stream ()
+                    .filter (each -> Objects.equals (each.getHour () , hour.get ()))
+                    .findFirst ()
+                    .map (LinkAccessStatsDO::getPv)
+                    .orElse (0);
+            hourStats.add (hourPv);
+        }
+        /*
+        高频访问IP详情
+         */
+        List<ShortLinkStatsTopIpRespDTO> shortLinkStatsTopIpRespDTOList = new ArrayList<> ();
+        linkAccessLogsMapper.listTopIpByShortLinkGroup (requestParam)
+                .forEach (each ->{
+                    ShortLinkStatsTopIpRespDTO build = ShortLinkStatsTopIpRespDTO.builder ()
+                            .ip (each.get ("ip").toString ())
+                            .cnt (Integer.valueOf (each.get ("count").toString ()))
+                            .build ();
+                    shortLinkStatsTopIpRespDTOList.add (build);
+                });
+        /*
+        一周访问详情
+         */
+        List<Integer> weekdayStats = new ArrayList<> ();
+        List<LinkAccessStatsDO> listWeekdayStatsByShortLinkGroup = linkAccessStatsMapper.listWeekdayStatsByShortLinkGroup (requestParam);
+        for (int i = 1 ; i < 8 ; i++) {
+            AtomicInteger weekday = new AtomicInteger (i);
+            Integer weekdayCnt = listWeekdayStatsByShortLinkGroup
+                    .stream ()
+                    .filter (each -> Objects.equals (each.getWeekday () , weekday.get ()))
+                    .findFirst ()
+                    .map (LinkAccessStatsDO::getPv)
+                    .orElse (0);
+            weekdayStats.add (weekdayCnt);
+        }
+        /*
+        浏览器访问详情
+         */
+        List<ShortLinkStatsBrowserRespDTO> shortLinkBrowserRespDTOList = new ArrayList<> ();
+        List<HashMap<String, Object>> listBrowserStatsByShortLinkGroup = linkBrowserStatsMapper.listBrowserStatsByShortLinkGroup (requestParam);
+        // 总浏览器数
+        int browserCnt = listBrowserStatsByShortLinkGroup.stream ()
+                .mapToInt (each -> Integer.parseInt (each.get ("count").toString ()))
+                .sum ();
+        listBrowserStatsByShortLinkGroup.forEach (each ->{
+            double ratio = (double) Integer.parseInt (each.get ("count").toString ()) / browserCnt;
+            double actualRatio = Math.round (ratio * 100.0) / 100.0;
+            ShortLinkStatsBrowserRespDTO build = ShortLinkStatsBrowserRespDTO.builder ()
+                    .browser (each.get ("browser").toString ())
+                    .ratio (actualRatio)
+                    .cnt (Integer.parseInt (each.get ("count").toString ()))
+                    .build ();
+            shortLinkBrowserRespDTOList.add (build);
+        });
+        /*
+        操作系统访问详情
+         */
+        List<ShortLinkStatsOsRespDTO> shortLinkOsRespDTOList = new ArrayList<> ();
+        List<HashMap<String, Object>> listOsStatsByShortLinkGroup = linkOsStatsMapper.listOsStatsByShortLinkGroup (requestParam);
+        int osCnt = listOsStatsByShortLinkGroup.stream ()
+                .mapToInt (each -> Integer.parseInt (each.get("count").toString ()))
+                .sum ();
+        listOsStatsByShortLinkGroup.forEach (each ->{
+            double ratio = (double) Integer.parseInt (each.get ("count").toString ()) / osCnt;
+            double actualRatio = Math.round (ratio * 100.0) / 100.0;
+            ShortLinkStatsOsRespDTO build = ShortLinkStatsOsRespDTO.builder ()
+                    .os (each.get ("os").toString ())
+                    .ratio (actualRatio)
+                    .cnt (Integer.parseInt (each.get ("count").toString ()))
+                    .build ();
+            shortLinkOsRespDTOList.add (build);
+        });
+        /*
+        访客访问类型详情
+         */
+        List<ShortLinkStatsUvRespDTO> shortLinkUvRespDTOList = new ArrayList<> ();
+        HashMap<String, Object> uvTypeCntByShortLinkGroup = linkAccessLogsMapper.findUvTypeCntByShortLinkGroup (requestParam);
+        int oldUserCnt = Integer.parseInt (uvTypeCntByShortLinkGroup.get ("oldUserCnt").toString ());
+        int newUserCnt = Integer.parseInt (uvTypeCntByShortLinkGroup.get ("newUserCnt").toString ());
+        int userCnt = oldUserCnt + newUserCnt;
+        double oldUserRatio = (double) oldUserCnt / userCnt;
+        double newUserRatio = (double) newUserCnt / userCnt;
+        double actualOldUserRatio = Math.round (oldUserRatio * 100.0) / 100.0;
+        double actualNewUserRatio = Math.round (newUserRatio * 100.0) / 100.0;
+        ShortLinkStatsUvRespDTO oldUser = ShortLinkStatsUvRespDTO.builder ()
+                .uvType ("oldUser")
+                .ratio (actualOldUserRatio)
+                .cnt (oldUserCnt)
+                .build ();
+        ShortLinkStatsUvRespDTO newUser = ShortLinkStatsUvRespDTO.builder ()
+                .uvType ("newUser")
+                .ratio (actualNewUserRatio)
+                .cnt (newUserCnt)
+                .build ();
+        shortLinkUvRespDTOList.add (oldUser);
+        shortLinkUvRespDTOList.add (newUser);
+        /*
+        访问设备类型详情
+         */
+        List<ShortLinkStatsDeviceRespDTO> shortLinkDeviceRespDTOList = new ArrayList<> ();
+        List<LinkDeviceStatsDO> listDeviceStatsByShortLinkGroup = linkDeviceStatsMapper.listDeviceStatsByShortLinkGroup (requestParam);
+        int deviceCnt = listDeviceStatsByShortLinkGroup.stream ()
+                .mapToInt (LinkDeviceStatsDO::getCnt)
+                .sum ();
+        listDeviceStatsByShortLinkGroup.forEach (each ->{
+            double ratio = (double) each.getCnt () / deviceCnt;
+            double actualRatio = Math.round (ratio * 100.0) / 100.0;
+            ShortLinkStatsDeviceRespDTO build = ShortLinkStatsDeviceRespDTO.builder ()
+                    .cnt (deviceCnt)
+                    .ratio (actualRatio)
+                    .device (each.getDevice ())
+                    .build ();
+            shortLinkDeviceRespDTOList.add (build);
+        });
+        /*
+        访问网络类型详情
+         */
+        List<ShortLinkStatsNetworkRespDTO> shortLinkNetworkRespDTOList = new ArrayList<> ();
+        List<LinkNetworkStatsDO> listNetworkStatsByShortLinkGroup = linkNetworkStatsMapper.listNetworkStatsByShortLinkGroup (requestParam);
+        int networkCnt = listNetworkStatsByShortLinkGroup.stream ()
+                .mapToInt (each -> Integer.parseInt (each.getCnt ().toString ()))
+                .sum ();
+        listNetworkStatsByShortLinkGroup.forEach (each ->{
+            double ratio = (double) each.getCnt () / networkCnt;
+            double actualRatio = Math.round (ratio * 100.0) / 100.0;
+            ShortLinkStatsNetworkRespDTO build = ShortLinkStatsNetworkRespDTO.builder ()
+                    .cnt (each.getCnt ())
+                    .ratio (actualRatio)
+                    .network (each.getNetwork ())
+                    .build ();
+            shortLinkNetworkRespDTOList.add (build);
+        });
+        return ShortLinkStatsGroupRespDTO.builder ()
+                .daily (BeanUtil.copyToList (listStatsByShortLinkGroup,ShortLinkStatsAccessDailyRespDTO.class))
+                .localeCnStats (linkStatsLocaleCnRespDTOList)
+                .hourStats (hourStats)
+                .topIpStats (shortLinkStatsTopIpRespDTOList)
+                .weekdayStats (weekdayStats)
+                .browserStats (shortLinkBrowserRespDTOList)
+                .osStats (shortLinkOsRespDTOList)
+                .uvTypeStats (shortLinkUvRespDTOList)
+                .deviceStats (shortLinkDeviceRespDTOList)
+                .networkStats (shortLinkNetworkRespDTOList)
+                .build();
     }
 }

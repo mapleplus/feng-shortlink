@@ -26,9 +26,6 @@ public class ShortLinkController {
     
     /**
      * 新增短链接
-     *
-     * @param requestParam 请求参数
-     * @return {@code Result<ShortLinkSaveRespDTO> }
      */
     @PostMapping("/api/fenglink/v1/admin/shortlink")
     public Result<ShortLinkSaveRespDTO> saveShortLink (@RequestBody ShortLinkSaveReqDTO requestParam){
@@ -37,8 +34,6 @@ public class ShortLinkController {
     
     /**
      * 处理修改短链接的请求。
-     *
-     * @param requestParam 包含有关要修改的短链接详细信息的请求参数
      */
     @PostMapping("/api/fenglink/v1/admin/shortlink/update")
     public Result<Void> updateShortLink (@RequestBody ShortLinkUpdateReqDTO requestParam) {
@@ -48,9 +43,6 @@ public class ShortLinkController {
     
     /**
      * 分页查询短链接
-     *
-     * @param requestParam 请求参数
-     * @return {@code Result<IPage<ShortLinkPageRespDTO>> }
      */
     @GetMapping("/api/fenglink/v1/admin/shortlink")
     public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkPageReqDTO requestParam) {
@@ -58,10 +50,7 @@ public class ShortLinkController {
     }
     
     /**
-     * 获取短链接监控统计数据
-     *
-     * @param requestParam 请求参数
-     * @return {@code Result<ShortLinkStatsRespDTO> }
+     * 获取单条短链接监控统计数据
      */
     @GetMapping("/api/short-link/v1/admin/stats")
     public Result<ShortLinkStatsRespDTO> getShortLinkStats(@RequestBody ShortLinkStatsReqDTO requestParam) {
@@ -74,5 +63,13 @@ public class ShortLinkController {
     @GetMapping("/api/short-link/v1/admin/stats/page")
     public Result<IPage<ShortLinkPageStatsRespDTO>> pageShortLinkStats(@RequestBody ShortLinkPageStatsReqDTO requestParam) {
         return shortLinkRemoteService.pageShortLinkStats (requestParam);
+    }
+    
+    /**
+     * 获取分组短链接监控统计数据
+     */
+    @GetMapping("/api/short-link/v1/admin/stats/group")
+    public Result<ShortLinkStatsRespDTO> groupShortLinkStats(@RequestBody ShortLinkStatsGroupReqDTO requestParam) {
+        return shortLinkRemoteService.groupShortLinkStats (requestParam);
     }
 }

@@ -4,8 +4,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.project.common.convention.result.Result;
 import com.feng.shortlink.project.common.convention.result.Results;
 import com.feng.shortlink.project.dto.request.ShortLinkPageStatsReqDTO;
+import com.feng.shortlink.project.dto.request.ShortLinkStatsGroupReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageStatsRespDTO;
+import com.feng.shortlink.project.dto.response.ShortLinkStatsGroupRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkStatsRespDTO;
 import com.feng.shortlink.project.service.ShortLinkStatsService;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +27,7 @@ public class ShortLinkStatsController {
     private final ShortLinkStatsService shortLinkStatsService;
     
     /**
-     * 获取短链接监控统计数据
+     * 获取单条短链接监控统计数据
      */
     @GetMapping("/api/short-link/v1/stats")
     public Result<ShortLinkStatsRespDTO> getShortLinkStats(ShortLinkStatsReqDTO requestParam) {
@@ -38,5 +40,13 @@ public class ShortLinkStatsController {
     @GetMapping("/api/short-link/v1/stats/page")
     public Result<IPage<ShortLinkPageStatsRespDTO>> pageShortLinkStats(ShortLinkPageStatsReqDTO requestParam) {
         return Results.success (shortLinkStatsService.pageShortLinkStats (requestParam));
+    }
+    
+    /**
+     * 获取分组短链接监控统计数据
+     */
+    @GetMapping("/api/short-link/v1/stats/group")
+    public Result<ShortLinkStatsGroupRespDTO> groupShortLinkStats(ShortLinkStatsGroupReqDTO requestParam) {
+        return Results.success (shortLinkStatsService.groupShortLinkStats (requestParam));
     }
 }

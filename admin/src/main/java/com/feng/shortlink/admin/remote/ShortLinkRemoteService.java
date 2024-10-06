@@ -106,11 +106,17 @@ public interface ShortLinkRemoteService {
         HttpUtil.post ("http://127.0.0.1:8001/api/fenglink/v1/shortlink/recycle-bin/remove" , JSON.toJSONString (requestParam));
     }
     
+    /**
+     * 获取单条短链接监控统计数据
+     */
     default Result<ShortLinkStatsRespDTO> getShortLinkStats (ShortLinkStatsReqDTO requestParam){
         String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/short-link/v1/stats", BeanUtil.beanToMap(requestParam));
         return JSON.parseObject(responsePage, new TypeReference<> (){});
     }
     
+    /**
+     * 分页短链接监控统计
+     */
     default Result<IPage<ShortLinkPageStatsRespDTO>> pageShortLinkStats (ShortLinkPageStatsReqDTO requestParam){
         Map<String, Object> stringObjectMap = BeanUtil.beanToMap(requestParam, false, true);
         stringObjectMap.remove("orders");
@@ -118,5 +124,13 @@ public interface ShortLinkRemoteService {
         String resultBodyStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/stats/page", stringObjectMap);
         return JSON.parseObject(resultBodyStr, new TypeReference<>() {
         });
+    }
+    
+    /**
+     * 获取分组短链接监控统计数据
+     */
+    default Result<ShortLinkStatsRespDTO> groupShortLinkStats (ShortLinkStatsGroupReqDTO requestParam){
+        String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/short-link/v1/stats/group", BeanUtil.beanToMap(requestParam));
+        return JSON.parseObject(responsePage, new TypeReference<> (){});
     }
 }
