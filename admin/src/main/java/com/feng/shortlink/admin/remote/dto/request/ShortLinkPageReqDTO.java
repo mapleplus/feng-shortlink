@@ -18,4 +18,9 @@ public class ShortLinkPageReqDTO extends Page<GroupDO> {
      * 分组标识
      */
     private String gid;
+    
+    /**
+     * 排序标签
+     */
+    private String orderTag;
 }

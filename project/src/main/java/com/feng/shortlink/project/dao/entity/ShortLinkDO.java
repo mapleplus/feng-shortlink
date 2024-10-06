@@ -1,7 +1,6 @@
 package com.feng.shortlink.project.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
@@ -62,8 +61,17 @@ public class ShortLinkDO extends BaseDO {
     private String describe;
     
     /**
-     * 删除标识 0 未删除 1 已删除
+     * 总uv
      */
-    @TableLogic
-    private Integer delFlag;
+    private Integer  totalUv;
+    
+    /**
+     * 总 PV
+     */
+    private Integer  totalPv;
+    
+    /**
+     * 总 UIP
+     */
+    private Integer  totalUip;
 }
