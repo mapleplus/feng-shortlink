@@ -8,15 +8,11 @@ import lombok.EqualsAndHashCode;
  * @author FENGXIN
  * @date 2024/10/5
  * @project feng-shortlink
- * @description 分页查询短链接监控访问请求参数
+ * @description 分组分页查询短链接监控访问请求参数
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ShortLinkPageStatsReqDTO extends Page {
-    /**
-     * 完整短链接
-     */
-    private String fullShortUrl;
+public class ShortLinkPageStatsGroupReqDTO extends Page {
     
     /**
      * 分组标识

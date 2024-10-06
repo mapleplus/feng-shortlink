@@ -1,8 +1,11 @@
-package com.feng.shortlink.admin.remote.dto.request;
+package com.feng.shortlink.project.dao.entity;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @author FENGXIN
@@ -10,13 +13,11 @@ import lombok.EqualsAndHashCode;
  * @project feng-shortlink
  * @description 分页查询短链接监控访问请求参数
  **/
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class ShortLinkPageStatsReqDTO extends Page {
-    /**
-     * 完整短链接
-     */
-    private String fullShortUrl;
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class LinkPageStatsGroupDO {
     
     /**
      * 分组标识
@@ -32,4 +33,9 @@ public class ShortLinkPageStatsReqDTO extends Page {
      * 结束日期
      */
     private String endDate;
+    
+    /**
+     * 用户访问日志列表
+     */
+    private List<String> userAccessLogsList;
 }

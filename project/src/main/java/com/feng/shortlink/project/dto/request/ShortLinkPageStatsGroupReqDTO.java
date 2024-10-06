@@ -1,6 +1,7 @@
-package com.feng.shortlink.admin.remote.dto.request;
+package com.feng.shortlink.project.dto.request;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.feng.shortlink.project.dao.entity.LinkAccessLogsDO;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
@@ -12,11 +13,7 @@ import lombok.EqualsAndHashCode;
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class ShortLinkPageStatsReqDTO extends Page {
-    /**
-     * 完整短链接
-     */
-    private String fullShortUrl;
+public class ShortLinkPageStatsGroupReqDTO extends Page<LinkAccessLogsDO> {
     
     /**
      * 分组标识

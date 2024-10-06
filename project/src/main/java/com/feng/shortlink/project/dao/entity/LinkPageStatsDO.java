@@ -17,7 +17,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ShortLinkPageStatsDO {
+public class LinkPageStatsDO {
     /**
      * 完整短链接
      */

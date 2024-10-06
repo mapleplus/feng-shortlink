@@ -1,9 +1,11 @@
 package com.feng.shortlink.project.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.feng.shortlink.project.dto.request.ShortLinkPageStatsGroupReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkPageStatsReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsGroupReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsReqDTO;
+import com.feng.shortlink.project.dto.response.ShortLinkPageStatsGroupRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageStatsRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkStatsGroupRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkStatsRespDTO;
@@ -38,4 +40,6 @@ public interface ShortLinkStatsService {
      * @return 分组短链接监控数据
      */
     ShortLinkStatsGroupRespDTO groupShortLinkStats (ShortLinkStatsGroupReqDTO requestParam);
+    
+    IPage<ShortLinkPageStatsGroupRespDTO> pageGroupShortLinkStats (ShortLinkPageStatsGroupReqDTO requestParam);
 }

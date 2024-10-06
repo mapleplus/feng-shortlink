@@ -5,10 +5,7 @@ import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
 import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
 import com.feng.shortlink.admin.remote.dto.request.*;
-import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageRespDTO;
-import com.feng.shortlink.admin.remote.dto.response.ShortLinkPageStatsRespDTO;
-import com.feng.shortlink.admin.remote.dto.response.ShortLinkSaveRespDTO;
-import com.feng.shortlink.admin.remote.dto.response.ShortLinkStatsRespDTO;
+import com.feng.shortlink.admin.remote.dto.response.*;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -71,5 +68,13 @@ public class ShortLinkController {
     @GetMapping("/api/short-link/v1/admin/stats/group")
     public Result<ShortLinkStatsRespDTO> groupShortLinkStats(@RequestBody ShortLinkStatsGroupReqDTO requestParam) {
         return shortLinkRemoteService.groupShortLinkStats (requestParam);
+    }
+    
+    /**
+     * 分组分页短链接监控统计
+     */
+    @GetMapping("/api/short-link/v1/admin/stats/page/group")
+    public Result<IPage<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats(@RequestBody ShortLinkPageStatsGroupReqDTO requestParam) {
+        return shortLinkRemoteService.pageGroupShortLinkStats (requestParam);
     }
 }

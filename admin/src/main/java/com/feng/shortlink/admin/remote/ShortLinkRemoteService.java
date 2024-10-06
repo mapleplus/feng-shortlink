@@ -122,8 +122,7 @@ public interface ShortLinkRemoteService {
         stringObjectMap.remove("orders");
         stringObjectMap.remove("records");
         String resultBodyStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/stats/page", stringObjectMap);
-        return JSON.parseObject(resultBodyStr, new TypeReference<>() {
-        });
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
     }
     
     /**
@@ -132,5 +131,16 @@ public interface ShortLinkRemoteService {
     default Result<ShortLinkStatsRespDTO> groupShortLinkStats (ShortLinkStatsGroupReqDTO requestParam){
         String responsePage = HttpUtil.get ("http://127.0.0.1:8001/api/short-link/v1/stats/group", BeanUtil.beanToMap(requestParam));
         return JSON.parseObject(responsePage, new TypeReference<> (){});
+    }
+    
+    /**
+     * 分组分页短链接监控统计
+     */
+    default Result<IPage<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats (ShortLinkPageStatsGroupReqDTO requestParam){
+        Map<String, Object> stringObjectMap = BeanUtil.beanToMap(requestParam, false, true);
+        stringObjectMap.remove("orders");
+        stringObjectMap.remove("records");
+        String resultBodyStr = HttpUtil.get("http://127.0.0.1:8001/api/short-link/v1/stats/page/group", stringObjectMap);
+        return JSON.parseObject(resultBodyStr, new TypeReference<>() {});
     }
 }

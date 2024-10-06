@@ -2,7 +2,8 @@ package com.feng.shortlink.project.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.feng.shortlink.project.dao.entity.LinkAccessLogsDO;
-import com.feng.shortlink.project.dao.entity.ShortLinkPageStatsDO;
+import com.feng.shortlink.project.dao.entity.LinkPageStatsDO;
+import com.feng.shortlink.project.dao.entity.LinkPageStatsGroupDO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsGroupReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsReqDTO;
 import org.apache.ibatis.annotations.Insert;
@@ -103,6 +104,9 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
             ") AS user_counts;")
     HashMap<String, Object> findUvTypeCntByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
     
+    /**
+     * 分页查询短链接新老访客访问记录
+     */
     @Select("<script> " +
             "SELECT " +
             "    user, " +
@@ -123,5 +127,29 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
             "    user;" +
             "    </script>"
     )
-    List<HashMap<String, Object>> listAccessRecordByShortLink(@Param("requestParam") ShortLinkPageStatsDO requestParam);
+    List<HashMap<String, Object>> listAccessRecordByShortLink(@Param("requestParam") LinkPageStatsDO requestParam);
+    
+    /**
+     * 分组分页查询短链接新老访客访问记录
+     */
+    @Select("<script> " +
+            "SELECT " +
+            "    user, " +
+            "    CASE " +
+            "        WHEN MIN(create_time) BETWEEN #{requestParam.startDate} AND #{requestParam.endDate} THEN '新访客' " +
+            "        ELSE '老访客' " +
+            "    END AS uvType " +
+            "FROM " +
+            "    t_link_access_logs " +
+            "WHERE " +
+            "    gid = #{requestParam.gid} " +
+            "    AND user IN " +
+            "    <foreach item='item' index='index' collection='requestParam.userAccessLogsList' open='(' separator=',' close=')'> " +
+            "        #{item} " +
+            "    </foreach> " +
+            "GROUP BY " +
+            "    user;" +
+            "    </script>"
+    )
+    List<HashMap<String, Object>> listGroupAccessRecordByShortLink(@Param("requestParam") LinkPageStatsGroupDO requestParam);
 }
