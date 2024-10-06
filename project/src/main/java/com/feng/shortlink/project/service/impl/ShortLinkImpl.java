@@ -323,6 +323,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 // 设置响应cookie
                 uv.set (UUID.fastUUID ().toString ());
                 Cookie cookie = new Cookie ("uv",uv.get ());
+                // cookie设置为30天
                 cookie.setMaxAge (60 * 60 * 24 * 30);
                 // 设置路径 只有当前短链接后缀访问时才携带cookie（不过也不影响 默认是当前路径及其子路径）
                 cookie.setPath (StrUtil.sub (fullShortLink,fullShortLink.indexOf ("/"),fullShortLink.length ()));
@@ -340,6 +341,8 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                         .ifPresentOrElse (each ->{
                             // 设置uv 方便后续使用
                             uv.set(each);
+                            // 如果缓存有cookie 说明在当天该用户是同一个 uv不能叠加 如果cookie不存在缓存则需要叠加（此时是第二天）
+                            // TODO 设置缓存cookie有效期为当天
                             Long uvAdd = stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink) , each);
                             uvFlag.set (uvAdd != null && uvAdd > 0L);
                         },generateCookieTask);
@@ -385,6 +388,8 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             JSONObject localeObject = JSON.parseObject (localInfo , JSONObject.class);
             String infocode = localeObject.getString ("infocode");
             // 如果状态🐎是10000则表示成功获取
+            String actualProvince = "未知";
+            String actualCity = "未知";
             if(StrUtil.isNotBlank (infocode) && StrUtil.equals (infocode,"10000")){
                 String province = localeObject.getString ("province");
                 boolean unKnown = StrUtil.equals (province,"[]");
@@ -392,8 +397,8 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                         .gid (gid)
                         .fullShortUrl (fullShortLink)
                         .date (fullDate)
-                        .province (unKnown ? "未知" : province)
-                        .city (unKnown ? "未知" : localeObject.getString ("city"))
+                        .province (actualProvince = unKnown ? "未知" : province)
+                        .city (actualCity = unKnown ? "未知" : localeObject.getString ("city"))
                         .adcode (unKnown ? "未知" : localeObject.getString ("adcode"))
                         .country ("中国")
                         .cnt (1)
@@ -423,6 +428,28 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .build ();
             linkBrowserStatsMapper.shortLinkBrowserState (linkBrowserStatsDO);
             
+            // 访问设备统计
+            String device = ShortLinkUtil.getDevice (request);
+            LinkDeviceStatsDO linkDeviceStatsDO = LinkDeviceStatsDO.builder ()
+                    .gid (gid)
+                    .fullShortUrl (fullShortLink)
+                    .date (fullDate)
+                    .cnt (1)
+                    .device (device)
+                    .build ();
+            linkDeviceStatsMapper.shortLinkDeviceState (linkDeviceStatsDO);
+            
+            // 访问网络统计
+            String network = ShortLinkUtil.getUserNetwork (request);
+            LinkNetworkStatsDO linkNetworkStatsDO = LinkNetworkStatsDO.builder ()
+                    .gid (gid)
+                    .fullShortUrl (fullShortLink)
+                    .date (fullDate)
+                    .cnt (1)
+                    .network (network)
+                    .build ();
+            linkNetworkStatsMapper.shortLinkNetworkState (linkNetworkStatsDO);
+            
             // 日志统计
             LinkAccessLogsDO linkAccessLogsDO = LinkAccessLogsDO.builder ()
                     .gid (gid)
@@ -431,29 +458,12 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .user (uv.get ())
                     .os (os)
                     .browser (browser)
+                    .network (network)
+                    .device (device)
+                    .locale (StrUtil.join ("-","中国",actualProvince,actualCity))
                     .cnt (1)
                     .build ();
             linkAccessLogsMapper.shortLinkBrowserState (linkAccessLogsDO);
-            
-            // 访问设备统计
-            LinkDeviceStatsDO linkDeviceStatsDO = LinkDeviceStatsDO.builder ()
-                    .gid (gid)
-                    .fullShortUrl (fullShortLink)
-                    .date (fullDate)
-                    .cnt (1)
-                    .device (ShortLinkUtil.getDevice (request))
-                    .build ();
-            linkDeviceStatsMapper.shortLinkDeviceState (linkDeviceStatsDO);
-            
-            // 访问网络统计
-            LinkNetworkStatsDO linkNetworkStatsDO = LinkNetworkStatsDO.builder ()
-                    .gid (gid)
-                    .fullShortUrl (fullShortLink)
-                    .date (fullDate)
-                    .cnt (1)
-                    .network (ShortLinkUtil.getUserNetwork (request))
-                    .build ();
-            linkNetworkStatsMapper.shortLinkNetworkState (linkNetworkStatsDO);
         } catch (Throwable ex) {
             log.error ("短链接统计异常{}" , ex.getMessage ());
         }
