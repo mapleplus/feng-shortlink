@@ -34,6 +34,18 @@ rules:
             shardingColumn: full_short_url
             # 分片算法，对应 rules[0].shardingAlgorithms
             shardingAlgorithmName: link_goto_table_hash_mod
+      t_link_stats_today:
+        # 真实数据节点，比如数据库源以及数据库在数据库中真实存在的
+        actualDataNodes: ds_0.t_link_stats_today_${0..15}
+        # 分表策略
+        tableStrategy:
+          # 用于单分片键的标准分片场景
+          standard:
+            # 分片键
+            # 方便后续分页查询分组使用 如果是短链接 那分组查询就要union all 不符合业务
+            shardingColumn: gid
+            # 分片算法，对应 rules[0].shardingAlgorithms
+            shardingAlgorithmName: link_stats_today_table_hash_mod
     # 分片算法
     shardingAlgorithms:
       # 数据表分片算法
@@ -45,6 +57,13 @@ rules:
           sharding-count: 16
       # 数据表分片算法
       link_goto_table_hash_mod:
+        # 根据分片键 Hash 分片
+        type: HASH_MOD
+        # 分片数量
+        props:
+          sharding-count: 16
+      # 数据表分片算法
+      link_stats_today_table_hash_mod:
         # 根据分片键 Hash 分片
         type: HASH_MOD
         # 分片数量

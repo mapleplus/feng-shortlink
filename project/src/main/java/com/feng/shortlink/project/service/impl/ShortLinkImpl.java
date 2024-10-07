@@ -22,6 +22,7 @@ import com.feng.shortlink.project.dao.entity.*;
 import com.feng.shortlink.project.dao.mapper.*;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
+import com.feng.shortlink.project.dto.request.ShortLinkUpdatePvUvUipDO;
 import com.feng.shortlink.project.dto.request.ShortLinkUpdateReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
@@ -76,6 +77,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     private final LinkAccessLogsMapper linkAccessLogsMapper;
     private final LinkDeviceStatsMapper linkDeviceStatsMapper;
     private final LinkNetworkStatsMapper linkNetworkStatsMapper;
+    private final ShortLinkMapper shortLinkMapper;
     @Value ("${short-link.stats.locale.amap-key}")
     private String amapKey;
     @Value ("${short-link.domain}")
@@ -99,6 +101,9 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 .validDateType (requestParam.getValidDateType ())
                 .validDate (requestParam.getValidDate ())
                 .describe (requestParam.getDescribe ())
+                .totalPv (0)
+                .totalUv (0)
+                .totalUip (0)
                 .build ();
         LinkGotoDO linkGotoDO = LinkGotoDO.builder ()
                 .gid (requestParam.getGid ())
@@ -473,6 +478,17 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                     .cnt (1)
                     .build ();
             linkAccessLogsMapper.shortLinkBrowserState (linkAccessLogsDO);
+            /*
+            total pv uv uip
+             */
+            ShortLinkUpdatePvUvUipDO build = ShortLinkUpdatePvUvUipDO.builder ()
+                    .gid (gid)
+                    .fullShortUrl (fullShortLink)
+                    .totalPv (1)
+                    .totalUv (uvFlag.get () ? 1 : 0)
+                    .totalUip (uipFlag ? 1 : 0)
+                    .build ();
+            shortLinkMapper.totalPvUvUipUpdate (build);
         } catch (Throwable ex) {
             log.error ("短链接统计异常{}" , ex.getMessage ());
         }

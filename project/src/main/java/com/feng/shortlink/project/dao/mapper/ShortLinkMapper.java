@@ -2,6 +2,9 @@ package com.feng.shortlink.project.dao.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.feng.shortlink.project.dao.entity.ShortLinkDO;
+import com.feng.shortlink.project.dto.request.ShortLinkUpdatePvUvUipDO;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Update;
 
 /**
  * @author FENGXIN
@@ -10,4 +13,9 @@ import com.feng.shortlink.project.dao.entity.ShortLinkDO;
  * @description 短链接mapper
  **/
 public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
+    @Update ("""
+    update t_link set total_pv = total_pv + #{requestParam.totalPv},total_uv = total_uv + #{requestParam.totalUv},total_uip = total_uip + #{requestParam.totalUip}
+    where gid = #{requestParam.gid} and full_short_url = #{requestParam.fullShortUrl};
+    """)
+    void totalPvUvUipUpdate(@Param ("requestParam") ShortLinkUpdatePvUvUipDO requestParam);
 }
