@@ -1,6 +1,9 @@
 package com.feng.shortlink.admin.test;
 
+import cn.hutool.core.date.DateUtil;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.Date;
 
 /**
  * @author FENGXIN
@@ -26,8 +29,13 @@ public class ShortLinkAdminTest {
       UNIQUE KEY `idx_unique_today_stats` (`full_short_url`,`gid`,`date`) USING BTREE
     ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;""";
     public static void main (String[] args) {
-        for (int i = 0; i < 16; i++) {
-            System.out.printf ((sql) + "%n" ,i);
-        }
+        // for (int i = 0; i < 16; i++) {
+        //     System.out.printf ((sql) + "%n" ,i);
+        // }
+        // 获取当前时间
+        long now = System.currentTimeMillis();
+        // 获取今天结束的时间
+        long endOfDay = DateUtil.endOfDay(new Date ()).getTime();
+        System.out.println (endOfDay - now);
     }
 }

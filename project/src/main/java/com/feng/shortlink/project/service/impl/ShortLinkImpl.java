@@ -78,6 +78,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     private final LinkDeviceStatsMapper linkDeviceStatsMapper;
     private final LinkNetworkStatsMapper linkNetworkStatsMapper;
     private final ShortLinkMapper shortLinkMapper;
+    private final LinkStatsTodayMapper linkStatsTodayMapper;
     @Value ("${short-link.stats.locale.amap-key}")
     private String amapKey;
     @Value ("${short-link.domain}")
@@ -125,7 +126,9 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             }
         }
         // 不冲突 添加短链接进入布隆过滤器 并响应前端
-        linkUriCreateCachePenetrationBloomFilter.add (fullLink);
+        boolean add = linkUriCreateCachePenetrationBloomFilter.add (fullLink);
+        log.info ("add short link = {}" , savedLinkDO.getFullShortUrl ());
+        log.info ("bloom add: {}" , add );
         // 缓存预热
         stringRedisTemplate.opsForValue ()
                 .set (  String.format (SHORTLINK_GOTO_KEY , fullLink)
@@ -343,7 +346,10 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                 cookie.setPath (StrUtil.sub (fullShortLink,fullShortLink.indexOf ("/"),fullShortLink.length ()));
                 response.addCookie (cookie);
                 uvFlag.set (Boolean.TRUE);
+                // 设置到当天的有效期
                 stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink) , uv.get ());
+                stringRedisTemplate.expire (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink),millisecondsUntilEndOfDay(), TimeUnit.MILLISECONDS);
+                
             };
             // 首先判断请求是否已经含有用户cookie
             if(ArrayUtil.isNotEmpty (cookies)) {
@@ -356,9 +362,12 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
                             // 设置uv 方便后续使用
                             uv.set(each);
                             // 如果缓存有cookie 说明在当天该用户是同一个 uv不能叠加 如果cookie不存在缓存则需要叠加（此时是第二天）
-                            // TODO 设置缓存cookie有效期为当天
                             Long uvAdd = stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink) , each);
                             uvFlag.set (uvAdd != null && uvAdd > 0L);
+                            // 设置到当天的有效期
+                            if (uvFlag.get () == Boolean.TRUE) {
+                                stringRedisTemplate.expire (String.format (SHORTLINK_STATS_UV_KEY , fullShortLink),millisecondsUntilEndOfDay(), TimeUnit.MILLISECONDS);
+                            }
                         },generateCookieTask);
             }else {
                 // 没有cookie 第一次访问短链接 创建cookie并设置响应
@@ -368,6 +377,10 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             String userIpAddress = ShortLinkUtil.getUserIpAddress (request);
             Long uipAdd = stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UIP_KEY , fullShortLink) , userIpAddress);
             boolean uipFlag = uipAdd != null && uipAdd > 0L;
+            if(uipFlag == Boolean.TRUE) {
+                // 设置到当天的有效期
+                stringRedisTemplate.expire (String.format (SHORTLINK_STATS_UIP_KEY , fullShortLink),millisecondsUntilEndOfDay(), TimeUnit.MILLISECONDS);
+            }
             // 一般数据统计
             // gid, full_short_url, date, pv, uv, uip, hour, weekday, create_time, update_time, del_flag
             if (StrUtil.isBlank (gid)){
@@ -481,14 +494,24 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             /*
             total pv uv uip
              */
-            ShortLinkUpdatePvUvUipDO build = ShortLinkUpdatePvUvUipDO.builder ()
+            ShortLinkUpdatePvUvUipDO shortLinkUpdatePvUvUipDO = ShortLinkUpdatePvUvUipDO.builder ()
                     .gid (gid)
                     .fullShortUrl (fullShortLink)
                     .totalPv (1)
                     .totalUv (uvFlag.get () ? 1 : 0)
                     .totalUip (uipFlag ? 1 : 0)
                     .build ();
-            shortLinkMapper.totalPvUvUipUpdate (build);
+            shortLinkMapper.totalPvUvUipUpdate (shortLinkUpdatePvUvUipDO);
+            
+            LinkStatsTodayDO statsTodayDO = LinkStatsTodayDO.builder ()
+                    .gid (gid)
+                    .fullShortUrl (fullShortLink)
+                    .date (fullDate)
+                    .todayPv (1)
+                    .todayUv (uvFlag.get () ? 1 : 0)
+                    .todayUip (uipFlag ? 1 : 0)
+                    .build ();
+            linkStatsTodayMapper.linkStatTodayState (statsTodayDO);
         } catch (Throwable ex) {
             log.error ("短链接统计异常{}" , ex.getMessage ());
         }
@@ -536,7 +559,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             }
             String shortLink = HashUtil.hashToBase62 (originUrl);
             // 布隆过滤器不存在直接返回结果
-            if (!linkUriCreateCachePenetrationBloomFilter.contains (requestParam.getDomain () + "/" + shortLink)) {
+            if (!linkUriCreateCachePenetrationBloomFilter.contains (shortLinkDomain + "/" + shortLink)) {
                 return shortLink;
             }
             // 避免重复生成 加上时间毫秒下一次重新生成 不影响实际url
@@ -587,5 +610,19 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             // 根据需要，可以使用URL的解析方法
             return baseUrl + iconUrl;
         }
+    }
+    
+    /**
+     * 距离一天结束毫秒数
+     *
+     * @return long
+     */
+    public static Long millisecondsUntilEndOfDay() {
+        // 获取当前时间
+        long now = System.currentTimeMillis();
+        // 获取今天结束的时间
+        long endOfDay = DateUtil.endOfDay(new Date ()).getTime();
+        // 计算剩余毫秒数
+        return Long.valueOf (String.valueOf (endOfDay - now));
     }
 }
