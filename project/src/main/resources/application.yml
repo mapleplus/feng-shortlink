@@ -24,3 +24,4 @@ short-link:
   stats:
     locale:
       amap-key: d8ff1fbaa0db78890a8659a25ace740f
+  domain: "baidu.com:8001"

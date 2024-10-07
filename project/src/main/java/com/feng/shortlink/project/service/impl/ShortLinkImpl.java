@@ -78,14 +78,16 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     private final LinkNetworkStatsMapper linkNetworkStatsMapper;
     @Value ("${short-link.stats.locale.amap-key}")
     private String amapKey;
+    @Value ("${short-link.domain}")
+    private String shortLinkDomain;
     @Override
     public ShortLinkSaveRespDTO saveShortLink (ShortLinkSaveReqDTO requestParam) {
         // 生成短链接 一个originUrl可以有多个短链接 只是要求短链接不能重复
         String shortLinkSuffix = generateShortLink (requestParam);
-        String fullLink = requestParam.getDomain () + "/" + shortLinkSuffix;
+        String fullLink = shortLinkDomain + "/" + shortLinkSuffix;
         // 设置插入数据实体
         ShortLinkDO savedLinkDO = ShortLinkDO.builder ()
-                .domain (requestParam.getDomain ())
+                .domain (shortLinkDomain)
                 .shortUri (shortLinkSuffix)
                 .fullShortUrl (fullLink)
                 .originUrl (requestParam.getOriginUrl ())
@@ -199,7 +201,13 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     public void restoreLink (String shortLink , HttpServletRequest request , HttpServletResponse response) {
         // 获取服务名 如baidu.com
         String serverName = request.getServerName ();
-        String fullLink = serverName + "/" + shortLink;
+        // 获取端口
+        String serverPort = Optional.of (request.getServerPort ())
+                .filter (each -> !Objects.equals (each,80))
+                .map(String::valueOf)
+                .map(each -> ":" + each)
+                .orElse ("");
+        String fullLink = serverName + serverPort + "/" + shortLink;
         // 查询缓存的link
         String originalLink = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_GOTO_KEY , fullLink));
         // 如果缓存有数据直接返回
@@ -212,6 +220,7 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
             } catch (IOException e) {
                 throw new ClientException ("短链接重定向失败");
             }
+            return;
         }
         // 如果缓存没有数据 查询布隆过滤器（短链接存入数据库是就添加入了布隆过滤器）
         boolean contains = linkUriCreateCachePenetrationBloomFilter.contains (fullLink);

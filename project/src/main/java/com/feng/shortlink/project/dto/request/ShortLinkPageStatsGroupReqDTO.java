@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
  * @author FENGXIN
  * @date 2024/10/5
  * @project feng-shortlink
- * @description 分页查询短链接监控访问请求参数
+ * @description 分组分页查询短链接监控访问请求参数
  **/
 @EqualsAndHashCode(callSuper = true)
 @Data

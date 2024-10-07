@@ -12,7 +12,7 @@ import java.util.Date;
  * @author FENGXIN
  * @date 2024/10/5
  * @project feng-shortlink
- * @description 短链接分页监控响应
+ * @description 短链接分组分页监控响应
  **/
 @Data
 @Builder
