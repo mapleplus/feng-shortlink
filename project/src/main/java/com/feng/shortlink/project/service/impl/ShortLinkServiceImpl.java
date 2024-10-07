@@ -65,7 +65,7 @@ import static com.feng.shortlink.project.common.constant.ShortLinkConstant.SHORT
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> implements ShortLinkService {
+public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> implements ShortLinkService {
     private final RBloomFilter<String> linkUriCreateCachePenetrationBloomFilter;
     private final LinkGotoMapper linkGotoMapper;
     private final StringRedisTemplate stringRedisTemplate;
@@ -519,13 +519,8 @@ public class ShortLinkImpl extends ServiceImpl<ShortLinkMapper, ShortLinkDO> imp
     
     @Override
     public IPage<ShortLinkPageRespDTO> pageShortLink (ShortLinkPageReqDTO requestParam) {
-        LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
-                .eq (ShortLinkDO::getDelFlag , 0)
-                .eq (ShortLinkDO::getGid , requestParam.getGid ())
-                .eq (ShortLinkDO::getEnableStatus,0)
-                .orderByAsc (ShortLinkDO::getUpdateTime );
-        IPage<ShortLinkDO> selectPage = baseMapper.selectPage (requestParam , lambdaQueryWrapper);
-        return selectPage.convert (each -> {
+        IPage<ShortLinkDO> resultPage = baseMapper.pageLink (requestParam);
+        return resultPage.convert (each -> {
             ShortLinkPageRespDTO result = BeanUtil.copyProperties (each , ShortLinkPageRespDTO.class);
             result.setDomain ("http://" + result.getDomain ());
             return result;

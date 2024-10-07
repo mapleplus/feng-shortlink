@@ -20,6 +20,9 @@ mybatis-plus:
     db-config:
       logic-delete-value: 1  # 表示已删除的值
       logic-not-delete-value: 0  # 表示未删除的值
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  mapper-locations: classpath:mapper/*.xml
 short-link:
   stats:
     locale:

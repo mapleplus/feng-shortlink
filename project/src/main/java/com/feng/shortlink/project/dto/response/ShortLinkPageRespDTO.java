@@ -34,6 +34,11 @@ public class ShortLinkPageRespDTO {
     private String gid;
     
     /**
+     * 排序标识
+     */
+    private String orderTag;
+    
+    /**
      * 网站图标
      */
     private String favicon;
