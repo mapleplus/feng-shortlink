@@ -292,7 +292,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq (ShortLinkDO::getEnableStatus , 0)
                     .eq (ShortLinkDO::getDelFlag , 0);
             ShortLinkDO shortLinkDO = baseMapper.selectOne (shortLinkDoLambdaQueryWrapper);
-            if (shortLinkDO == null || shortLinkDO.getValidDate ().before (new Date ())) {
+            if (shortLinkDO == null || shortLinkDO.getValidDate () != null && shortLinkDO.getValidDate ().before (new Date ())) {
                 // 如果数据库的链接过期
                 stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
                 // 严谨 需要进行风控
