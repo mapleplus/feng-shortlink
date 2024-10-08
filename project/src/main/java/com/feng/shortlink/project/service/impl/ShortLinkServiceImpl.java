@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.project.common.convention.exception.ClientException;
 import com.feng.shortlink.project.common.convention.exception.ServiceException;
 import com.feng.shortlink.project.common.enums.ValidDateTypeEnum;
+import com.feng.shortlink.project.config.GotoDomainWhiteListConfiguration;
 import com.feng.shortlink.project.dao.entity.*;
 import com.feng.shortlink.project.dao.mapper.*;
 import com.feng.shortlink.project.dto.biz.ShortLinkStatsRecordDTO;
@@ -88,6 +89,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final LinkStatsTodayMapper linkStatsTodayMapper;
     private final LinkStatsTodayService linkStatsTodayService;
     private final DelayShortLinkStatsProducer delayShortLinkStatsProducer;
+    private final GotoDomainWhiteListConfiguration gotoDomainWhiteListConfiguration;
     
     @Value ("${short-link.stats.locale.amap-key}")
     private String amapKey;
@@ -96,6 +98,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     
     @Override
     public ShortLinkSaveRespDTO saveShortLink (ShortLinkSaveReqDTO requestParam) {
+        // 校验原始链接是否可创建
+        verificationWhitelist (requestParam.getOriginUrl ());
         // 生成短链接 一个originUrl可以有多个短链接 只是要求短链接不能重复
         String shortLinkSuffix = generateShortLink (requestParam);
         String fullLink = shortLinkDomain + "/" + shortLinkSuffix;
@@ -157,6 +161,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void updateShortLink (ShortLinkUpdateReqDTO requestParam) {
+        // 校验原始链接是否可更新
+        verificationWhitelist (requestParam.getOriginUrl ());
         // 查询db里的短链接
         LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
                 .eq (ShortLinkDO::getGid , requestParam.getOriginGid ())
@@ -783,5 +789,26 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         long endOfDay = DateUtil.endOfDay(new Date ()).getTime();
         // 计算剩余毫秒数
         return Long.valueOf (String.valueOf (endOfDay - now));
+    }
+    
+    /**
+     * 验证原始链接白名单
+     *
+     * @param originUrl 源 URL
+     */
+    private void verificationWhitelist(String originUrl) {
+        Boolean enable = gotoDomainWhiteListConfiguration.getEnable();
+        // 配置没开
+        if (enable == null || !enable) {
+            return;
+        }
+        String domain = ShortLinkUtil.extractDomain(originUrl);
+        if (StrUtil.isBlank(domain)) {
+            throw new ClientException("跳转链接填写错误");
+        }
+        List<String> details = gotoDomainWhiteListConfiguration.getDetails();
+        if (!details.contains(domain)) {
+            throw new ClientException("演示环境为避免恶意攻击，请生成以下网站跳转链接：" + gotoDomainWhiteListConfiguration.getNames());
+        }
     }
 }

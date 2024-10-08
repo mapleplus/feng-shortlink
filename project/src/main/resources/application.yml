@@ -28,3 +28,12 @@ short-link:
     locale:
       amap-key: d8ff1fbaa0db78890a8659a25ace740f
   domain: "baidu.com:8001"
+  goto-domain:
+    white-list:
+      enable: true
+      names: '拿个offer,知乎,掘金,博客园'
+      details:
+        - nageoffer.com
+        - zhihu.com
+        - juejin.cn
+        - cnblogs.com
