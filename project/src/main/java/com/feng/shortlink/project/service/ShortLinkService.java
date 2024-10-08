@@ -3,6 +3,7 @@ package com.feng.shortlink.project.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.feng.shortlink.project.dao.entity.ShortLinkDO;
+import com.feng.shortlink.project.dto.biz.ShortLinkStatsRecordDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkUpdateReqDTO;
@@ -60,4 +61,13 @@ public interface ShortLinkService extends IService<ShortLinkDO> {
      * @param response  响应
      */
     void restoreLink (String shortLink , HttpServletRequest request , HttpServletResponse response);
+    
+    /**
+     * 短链接统计
+     *
+     * @param fullShortUrl         完整短链接
+     * @param gid                  分组标识
+     * @param shortLinkStatsRecord 短链接统计实体参数
+     */
+    void shortLinkStats(String fullShortUrl, String gid, ShortLinkStatsRecordDTO shortLinkStatsRecord);
 }

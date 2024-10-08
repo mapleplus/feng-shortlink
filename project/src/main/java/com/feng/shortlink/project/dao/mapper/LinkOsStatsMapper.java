@@ -1,5 +1,6 @@
 package com.feng.shortlink.project.dao.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.feng.shortlink.project.dao.entity.LinkOsStatsDO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsGroupReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkStatsReqDTO;
@@ -16,7 +17,7 @@ import java.util.List;
  * @project feng-shortlink
  * @description 操作系统统计信息mapper
  **/
-public interface LinkOsStatsMapper {
+public interface LinkOsStatsMapper extends BaseMapper<LinkOsStatsDO> {
     /**
      * 记录OS访问监控数据
      */
