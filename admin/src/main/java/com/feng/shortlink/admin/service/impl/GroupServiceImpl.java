@@ -1,9 +1,11 @@
 package com.feng.shortlink.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.admin.common.biz.user.UserContext;
+import com.feng.shortlink.admin.common.convention.exception.ClientException;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.dao.entity.GroupDO;
 import com.feng.shortlink.admin.dao.mapper.GroupMapper;
@@ -14,12 +16,18 @@ import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.admin.service.GroupService;
 import com.feng.shortlink.admin.util.RandomIDGenerator;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.redisson.api.RLock;
+import org.redisson.api.RedissonClient;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
+import static com.feng.shortlink.admin.common.constant.RedisCacheConstant.LOCK_SHORTLINK_GROUP;
 
 /**
  * @author FENGXIN
@@ -29,9 +37,14 @@ import java.util.stream.Collectors;
  **/
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
     ShortLinkRemoteService shortLinkRemoteService;
-
+    private final RedissonClient redissonClient;
+    
+    @Value ("${short-link.group.max-num}")
+    private Integer maxNum;
+    
     @Override
     public void saveGroupByGid (String requestParam) {
         saveGroupByGid (UserContext.getUserName (), requestParam);
@@ -39,28 +52,42 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
     
     @Override
     public void saveGroupByGid (String username,String requestParam) {
-        // 生成随机gid
-        String gid = RandomIDGenerator.generateRandomGid ();
-        // 保证gid全局不重复
-        while (true) {
-            LambdaQueryWrapper<GroupDO> queryWrapper = new LambdaQueryWrapper<GroupDO> ()
-                    .eq (GroupDO::getGid , gid)
-                    .eq (GroupDO::getUsername , username);
-            // gid唯一就退出循环
-            if (baseMapper.selectOne (queryWrapper) == null) {
-                break;
+        RLock lock = redissonClient.getLock (String.format (LOCK_SHORTLINK_GROUP , username));
+        lock.lock ();
+        try {
+            // 查询group数量
+            LambdaQueryWrapper<GroupDO> lambdaQueryWrapper = new LambdaQueryWrapper<GroupDO> ()
+                    .eq (GroupDO::getUsername , username)
+                    .eq (GroupDO::getDelFlag,0);
+            List<GroupDO> groupDOList = baseMapper.selectList (lambdaQueryWrapper);
+            if (CollUtil.isNotEmpty (groupDOList) && groupDOList.size () == maxNum) {
+                throw new ClientException (String.format ("分组数量超过限定范围：%d",maxNum));
             }
-            gid = RandomIDGenerator.generateRandomGid ();
+            // 生成随机gid
+            String gid = RandomIDGenerator.generateRandomGid ();
+            // 保证gid全局不重复
+            while (true) {
+                LambdaQueryWrapper<GroupDO> queryWrapper = new LambdaQueryWrapper<GroupDO> ()
+                        .eq (GroupDO::getGid , gid)
+                        .eq (GroupDO::getUsername , username);
+                // gid唯一就退出循环
+                if (baseMapper.selectOne (queryWrapper) == null) {
+                    break;
+                }
+                gid = RandomIDGenerator.generateRandomGid ();
+            }
+            GroupDO groupDO = GroupDO.builder ()
+                    .gid (gid)
+                    .name (requestParam)
+                    .username (username)
+                    .sortOrder (0)
+                    .delFlag (0)
+                    .build ();
+            baseMapper.insert (groupDO);
+            log.info ("save group success, gid = {}" , gid);
+        }  finally {
+            lock.unlock ();
         }
-        GroupDO groupDO = GroupDO.builder ()
-                .gid (gid)
-                .name (requestParam)
-                .username (username)
-                .sortOrder (0)
-                .delFlag (0)
-                .build ();
-        baseMapper.insert (groupDO);
-        log.info ("save group success, gid = {}" , gid);
     }
     
     @Override
