@@ -1,5 +1,6 @@
 package com.feng.shortlink.project.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.feng.shortlink.project.common.convention.result.Result;
 import com.feng.shortlink.project.common.convention.result.Results;
@@ -9,6 +10,7 @@ import com.feng.shortlink.project.dto.request.ShortLinkUpdateReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
+import com.feng.shortlink.project.handler.CustomBlockHandler;
 import com.feng.shortlink.project.service.ShortLinkService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,6 +39,11 @@ public class ShortLinkController {
      * @return 包含已保存短链接详细信息的响应
      */
     @PostMapping("/api/fenglink/v1/shortlink")
+    @SentinelResource(
+            value = "create_short-link",
+            blockHandler = "createShortLinkBlockHandlerMethod",
+            blockHandlerClass = CustomBlockHandler.class
+    )
     public Result<ShortLinkSaveRespDTO> saveShortLink (@RequestBody ShortLinkSaveReqDTO requestParam) {
         return Results.success (shortLinkService.saveShortLink (requestParam));
     }
