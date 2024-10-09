@@ -1,15 +1,12 @@
 package com.feng.shortlink.project.mq.producer;
 
-import com.feng.shortlink.project.dto.biz.ShortLinkStatsRecordDTO;
+import com.alibaba.fastjson2.JSON;
+import com.feng.shortlink.project.dto.biz.ShortLinkStatsMqToDbDTO;
 import lombok.RequiredArgsConstructor;
-import org.redisson.api.RBlockingDeque;
-import org.redisson.api.RDelayedQueue;
-import org.redisson.api.RedissonClient;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.stereotype.Component;
-
-import java.util.concurrent.TimeUnit;
-
-import static com.feng.shortlink.project.common.constant.RedisCacheConstant.DELAY_QUEUE_STATS_KEY;
 
 /**
  * @author FENGXIN
@@ -21,16 +18,16 @@ import static com.feng.shortlink.project.common.constant.RedisCacheConstant.DELA
 @RequiredArgsConstructor
 public class DelayShortLinkStatsProducer {
     
-    private final RedissonClient redissonClient;
+    private final RocketMQTemplate rocketMQTemplate;
     
     /**
      * 发送延迟消费短链接统计
      *
      * @param statsRecord 短链接统计实体参数
      */
-    public void send(ShortLinkStatsRecordDTO statsRecord) {
-        RBlockingDeque<ShortLinkStatsRecordDTO> blockingDeque = redissonClient.getBlockingDeque(DELAY_QUEUE_STATS_KEY);
-        RDelayedQueue<ShortLinkStatsRecordDTO> delayedQueue = redissonClient.getDelayedQueue(blockingDeque);
-        delayedQueue.offer(statsRecord, 5, TimeUnit.SECONDS);
+    public void send(ShortLinkStatsMqToDbDTO statsRecord) {
+        Message<String> msg = MessageBuilder.withPayload (JSON.toJSONString (statsRecord)).build ();
+        // 使用 delayLevel 设置延迟时间，延迟 5 秒
+        rocketMQTemplate.syncSend("shortlink-stats-delayed-topic", msg , 5, 2);
     }
 }

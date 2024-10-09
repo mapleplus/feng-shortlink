@@ -71,8 +71,9 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
         ShortLinkStatsRecordDTO statsRecord = BeanUtil.copyProperties (shortLinkStatsMqToDbDTO , ShortLinkStatsRecordDTO.class);
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(String.format(LOCK_GID_UPDATE_KEY, fullShortLink));
         RLock rLock = readWriteLock.readLock();
+        // 如果修改短链接时有用户访问 则延迟统计数据
         if (!rLock.tryLock()) {
-            delayShortLinkStatsProducer.send(statsRecord);
+            delayShortLinkStatsProducer.send(shortLinkStatsMqToDbDTO);
             return;
         }
         try{
