@@ -24,8 +24,6 @@ import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -277,9 +275,5 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
                 .todayUip (statsRecord.getUipFlag () ? 1 : 0)
                 .build ();
         linkStatsTodayMapper.linkStatTodayState (statsTodayDO);
-    }
-    
-    public ApplicationContext getApplicationContext () {
-        return applicationContext;
     }
 }
