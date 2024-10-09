@@ -35,10 +35,10 @@ public class RedisCacheConstant {
     /**
      * 短链接修改分组 ID 锁前缀 Key
      */
-    public static final String LOCK_GID_UPDATE_KEY = "short-link_lock_update-gid_%s";
+    public static final String LOCK_GID_UPDATE_KEY = "lock:shortlink:update-gid_%s";
     
     /**
      * 短链接延迟队列消费统计 Key
      */
-    public static final String DELAY_QUEUE_STATS_KEY = "short-link_delay-queue:stats";
+    public static final String SHORTLINK_MESSAGE_QUEUE_IDEMPOTENT_KEY = "shortlink:message_queue_stats:%s";
 }

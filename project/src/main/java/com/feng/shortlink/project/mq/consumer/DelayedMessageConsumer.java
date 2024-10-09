@@ -14,6 +14,7 @@ import com.feng.shortlink.project.dao.mapper.*;
 import com.feng.shortlink.project.dto.biz.ShortLinkStatsMqToDbDTO;
 import com.feng.shortlink.project.dto.biz.ShortLinkStatsRecordDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkUpdatePvUvUipDO;
+import com.feng.shortlink.project.handler.MessageQueueIdempotentHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageExt;
@@ -23,6 +24,8 @@ import org.redisson.api.RLock;
 import org.redisson.api.RReadWriteLock;
 import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -42,7 +45,7 @@ import static com.feng.shortlink.project.common.constant.ShortLinkConstant.SHORT
 @RequiredArgsConstructor
 @Service
 @RocketMQMessageListener(topic = "shortlink-stats-topic", consumerGroup = "shortlink-stats-delay-consumer-group")
-public class DelayedMessageConsumer implements RocketMQListener<MessageExt> {
+public class DelayedMessageConsumer implements RocketMQListener<MessageExt> , ApplicationContextAware {
     
     private final LinkGotoMapper linkGotoMapper;
     private final RedissonClient redissonClient;
@@ -55,6 +58,7 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt> {
     private final LinkNetworkStatsMapper linkNetworkStatsMapper;
     private final ShortLinkMapper shortLinkMapper;
     private final LinkStatsTodayMapper linkStatsTodayMapper;
+    private final MessageQueueIdempotentHandler messageQueueIdempotentHandler;
     
     @Value("${short-link.stats.locale.amap-key}")
     private String amapKey;
@@ -63,12 +67,30 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt> {
     private Integer maxRetryTimes;
     // 每次重试间隔 2 秒
     @Value ("${short-link.thread.retry-interval-millis}")
-    private Integer retryIntervalMillis = 2000;
+    private Integer retryIntervalMillis;
     
     @Override
     public void onMessage (MessageExt message) {
-        ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = JSON.parseObject (new String (message.getBody ()) , ShortLinkStatsMqToDbDTO.class);
-        actualDelayShortLinkStats(shortLinkStatsMqToDbDTO);
+        // 幂等 如果同一个消息已经消费则跳过并返回
+        if(!messageQueueIdempotentHandler.isMessageQueueIdempotent (message.getMsgId ())){
+            // 预防在插入数据失败后但是未执行异常处理 此时需要重试消费确保数据完整插入 因此需要处理异常时删除redis原有的messageId
+            // 未完成抛出异常 rocketMQ重试机制
+            // 完成了则幂等 直接返回
+            if(!messageQueueIdempotentHandler.isAccomplishMessageQueueIdempotent (message.getMsgId ())){
+                throw new ServiceException ("消费失败 请重试");
+            }
+            return;
+        }
+        // 第一次消费
+        try {
+            ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = JSON.parseObject (new String (message.getBody ()) , ShortLinkStatsMqToDbDTO.class);
+            actualDelayShortLinkStats(shortLinkStatsMqToDbDTO);
+        } catch (Throwable e) {
+            log.error ("数据插入异常 重试消费");
+            messageQueueIdempotentHandler.removeMessageQueueIdempotent (message.getMsgId ());
+        }
+        // 正确无异常消费后设置完成标志
+        messageQueueIdempotentHandler.setMessageQueueIdempotent (message.getMsgId ());
     }
     
     /**
@@ -89,8 +111,9 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt> {
         try {
             // 统计代码逻辑
             performStatsUpdate(fullShortLink, gid, statsRecord);
-        } catch (Throwable ex) {
-            log.error("短链接统计异常: {}", ex.getMessage());
+        } catch (Throwable e) {
+            log.error("短链接统计异常: {}", e.getMessage());
+            throw new ServiceException (e.getMessage());
         } finally {
             // 无论成功与否都要释放锁
             RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(String.format(LOCK_GID_UPDATE_KEY, fullShortLink));
@@ -128,7 +151,7 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt> {
     /**
      * 统计数据更新逻辑抽取为方法，方便调用
      */
-    private void performStatsUpdate(String fullShortLink, String gid, ShortLinkStatsRecordDTO statsRecord) {
+    protected void performStatsUpdate (String fullShortLink , String gid , ShortLinkStatsRecordDTO statsRecord) {
         if (StrUtil.isBlank(gid)) {
             LambdaQueryWrapper<LinkGotoDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO>()
                     .eq(LinkGotoDO::getFullShortUrl, fullShortLink);
@@ -254,5 +277,9 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt> {
                 .todayUip (statsRecord.getUipFlag () ? 1 : 0)
                 .build ();
         linkStatsTodayMapper.linkStatTodayState (statsTodayDO);
+    }
+    
+    public ApplicationContext getApplicationContext () {
+        return applicationContext;
     }
 }

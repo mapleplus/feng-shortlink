@@ -8,11 +8,13 @@ import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.feng.shortlink.project.common.convention.exception.ServiceException;
 import com.feng.shortlink.project.dao.entity.*;
 import com.feng.shortlink.project.dao.mapper.*;
 import com.feng.shortlink.project.dto.biz.ShortLinkStatsMqToDbDTO;
 import com.feng.shortlink.project.dto.biz.ShortLinkStatsRecordDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkUpdatePvUvUipDO;
+import com.feng.shortlink.project.handler.MessageQueueIdempotentHandler;
 import com.feng.shortlink.project.mq.producer.DelayShortLinkStatsProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,14 +58,33 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
     private final ShortLinkMapper shortLinkMapper;
     private final LinkStatsTodayMapper linkStatsTodayMapper;
     private final DelayShortLinkStatsProducer delayShortLinkStatsProducer;
+    private final MessageQueueIdempotentHandler messageQueueIdempotentHandler;
     
     @Value("${short-link.stats.locale.amap-key}")
     private String amapKey;
     
     @Override
     public void onMessage (MessageExt message) {
-        ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = JSON.parseObject (new String (message.getBody ()) , ShortLinkStatsMqToDbDTO.class);
-        actualShortLinkStats (shortLinkStatsMqToDbDTO);
+        // 幂等 如果同一个消息已经消费则跳过并返回
+        if(!messageQueueIdempotentHandler.isMessageQueueIdempotent (message.getMsgId ())){
+            // 预防在插入数据失败后但是未执行异常处理 此时需要重试消费确保数据完整插入 因此需要处理异常时删除redis原有的messageId
+            // 未完成抛出异常 rocketMQ重试机制
+            // 完成了则幂等 直接返回
+            if(!messageQueueIdempotentHandler.isAccomplishMessageQueueIdempotent (message.getMsgId ())){
+                throw new ServiceException ("消费失败 请重试");
+            }
+            return;
+        }
+        // 第一次消费
+        try {
+            ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = JSON.parseObject (new String (message.getBody ()) , ShortLinkStatsMqToDbDTO.class);
+            actualShortLinkStats (shortLinkStatsMqToDbDTO);
+        } catch (Throwable e) {
+            log.error ("数据插入异常 重试消费");
+            messageQueueIdempotentHandler.removeMessageQueueIdempotent (message.getMsgId ());
+        }
+        // 正确无异常消费后设置完成标志
+        messageQueueIdempotentHandler.setMessageQueueIdempotent (message.getMsgId ());
     }
     public void actualShortLinkStats(ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO) {
         String fullShortLink = shortLinkStatsMqToDbDTO.getFullShortLink ();
