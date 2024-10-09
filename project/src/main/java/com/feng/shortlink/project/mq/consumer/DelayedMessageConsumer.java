@@ -45,7 +45,7 @@ import static com.feng.shortlink.project.common.constant.ShortLinkConstant.SHORT
 @RequiredArgsConstructor
 @Service
 @RocketMQMessageListener(topic = "shortlink-stats-topic", consumerGroup = "shortlink-stats-delay-consumer-group")
-public class DelayedMessageConsumer implements RocketMQListener<MessageExt> , ApplicationContextAware {
+public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
     
     private final LinkGotoMapper linkGotoMapper;
     private final RedissonClient redissonClient;
