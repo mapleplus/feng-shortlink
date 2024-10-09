@@ -37,3 +37,9 @@ short-link:
         - zhihu.com
         - juejin.cn
         - cnblogs.com
+rocketmq:
+  name-server: 192.168.187.101:9876  # RocketMQ NameServer 地址
+  producer:
+    group: shortlink-stats-producer-group  # 生产者组
+  consumer:
+    group: shortlink-stats-consumer-group  # 消费者组

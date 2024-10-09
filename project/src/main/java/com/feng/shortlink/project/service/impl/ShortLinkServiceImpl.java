@@ -3,13 +3,10 @@ package com.feng.shortlink.project.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.date.Week;
 import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ArrayUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -23,15 +20,16 @@ import com.feng.shortlink.project.common.enums.ValidDateTypeEnum;
 import com.feng.shortlink.project.config.GotoDomainWhiteListConfiguration;
 import com.feng.shortlink.project.dao.entity.*;
 import com.feng.shortlink.project.dao.mapper.*;
+import com.feng.shortlink.project.dto.biz.ShortLinkStatsMqToDbDTO;
 import com.feng.shortlink.project.dto.biz.ShortLinkStatsRecordDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkSaveReqDTO;
-import com.feng.shortlink.project.dto.request.ShortLinkUpdatePvUvUipDO;
 import com.feng.shortlink.project.dto.request.ShortLinkUpdateReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkSaveRespDTO;
 import com.feng.shortlink.project.mq.producer.DelayShortLinkStatsProducer;
+import com.feng.shortlink.project.mq.producer.RocketMqMessageService;
 import com.feng.shortlink.project.service.LinkStatsTodayService;
 import com.feng.shortlink.project.service.ShortLinkService;
 import com.feng.shortlink.project.util.HashUtil;
@@ -61,7 +59,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 
 import static com.feng.shortlink.project.common.constant.RedisCacheConstant.*;
-import static com.feng.shortlink.project.common.constant.ShortLinkConstant.SHORT_LINK_LOCALE_STATS_URL;
 
 /**
  * @author FENGXIN
@@ -90,9 +87,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     private final LinkStatsTodayService linkStatsTodayService;
     private final DelayShortLinkStatsProducer delayShortLinkStatsProducer;
     private final GotoDomainWhiteListConfiguration gotoDomainWhiteListConfiguration;
+    private final RocketMqMessageService rocketMqMessageService;
     
-    @Value ("${short-link.stats.locale.amap-key}")
-    private String amapKey;
     @Value ("${short-link.domain}")
     private String shortLinkDomain;
     
@@ -544,6 +540,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      */
     @Override
      public void shortLinkStats (String fullShortLink,String gid, ShortLinkStatsRecordDTO statsRecord) {
+        ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = BeanUtil.copyProperties (statsRecord , ShortLinkStatsMqToDbDTO.class);
+        shortLinkStatsMqToDbDTO.setGid (gid);
+        rocketMqMessageService.sendMessage ("shortlink-stats-topic", JSON.toJSONString (shortLinkStatsMqToDbDTO));
+        /*
         fullShortLink = Optional.ofNullable(fullShortLink).orElse(statsRecord.getFullShortLink ());
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(String.format(LOCK_GID_UPDATE_KEY, fullShortLink));
         RLock rLock = readWriteLock.readLock();
@@ -682,7 +682,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             log.error ("短链接统计异常{}" , ex.getMessage ());
         } finally {
             rLock.unlock ();
-        }
+        } */
     }
     
     @Override
