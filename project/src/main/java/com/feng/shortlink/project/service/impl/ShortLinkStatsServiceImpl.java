@@ -281,6 +281,17 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
          */
         List<LinkAccessStatsDO> listStatsByShortLinkGroup = linkAccessStatsMapper.listStatsByShortLinkGroup (requestParam);
         /*
+        PVC UV UIP
+         */
+        AtomicInteger pv = new AtomicInteger();
+        AtomicInteger uv = new AtomicInteger();
+        AtomicInteger uip = new AtomicInteger();
+        listStatsByShortLinkGroup.forEach (each ->{
+            pv.set (pv.get ()+each.getPv ());
+            uv.set (uv.get ()+each.getUv ());
+            uip.set (uip.get ()+each.getUip ());
+        });
+        /*
         地区监控统计
          */
         List<ShortLinkStatsLocaleCNRespDTO> linkStatsLocaleCnRespDTOList = new ArrayList<> ();
@@ -442,6 +453,9 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             shortLinkNetworkRespDTOList.add (build);
         });
         return ShortLinkStatsGroupRespDTO.builder ()
+                .pv (pv.get ())
+                .uv (uv.get ())
+                .uip (uip.get ())
                 .daily (BeanUtil.copyToList (listStatsByShortLinkGroup,ShortLinkStatsAccessDailyRespDTO.class))
                 .localeCnStats (linkStatsLocaleCnRespDTOList)
                 .hourStats (hourStats)
