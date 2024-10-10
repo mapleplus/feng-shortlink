@@ -123,16 +123,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             baseMapper.insert (savedLinkDO);
             linkGotoMapper.insert (linkGotoDO);
         } catch (DuplicateKeyException e) {
-            // TODO 为什么布隆过滤器判断不存在后还要查询数据库校验？
-            // 防止数据库误判 在抛出此异常后查询数据库校验是否真的短链接冲突
-            LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
-                    .eq (ShortLinkDO::getFullShortUrl , fullLink)
-                    .eq (ShortLinkDO::getDelFlag , 0);
-            // 如果真的冲突 抛异常
-            if (baseMapper.selectOne (lambdaQueryWrapper) != null) {
-                log.warn ("short link already exists, short link = {}" , savedLinkDO.getFullShortUrl ());
-                throw new ServiceException ("短链接生成重复");
-            }
+            log.warn ("short link already exists, short link = {}" , savedLinkDO.getFullShortUrl ());
+            throw new ServiceException ("短链接生成重复");
         }
         // 不冲突 添加短链接进入布隆过滤器 并响应前端
         boolean add = linkUriCreateCachePenetrationBloomFilter.add (fullLink);
