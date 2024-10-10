@@ -31,7 +31,7 @@ public class ShortLinkStatsController {
     /**
      * 获取单条短链接监控统计数据
      */
-    @GetMapping("/api/short-link/v1/stats")
+    @GetMapping("/api/fenglink/v1/stats")
     public Result<ShortLinkStatsRespDTO> getShortLinkStats(ShortLinkStatsReqDTO requestParam) {
         return Results.success (shortLinkStatsService.getShortLinkStats (requestParam));
     }
@@ -39,7 +39,7 @@ public class ShortLinkStatsController {
     /**
      * 分页短链接监控统计
      */
-    @GetMapping("/api/short-link/v1/stats/page")
+    @GetMapping("/api/fenglink/v1/stats/page")
     public Result<IPage<ShortLinkPageStatsRespDTO>> pageShortLinkStats(ShortLinkPageStatsReqDTO requestParam) {
         return Results.success (shortLinkStatsService.pageShortLinkStats (requestParam));
     }
@@ -47,7 +47,7 @@ public class ShortLinkStatsController {
     /**
      * 获取分组短链接监控统计数据
      */
-    @GetMapping("/api/short-link/v1/stats/group")
+    @GetMapping("/api/fenglink/v1/stats/group")
     public Result<ShortLinkStatsGroupRespDTO> groupShortLinkStats(ShortLinkStatsGroupReqDTO requestParam) {
         return Results.success (shortLinkStatsService.groupShortLinkStats (requestParam));
     }
@@ -55,7 +55,7 @@ public class ShortLinkStatsController {
     /**
      * 分组分页短链接监控统计
      */
-    @GetMapping("/api/short-link/v1/stats/page/group")
+    @GetMapping("/api/fenglink/v1/stats/page/group")
     public Result<IPage<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats(ShortLinkPageStatsGroupReqDTO requestParam) {
         return Results.success (shortLinkStatsService.pageGroupShortLinkStats (requestParam));
     }

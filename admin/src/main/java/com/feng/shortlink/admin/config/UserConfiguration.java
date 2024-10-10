@@ -2,7 +2,6 @@ package com.feng.shortlink.admin.config;
 
 import com.feng.shortlink.admin.common.biz.user.UserFlowRiskControlFilter;
 import com.feng.shortlink.admin.common.biz.user.UserTransmitFilter;
-import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -16,16 +15,15 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  * @description
  **/
 @Configuration
-@RequiredArgsConstructor
 public class UserConfiguration {
-    private final StringRedisTemplate stringRedisTemplate;
+
     /**
      * 用户信息传递过滤器
      */
     @Bean
     public FilterRegistrationBean<UserTransmitFilter> globalUserTransmitFilter() {
         FilterRegistrationBean<UserTransmitFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new UserTransmitFilter(stringRedisTemplate));
+        registration.setFilter(new UserTransmitFilter());
         registration.addUrlPatterns("/*");
         registration.setOrder(0);
         return registration;

@@ -99,7 +99,7 @@ public class UserController {
      * @param token 授权令牌
      * @return 用户是否已登录的结果
      */
-    @GetMapping("/api/short-link/v1/admin/user/check-login")
+    @GetMapping("/api/fenglink/v1/admin/user/check-login")
     public Result<Boolean> checkLogin (@RequestParam("username") String username,@RequestParam("token") String token){
         return Results.success (userService.checkLogin (username,token));
     }
@@ -111,7 +111,7 @@ public class UserController {
      * @param token 授权令牌
      * @return 成功响应结果
      */
-    @DeleteMapping("/api/short-link/v1/admin/user/logout")
+    @DeleteMapping("/api/fenglink/v1/admin/user/logout")
     public Result<Void> logout (@RequestParam("username") String username,@RequestParam("token") String token){
         userService.logout(username,token);
         return Results.success ();

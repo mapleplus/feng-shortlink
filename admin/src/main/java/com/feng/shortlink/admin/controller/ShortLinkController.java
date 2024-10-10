@@ -44,13 +44,13 @@ public class ShortLinkController {
      */
     @GetMapping("/api/fenglink/v1/admin/shortlink")
     public Result<Page<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkPageReqDTO requestParam) {
-        return shortLinkActualRemoteService.pageShortLink(requestParam.getGid (),requestParam.getOrderTag (),requestParam.getCurrent (),requestParam.getSize ());
+        return shortLinkActualRemoteService.pageShortLink(requestParam.getGid (),requestParam.getOrderTag ());
     }
     
     /**
      * 获取单条短链接监控统计数据
      */
-    @GetMapping("/api/short-link/v1/admin/stats")
+    @GetMapping("/api/fenglink/v1/admin/stats")
     public Result<ShortLinkStatsRespDTO> getShortLinkStats(@RequestBody ShortLinkStatsReqDTO requestParam) {
         return shortLinkActualRemoteService.getShortLinkStats (requestParam.getFullShortUrl (),requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
@@ -58,7 +58,7 @@ public class ShortLinkController {
     /**
      * 分页短链接监控统计
      */
-    @GetMapping("/api/short-link/v1/admin/stats/page")
+    @GetMapping("/api/fenglink/v1/admin/stats/page")
     public Result<Page<ShortLinkPageStatsRespDTO>> pageShortLinkStats(@RequestBody ShortLinkPageStatsReqDTO requestParam) {
         return shortLinkActualRemoteService.pageShortLinkStats (requestParam.getFullShortUrl (),requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
@@ -66,7 +66,7 @@ public class ShortLinkController {
     /**
      * 获取分组短链接监控统计数据
      */
-    @GetMapping("/api/short-link/v1/admin/stats/group")
+    @GetMapping("/api/fenglink/v1/admin/stats/group")
     public Result<ShortLinkStatsRespDTO> groupShortLinkStats(@RequestBody ShortLinkStatsGroupReqDTO requestParam) {
         return shortLinkActualRemoteService.groupShortLinkStats (requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
@@ -74,7 +74,7 @@ public class ShortLinkController {
     /**
      * 分组分页短链接监控统计
      */
-    @GetMapping("/api/short-link/v1/admin/stats/page/group")
+    @GetMapping("/api/fenglink/v1/admin/stats/page/group")
     public Result<Page<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats(@RequestBody ShortLinkPageStatsGroupReqDTO requestParam) {
         return shortLinkActualRemoteService.pageGroupShortLinkStats (requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }

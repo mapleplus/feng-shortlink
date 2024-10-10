@@ -41,8 +41,7 @@ public interface ShortLinkActualRemoteService {
     @GetMapping("/api/fenglink/v1/shortlink")
     Result<Page<ShortLinkPageRespDTO>> pageShortLink(@RequestParam("gid") String gid
             , @RequestParam("orderTag")String orderTag
-            , @RequestParam("current")Long current
-            , @RequestParam("gid")Long size);
+            );
     
     /**
      * 查询短链接组中短链接的数量
@@ -85,7 +84,7 @@ public interface ShortLinkActualRemoteService {
      /**
      * 获取单条短链接监控统计数据
      */
-     @GetMapping("/api/short-link/v1/stats")
+     @GetMapping("/api/fenglink/v1/stats")
      Result<ShortLinkStatsRespDTO> getShortLinkStats (
                @RequestParam("fullShortUrl") String fullShortUrl
              , @RequestParam("gid") String gid
@@ -95,7 +94,7 @@ public interface ShortLinkActualRemoteService {
      /**
      * 分页短链接监控统计
      */
-     @GetMapping("/api/short-link/v1/stats/page")
+     @GetMapping("/api/fenglink/v1/stats/page")
      Result<Page<ShortLinkPageStatsRespDTO>> pageShortLinkStats (
                @RequestParam("fullShortUrl") String fullShortUrl
              , @RequestParam("gid") String gid
@@ -105,7 +104,7 @@ public interface ShortLinkActualRemoteService {
      /**
      * 获取分组短链接监控统计数据
      */
-     @GetMapping("/api/short-link/v1/stats/group")
+     @GetMapping("/api/fenglink/v1/stats/group")
      Result<ShortLinkStatsRespDTO> groupShortLinkStats (
                @RequestParam("gid") String gid
              , @RequestParam("startDate") String startDate
@@ -114,7 +113,7 @@ public interface ShortLinkActualRemoteService {
      /**
      * 分组分页短链接监控统计
      */
-     @GetMapping("/api/short-link/v1/stats/page/group")
+     @GetMapping("/api/fenglink/v1/stats/page/group")
      Result<Page<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats (
              @RequestParam("gid") String gid
              , @RequestParam("startDate") String startDate

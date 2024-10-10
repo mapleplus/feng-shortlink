@@ -1,2 +1,33 @@
 server:
   port: 8000
+spring:
+  application:
+    name: short-link-gateway
+  data:
+    redis:
+      host: 192.168.187.101
+      port: 6379
+      password: 51213002
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.187.101:8848
+    gateway:
+      routes:
+        - id: feng-shortlink-admin
+          uri: lb://feng-shortlink-admin/api/fenglink/v1/admin/**
+          predicates:
+            - Path=/api/fenglink/v1/admin/**
+          filters:
+            - name: TokenValidate
+              args:
+                whitePathList:
+                  - /api/fenglink/v1/admin/user/login
+                  - /api/fenglink/v1/admin/user/has-username
+                  - /api/fenglink/v1/admin/user
+        - id: feng-shortlink-project
+          uri: lb://feng-shortlink-project/api/fenglink/v1/**
+          predicates:
+            - Path=/api/fenglink/v1/**
+          filters:
+            - name: TokenValidate
