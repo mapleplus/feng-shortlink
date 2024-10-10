@@ -20,6 +20,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.TimeUnit;
 
 /**
  * SpringCloud Gateway Token 拦截器
@@ -51,6 +52,8 @@ public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFact
                         httpHeaders.set("userId", userInfoJsonObject.getString("id"));
                         httpHeaders.set("realName", URLEncoder.encode(userInfoJsonObject.getString("realName"), StandardCharsets.UTF_8));
                     });
+                    // 用户校验成功后刷新时间 防止用户还在操作数据就退出登录
+                    stringRedisTemplate.opsForValue ().set ("shortlink:user:login:" + username, token,30, TimeUnit.DAYS);
                     return chain.filter(exchange.mutate().request(builder.build()).build());
                 }
                 ServerHttpResponse response = exchange.getResponse();
@@ -69,6 +72,6 @@ public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFact
     }
 
     private boolean isPathInWhiteList(String requestPath, String requestMethod, List<String> whitePathList) {
-        return (!CollectionUtils.isEmpty(whitePathList) && whitePathList.stream().anyMatch(requestPath::startsWith)) || (Objects.equals(requestPath, "/api/short-link/admin/v1/user") && Objects.equals(requestMethod, "POST"));
+        return (!CollectionUtils.isEmpty(whitePathList) && whitePathList.stream().anyMatch(requestPath::startsWith)) || (Objects.equals(requestPath, "/api/fenglink/v1/admin/user") && Objects.equals(requestMethod, "POST"));
     }
 }
