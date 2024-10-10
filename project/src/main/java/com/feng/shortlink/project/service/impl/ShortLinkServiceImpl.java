@@ -113,7 +113,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .totalPv (0)
                 .totalUv (0)
                 .totalUip (0)
-                .delTime (0L)
+                .delTime (null)
                 .build ();
         LinkGotoDO linkGotoDO = LinkGotoDO.builder ()
                 .gid (requestParam.getGid ())

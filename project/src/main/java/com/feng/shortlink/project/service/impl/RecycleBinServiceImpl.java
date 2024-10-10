@@ -7,10 +7,10 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.project.dao.entity.ShortLinkDO;
 import com.feng.shortlink.project.dao.mapper.ShortLinkMapper;
+import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinPageReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinRecoverReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinRemoveReqDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinSaveReqDTO;
-import com.feng.shortlink.project.dto.request.ShortLinkRecycleBinPageReqDTO;
 import com.feng.shortlink.project.dto.response.ShortLinkPageRespDTO;
 import com.feng.shortlink.project.service.RecycleBinService;
 import lombok.RequiredArgsConstructor;
@@ -75,10 +75,10 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
                 .eq (ShortLinkDO::getGid, requestParam.getGid())
                 .eq (ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
                 .eq (ShortLinkDO::getEnableStatus,1)
-                .eq(ShortLinkDO::getDelTime, 0L)
+                .eq(ShortLinkDO::getDelTime, 0)
                 .eq (ShortLinkDO::getDelFlag,0);
         ShortLinkDO delShortLinkDO = ShortLinkDO.builder()
-                .delTime(System.currentTimeMillis())
+                .delTime(System.currentTimeMillis ())
                 .build();
         delShortLinkDO.setDelFlag(1);
         baseMapper.update(delShortLinkDO, lambdaUpdateWrapper);

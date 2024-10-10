@@ -1,11 +1,12 @@
 package com.feng.shortlink.admin.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
-import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
+import com.feng.shortlink.admin.remote.ShortLinkActualRemoteService;
 import com.feng.shortlink.admin.remote.dto.request.*;
 import com.feng.shortlink.admin.remote.dto.response.*;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,15 +19,15 @@ import org.springframework.web.bind.annotation.RestController;
  * @description 短链接控制层
  **/
 @RestController
+@RequiredArgsConstructor
 public class ShortLinkController {
-    ShortLinkRemoteService shortLinkRemoteService = new ShortLinkRemoteService () {};
-    
+    private final ShortLinkActualRemoteService shortLinkActualRemoteService;
     /**
      * 新增短链接
      */
     @PostMapping("/api/fenglink/v1/admin/shortlink")
     public Result<ShortLinkSaveRespDTO> saveShortLink (@RequestBody ShortLinkSaveReqDTO requestParam){
-        return shortLinkRemoteService.saveShortLink(requestParam);
+        return shortLinkActualRemoteService.saveShortLink(requestParam);
     }
     
     /**
@@ -34,7 +35,7 @@ public class ShortLinkController {
      */
     @PostMapping("/api/fenglink/v1/admin/shortlink/update")
     public Result<Void> updateShortLink (@RequestBody ShortLinkUpdateReqDTO requestParam) {
-        shortLinkRemoteService.updateShortLink (requestParam);
+        shortLinkActualRemoteService.updateShortLink (requestParam);
         return Results.success ();
     }
     
@@ -42,8 +43,8 @@ public class ShortLinkController {
      * 分页查询短链接
      */
     @GetMapping("/api/fenglink/v1/admin/shortlink")
-    public Result<IPage<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkPageReqDTO requestParam) {
-        return shortLinkRemoteService.pageShortLink(requestParam);
+    public Result<Page<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkPageReqDTO requestParam) {
+        return shortLinkActualRemoteService.pageShortLink(requestParam.getGid (),requestParam.getOrderTag (),requestParam.getCurrent (),requestParam.getSize ());
     }
     
     /**
@@ -51,15 +52,15 @@ public class ShortLinkController {
      */
     @GetMapping("/api/short-link/v1/admin/stats")
     public Result<ShortLinkStatsRespDTO> getShortLinkStats(@RequestBody ShortLinkStatsReqDTO requestParam) {
-        return shortLinkRemoteService.getShortLinkStats (requestParam);
+        return shortLinkActualRemoteService.getShortLinkStats (requestParam.getFullShortUrl (),requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
     
     /**
      * 分页短链接监控统计
      */
     @GetMapping("/api/short-link/v1/admin/stats/page")
-    public Result<IPage<ShortLinkPageStatsRespDTO>> pageShortLinkStats(@RequestBody ShortLinkPageStatsReqDTO requestParam) {
-        return shortLinkRemoteService.pageShortLinkStats (requestParam);
+    public Result<Page<ShortLinkPageStatsRespDTO>> pageShortLinkStats(@RequestBody ShortLinkPageStatsReqDTO requestParam) {
+        return shortLinkActualRemoteService.pageShortLinkStats (requestParam.getFullShortUrl (),requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
     
     /**
@@ -67,14 +68,14 @@ public class ShortLinkController {
      */
     @GetMapping("/api/short-link/v1/admin/stats/group")
     public Result<ShortLinkStatsRespDTO> groupShortLinkStats(@RequestBody ShortLinkStatsGroupReqDTO requestParam) {
-        return shortLinkRemoteService.groupShortLinkStats (requestParam);
+        return shortLinkActualRemoteService.groupShortLinkStats (requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
     
     /**
      * 分组分页短链接监控统计
      */
     @GetMapping("/api/short-link/v1/admin/stats/page/group")
-    public Result<IPage<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats(@RequestBody ShortLinkPageStatsGroupReqDTO requestParam) {
-        return shortLinkRemoteService.pageGroupShortLinkStats (requestParam);
+    public Result<Page<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats(@RequestBody ShortLinkPageStatsGroupReqDTO requestParam) {
+        return shortLinkActualRemoteService.pageGroupShortLinkStats (requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
 }

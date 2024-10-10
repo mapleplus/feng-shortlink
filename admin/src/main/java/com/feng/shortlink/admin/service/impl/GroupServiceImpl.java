@@ -12,7 +12,7 @@ import com.feng.shortlink.admin.dao.mapper.GroupMapper;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupSortDTO;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupUpdateDTO;
 import com.feng.shortlink.admin.dto.response.GroupRespDTO;
-import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
+import com.feng.shortlink.admin.remote.ShortLinkActualRemoteService;
 import com.feng.shortlink.admin.remote.dto.response.ShortLinkGroupQueryRespDTO;
 import com.feng.shortlink.admin.service.GroupService;
 import com.feng.shortlink.admin.util.RandomIDGenerator;
@@ -39,7 +39,7 @@ import static com.feng.shortlink.admin.common.constant.RedisCacheConstant.LOCK_S
 @Slf4j
 @RequiredArgsConstructor
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implements GroupService {
-    ShortLinkRemoteService shortLinkRemoteService;
+    private final ShortLinkActualRemoteService shortLinkActualRemoteService;
     private final RedissonClient redissonClient;
     
     @Value ("${short-link.group.max-num}")
@@ -99,8 +99,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
         // 设置用户的分组数量
         List<GroupRespDTO> groupRespDTOList = BeanUtil.copyToList (baseMapper.selectList (queryWrapper) , GroupRespDTO.class);
         // 获取分组id 目的获取分组数量
-        shortLinkRemoteService = new ShortLinkRemoteService () {};
-        Result<List<ShortLinkGroupQueryRespDTO>> result = shortLinkRemoteService
+        Result<List<ShortLinkGroupQueryRespDTO>> result = shortLinkActualRemoteService
                 .listShortLinkGroup (groupRespDTOList.stream ().map (GroupRespDTO::getGid).collect (Collectors.toList ()));
         // 设置分组数量
         groupRespDTOList.forEach (groupRespDTO -> result.getData ().stream ()

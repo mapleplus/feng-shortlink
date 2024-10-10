@@ -5,7 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
 
-import java.sql.Date;
+import java.util.Date;
+
 
 /**
  * @author FENGXIN

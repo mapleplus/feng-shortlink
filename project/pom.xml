@@ -92,10 +92,8 @@
             <artifactId>rocketmq-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
-            <groupId>com.fengxin</groupId>
-            <artifactId>feng-admin</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>com.alibaba.cloud</groupId>
+            <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
         </dependency>
 
     </dependencies>

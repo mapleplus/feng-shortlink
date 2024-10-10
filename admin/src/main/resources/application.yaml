@@ -11,6 +11,12 @@ spring:
       host: 192.168.187.101
       port: 6379
       password: 51213002
+  application:
+    name: feng-shortlink-admin
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 192.168.187.101:8848
 short-link:
   group:
     max-num: 20

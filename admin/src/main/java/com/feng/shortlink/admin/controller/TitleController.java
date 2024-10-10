@@ -1,7 +1,8 @@
 package com.feng.shortlink.admin.controller;
 
 import com.feng.shortlink.admin.common.convention.result.Result;
-import com.feng.shortlink.admin.remote.ShortLinkRemoteService;
+import com.feng.shortlink.admin.remote.ShortLinkActualRemoteService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,8 +14,9 @@ import org.springframework.web.bind.annotation.RestController;
  * @description 获取网站标题控制层
  **/
 @RestController
+@RequiredArgsConstructor
 public class TitleController {
-    ShortLinkRemoteService shortLinkRemoteService;
+    private final ShortLinkActualRemoteService shortLinkActualRemoteService;
     
     /**
      * 获取标题
@@ -24,8 +26,6 @@ public class TitleController {
      */
     @GetMapping("/api/fenglink/v1/admin/title")
     public Result<String> getTitle(@RequestParam("url") String url) {
-        shortLinkRemoteService = new ShortLinkRemoteService () {
-        };
-        return shortLinkRemoteService.getTitle(url);
+        return shortLinkActualRemoteService.getTitle(url);
     }
 }
