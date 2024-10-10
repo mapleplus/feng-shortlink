@@ -588,8 +588,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             if (!linkUriCreateCachePenetrationBloomFilter.contains (shortLinkDomain + "/" + shortLink)) {
                 return shortLink;
             }
-            // 避免重复生成 加上时间毫秒下一次重新生成 不影响实际url
-            originUrl += System.currentTimeMillis ();
+            // 避免重复生成 加上UUID下一次重新生成 不影响实际url
+            originUrl += UUID.randomUUID ().toString ();
             generatingCount++;
         }
     }
