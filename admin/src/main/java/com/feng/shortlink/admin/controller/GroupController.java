@@ -2,6 +2,7 @@ package com.feng.shortlink.admin.controller;
 
 import com.feng.shortlink.admin.common.convention.result.Result;
 import com.feng.shortlink.admin.common.convention.result.Results;
+import com.feng.shortlink.admin.dto.request.ShortLinkGroupSaveReqDTO;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupSortDTO;
 import com.feng.shortlink.admin.dto.request.ShortLinkGroupUpdateDTO;
 import com.feng.shortlink.admin.dto.response.GroupRespDTO;
@@ -29,9 +30,9 @@ public class GroupController {
      * @return 指示操作成功的Result对象
      */
     @PostMapping("/api/fenglink/v1/admin/group")
-    public Result<Void> saveGroupByGid (@RequestParam("name") String requestParam) {
+    public Result<Void> saveGroupByGid (@RequestBody ShortLinkGroupSaveReqDTO requestParam) {
         // 调用 groupService 保存组信息
-        groupService.saveGroupByGid (requestParam);
+        groupService.saveGroupByGid (requestParam.getName ());
         // 返回成功结果
         return Results.success ();
     }
