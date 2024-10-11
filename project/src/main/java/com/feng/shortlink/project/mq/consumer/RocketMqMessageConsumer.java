@@ -15,7 +15,6 @@ import com.feng.shortlink.project.dto.biz.ShortLinkStatsMqToDbDTO;
 import com.feng.shortlink.project.dto.biz.ShortLinkStatsRecordDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkUpdatePvUvUipDO;
 import com.feng.shortlink.project.handler.MessageQueueIdempotentHandler;
-import com.feng.shortlink.project.mq.producer.DelayShortLinkStatsProducer;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.rocketmq.common.message.MessageExt;
@@ -57,7 +56,6 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
     private final LinkNetworkStatsMapper linkNetworkStatsMapper;
     private final ShortLinkMapper shortLinkMapper;
     private final LinkStatsTodayMapper linkStatsTodayMapper;
-    private final DelayShortLinkStatsProducer delayShortLinkStatsProducer;
     private final MessageQueueIdempotentHandler messageQueueIdempotentHandler;
     
     @Value("${short-link.stats.locale.amap-key}")
@@ -92,11 +90,12 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
         ShortLinkStatsRecordDTO statsRecord = BeanUtil.copyProperties (shortLinkStatsMqToDbDTO , ShortLinkStatsRecordDTO.class);
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(String.format(LOCK_GID_UPDATE_KEY, fullShortLink));
         RLock rLock = readWriteLock.readLock();
-        // 如果修改短链接时有用户访问 则延迟统计数据
-        if (!rLock.tryLock()) {
-            delayShortLinkStatsProducer.send(shortLinkStatsMqToDbDTO);
-            return;
-        }
+        // // 如果修改短链接时有用户访问 则延迟统计数据
+        // if (!rLock.tryLock()) {
+        //     delayShortLinkStatsProducer.send(shortLinkStatsMqToDbDTO);
+        //     return;
+        // }
+        rLock.lock ();
         try{
             // 一般数据统计
             if (StrUtil.isBlank (gid)){

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Component;
  * @description
  **/
 @Component
+@Deprecated
 @RequiredArgsConstructor
 public class DelayShortLinkStatsProducer {
     

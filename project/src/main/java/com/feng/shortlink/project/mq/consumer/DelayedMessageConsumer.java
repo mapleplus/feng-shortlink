@@ -42,6 +42,7 @@ import static com.feng.shortlink.project.common.constant.ShortLinkConstant.SHORT
 @Slf4j
 @RequiredArgsConstructor
 @Service
+@Deprecated
 @RocketMQMessageListener(topic = "shortlink-stats-topic", consumerGroup = "shortlink-stats-delay-consumer-group")
 public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
     
