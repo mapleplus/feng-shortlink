@@ -2,9 +2,11 @@ package com.feng.shortlink.admin.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.lang.UUID;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.feng.shortlink.admin.common.biz.user.UserContext;
 import com.feng.shortlink.admin.common.convention.exception.ClientException;
 import com.feng.shortlink.admin.common.enums.UserErrorCodeEnum;
 import com.feng.shortlink.admin.dao.entity.UserDO;
@@ -98,6 +100,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     
     @Override
     public void updateUser (UserUpdateReqDTO requestParams) {
+        if (StrUtil.equals (requestParams.getUsername () , UserContext.getUserName ())) {
+            throw new ClientException ("用户更新信息异常");
+        }
         LambdaQueryWrapper<UserDO> updateWrapper = new LambdaQueryWrapper<UserDO>()
                 .eq(UserDO::getUsername, requestParams.getUsername ());
         baseMapper.update (BeanUtil.toBean (requestParams , UserDO.class) , updateWrapper);
