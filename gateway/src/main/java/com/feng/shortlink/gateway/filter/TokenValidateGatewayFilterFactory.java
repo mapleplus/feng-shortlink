@@ -53,7 +53,8 @@ public class TokenValidateGatewayFilterFactory extends AbstractGatewayFilterFact
                         httpHeaders.set("realName", URLEncoder.encode(userInfoJsonObject.getString("realName"), StandardCharsets.UTF_8));
                     });
                     // 用户校验成功后刷新时间 防止用户还在操作数据就退出登录
-                    stringRedisTemplate.opsForValue ().set ("shortlink:user:login:" + username, token,30, TimeUnit.DAYS);
+                    // 设置有效时间
+                    stringRedisTemplate.expire ("shortlink:user:login:" + username , 30L , TimeUnit.DAYS);
                     return chain.filter(exchange.mutate().request(builder.build()).build());
                 }
                 ServerHttpResponse response = exchange.getResponse();

@@ -40,7 +40,7 @@ public interface ShortLinkActualRemoteService {
      */
     @GetMapping("/api/fenglink/v1/shortlink")
     Result<Page<ShortLinkPageRespDTO>> pageShortLink(@RequestParam("gid") String gid
-            , @RequestParam("orderTag")String orderTag
+            , @RequestParam(value = "orderTag",required = false)String orderTag
             );
     
     /**

@@ -7,10 +7,7 @@ import com.feng.shortlink.admin.remote.ShortLinkActualRemoteService;
 import com.feng.shortlink.admin.remote.dto.request.*;
 import com.feng.shortlink.admin.remote.dto.response.*;
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author FENGXIN
@@ -43,7 +40,7 @@ public class ShortLinkController {
      * 分页查询短链接
      */
     @GetMapping("/api/fenglink/v1/admin/shortlink")
-    public Result<Page<ShortLinkPageRespDTO>> pageShortLink(@RequestBody ShortLinkPageReqDTO requestParam) {
+    public Result<Page<ShortLinkPageRespDTO>> pageShortLink( ShortLinkPageReqDTO requestParam) {
         return shortLinkActualRemoteService.pageShortLink(requestParam.getGid (),requestParam.getOrderTag ());
     }
     
@@ -51,7 +48,7 @@ public class ShortLinkController {
      * 获取单条短链接监控统计数据
      */
     @GetMapping("/api/fenglink/v1/admin/stats")
-    public Result<ShortLinkStatsRespDTO> getShortLinkStats(@RequestBody ShortLinkStatsReqDTO requestParam) {
+    public Result<ShortLinkStatsRespDTO> getShortLinkStats( ShortLinkStatsReqDTO requestParam) {
         return shortLinkActualRemoteService.getShortLinkStats (requestParam.getFullShortUrl (),requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
     
@@ -59,7 +56,7 @@ public class ShortLinkController {
      * 分页短链接监控统计
      */
     @GetMapping("/api/fenglink/v1/admin/stats/page")
-    public Result<Page<ShortLinkPageStatsRespDTO>> pageShortLinkStats(@RequestBody ShortLinkPageStatsReqDTO requestParam) {
+    public Result<Page<ShortLinkPageStatsRespDTO>> pageShortLinkStats( ShortLinkPageStatsReqDTO requestParam) {
         return shortLinkActualRemoteService.pageShortLinkStats (requestParam.getFullShortUrl (),requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
     
@@ -67,7 +64,7 @@ public class ShortLinkController {
      * 获取分组短链接监控统计数据
      */
     @GetMapping("/api/fenglink/v1/admin/stats/group")
-    public Result<ShortLinkStatsRespDTO> groupShortLinkStats(@RequestBody ShortLinkStatsGroupReqDTO requestParam) {
+    public Result<ShortLinkStatsRespDTO> groupShortLinkStats( ShortLinkStatsGroupReqDTO requestParam) {
         return shortLinkActualRemoteService.groupShortLinkStats (requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
     
@@ -75,7 +72,7 @@ public class ShortLinkController {
      * 分组分页短链接监控统计
      */
     @GetMapping("/api/fenglink/v1/admin/stats/page/group")
-    public Result<Page<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats(@RequestBody ShortLinkPageStatsGroupReqDTO requestParam) {
+    public Result<Page<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats( ShortLinkPageStatsGroupReqDTO requestParam) {
         return shortLinkActualRemoteService.pageGroupShortLinkStats (requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
     }
 }

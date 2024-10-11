@@ -53,7 +53,7 @@ public class UserController {
      * @return 包含布尔值的 Result 对象，表示用户名是否存在
      */
     @GetMapping("/api/fenglink/v1/admin/user/has-username")
-    public Result<Boolean> hasUserName (String username) {
+    public Result<Boolean> hasUserName (@RequestParam("username") String username) {
         return Results.success (userService.hasUserName(username));
     }
     
