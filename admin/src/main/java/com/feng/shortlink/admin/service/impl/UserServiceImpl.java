@@ -73,29 +73,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
         }
         // 给register username上分布式锁 防止恶意注册
         RLock lock = redissonClient.getLock (LOCK_SHORTLINK_USER_REGISTER_KEY + requestParams.getUsername ());
-        try {
-            boolean tryLock = lock.tryLock ();
-            if (tryLock) {
-                try {
-                    // 新增用户
-                    int insert = baseMapper.insert (BeanUtil.toBean (requestParams , UserDO.class));
-                    if (insert < 1) {
-                        throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
-                    }
-                } catch (DuplicateKeyException e){
-                    throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
-                }
-                // 添加用户名到布隆过滤器
-                userRegisterCachePenetrationBloomFilter.add (requestParams.getUsername ());
-                // 提供短链接默认分组给用户
-                groupService.saveGroupByGid (requestParams.getUsername (),"默认分组");
-                return;
-            }
+        boolean tryLock = lock.tryLock ();
+        if (!tryLock){
             throw new ClientException (UserErrorCodeEnum.USER_NAME_EXISTS);
-        } finally {
+        }
+        try {
+            // 新增用户
+            int insert = baseMapper.insert (BeanUtil.toBean (requestParams , UserDO.class));
+            if (insert < 1) {
+                throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
+            }
+            // 添加用户名到布隆过滤器
+            userRegisterCachePenetrationBloomFilter.add (requestParams.getUsername ());
+            // 提供短链接默认分组给用户
+            groupService.saveGroupByGid (requestParams.getUsername (),"默认分组");
+        } catch (DuplicateKeyException e){
+            throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
+        }finally {
             // 释放锁
             lock.unlock ();
         }
+        
     }
     
     @Override
