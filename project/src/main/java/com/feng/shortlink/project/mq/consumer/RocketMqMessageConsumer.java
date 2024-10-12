@@ -87,7 +87,6 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
     }
     public void actualShortLinkStats(ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO) {
         String fullShortLink = shortLinkStatsMqToDbDTO.getFullShortLink ();
-        String gid = shortLinkStatsMqToDbDTO.getGid ();
         ShortLinkStatsRecordDTO statsRecord = BeanUtil.copyProperties (shortLinkStatsMqToDbDTO , ShortLinkStatsRecordDTO.class);
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(String.format(LOCK_GID_UPDATE_KEY, fullShortLink));
         RLock rLock = readWriteLock.readLock();
@@ -99,11 +98,9 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
         rLock.lock ();
         try{
             // 一般数据统计
-            if (StrUtil.isBlank (gid)){
-                LambdaQueryWrapper<LinkGotoDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
-                        .eq(LinkGotoDO::getFullShortUrl,fullShortLink);
-                gid = linkGotoMapper.selectOne (lambdaQueryWrapper).getGid();
-            }
+            LambdaQueryWrapper<LinkGotoDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
+                    .eq(LinkGotoDO::getFullShortUrl,fullShortLink);
+            String gid = linkGotoMapper.selectOne (lambdaQueryWrapper).getGid();
             Date fullDate = DateUtil.date (new Date ());
             int hour = DateUtil.hour (fullDate , true);
             Week dayOfWeekEnum = DateUtil.dayOfWeekEnum (fullDate);
@@ -201,6 +198,7 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
             ShortLinkUpdatePvUvUipDO shortLinkUpdatePvUvUipDO = ShortLinkUpdatePvUvUipDO.builder ()
                     .gid (gid)
                     .fullShortUrl (fullShortLink)
+                    .clickNum (1)
                     .totalPv (1)
                     .totalUv (statsRecord.getUvFlag () ? 1 : 0)
                     .totalUip (statsRecord.getUipFlag () ? 1 : 0)

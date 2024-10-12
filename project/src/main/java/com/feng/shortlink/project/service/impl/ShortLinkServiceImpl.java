@@ -271,7 +271,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         // 如果缓存有数据直接返回
         if (StringUtils.isNotBlank (originalLink)) {
             ShortLinkStatsRecordDTO statsRecord = buildLinkStatsRecordAndSetUser(fullLink, request, response);
-            shortLinkStats(fullLink, null, statsRecord);
+            shortLinkStats(fullLink, statsRecord);
             // 返回重定向链接
             try {
                 // 重定向
@@ -313,7 +313,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             // 如果缓存有数据直接返回
             if (StringUtils.isNotBlank (originalLink)) {
                 ShortLinkStatsRecordDTO statsRecord = buildLinkStatsRecordAndSetUser(fullLink, request, response);
-                shortLinkStats(fullLink, null, statsRecord);
+                shortLinkStats(fullLink, statsRecord);
                 // 返回重定向链接
                 try {
                     // 重定向
@@ -356,7 +356,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 return;
             }
             ShortLinkStatsRecordDTO statsRecord = buildLinkStatsRecordAndSetUser(fullLink, request, response);
-            shortLinkStats(fullLink, shortLinkDO.getGid (), statsRecord);
+            shortLinkStats(fullLink, statsRecord);
             // 返回重定向链接
             try {
                 // 设置缓存新数据
@@ -448,9 +448,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @param fullShortLink 完整短链接
      */
     @Override
-     public void shortLinkStats (String fullShortLink,String gid, ShortLinkStatsRecordDTO statsRecord) {
+     public void shortLinkStats (String fullShortLink, ShortLinkStatsRecordDTO statsRecord) {
         ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = BeanUtil.copyProperties (statsRecord , ShortLinkStatsMqToDbDTO.class);
-        shortLinkStatsMqToDbDTO.setGid (gid);
         rocketMqMessageService.sendMessage ("shortlink-stats-topic", JSON.toJSONString (shortLinkStatsMqToDbDTO));
     }
     
