@@ -80,6 +80,7 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
         } catch (Throwable e) {
             log.error ("数据插入异常 重试消费");
             messageQueueIdempotentHandler.removeMessageQueueIdempotent (message.getMsgId ());
+            throw e;
         }
         // 正确无异常消费后设置完成标志
         messageQueueIdempotentHandler.setMessageQueueIdempotent (message.getMsgId ());
