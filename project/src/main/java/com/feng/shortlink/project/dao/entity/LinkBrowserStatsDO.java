@@ -33,11 +33,6 @@ public class LinkBrowserStatsDO extends BaseDO {
     private String fullShortUrl;
     
     /**
-     * 分组标识，默认值为 'default'
-     */
-    private String gid ;
-    
-    /**
      * 统计日期
      */
     private Date date;

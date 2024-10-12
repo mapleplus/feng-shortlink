@@ -11,8 +11,7 @@
         COALESCE(s.today_uv, 0) AS todayUv,
         COALESCE(s.today_uip, 0) AS todayUip
         FROM t_link t
-        LEFT JOIN t_link_stats_today s ON t.gid = s.gid
-        AND t.full_short_url = s.full_short_url
+        LEFT JOIN t_link_stats_today s ON t.full_short_url = s.full_short_url
         AND s.date = CURDATE()
         WHERE t.gid = #{gid}
         AND t.enable_status = 0

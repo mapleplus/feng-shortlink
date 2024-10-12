@@ -20,6 +20,9 @@ public class ShortLinkStatsReqDTO {
      */
     private String gid;
     
+    /** 启用标识 0：已启用 1：未启用 */
+    private Integer enableStatus;
+    
     /**
      * 开始日期
      */

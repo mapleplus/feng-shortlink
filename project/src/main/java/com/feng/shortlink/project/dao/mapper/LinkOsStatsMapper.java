@@ -29,31 +29,33 @@ public interface LinkOsStatsMapper extends BaseMapper<LinkOsStatsDO> {
     /**
      * 根据短链接获取指定日期内操作系统监控数据
      */
-    @Select("SELECT " +
-            "    os, " +
-            "    SUM(cnt) AS count " +
-            "FROM " +
-            "    t_link_os_stats " +
-            "WHERE " +
-            "    full_short_url = #{param.fullShortUrl} " +
-            "    AND gid = #{param.gid} " +
-            "    AND date BETWEEN #{param.startDate} and #{param.endDate} " +
-            "GROUP BY " +
-            "    full_short_url, gid, date, os;")
+    @Select("""
+        SELECT tlos.os,
+               SUM(tlos.cnt) AS count
+        FROM t_link_os_stats tlos
+                 INNER JOIN t_link tl
+                            ON tlos.full_short_url = tl.full_short_url
+        WHERE tlos.full_short_url = #{param.fullShortUrl}
+          AND tl.gid =              #{param.gid}
+          AND tl.del_flag = '0'
+          AND tl.enable_status =    #{param.enableStatus}
+          AND tlos.date BETWEEN     #{param.startDate} and #{param.endDate}
+        GROUP BY tlos.full_short_url, tl.gid, tlos.date, tlos.os;""")
     List<HashMap<String, Object>> listOsStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
     
     /**
      * 分组根据短链接获取指定日期内操作系统监控数据
      */
-    @Select("SELECT " +
-            "    os, " +
-            "    SUM(cnt) AS count " +
-            "FROM " +
-            "    t_link_os_stats " +
-            "WHERE " +
-            "    gid = #{param.gid} " +
-            "    AND date BETWEEN #{param.startDate} and #{param.endDate} " +
-            "GROUP BY " +
-            "    gid, date, os;")
+    @Select("""
+        SELECT tlos.os,
+               SUM(tlos.cnt) AS count
+        FROM t_link_os_stats tlos
+                 INNER JOIN t_link tl
+                            ON tlos.full_short_url = tl.full_short_url
+        WHERE tl.gid =              #{param.gid}
+          AND tl.del_flag = '0'
+          AND tl.enable_status =    #{param.enableStatus}
+          AND tlos.date BETWEEN     #{param.startDate} and #{param.endDate}
+        GROUP BY tl.gid, tlos.date, tlos.os;""")
     List<HashMap<String, Object>> listOsStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
 }

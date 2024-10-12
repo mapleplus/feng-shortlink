@@ -23,133 +23,152 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
     /**
      * 记录浏览器访问监控数据
      */
-    @Insert("INSERT INTO t_link_access_logs (full_short_url, gid, user, browser,os,ip,device,network,locale,cnt,create_time, update_time, del_flag) " +
-            "VALUES( #{linkAccessLogs.fullShortUrl}, #{linkAccessLogs.gid}, #{linkAccessLogs.user}, #{linkAccessLogs.browser}, #{linkAccessLogs.os},#{linkAccessLogs.ip},#{linkAccessLogs.device},#{linkAccessLogs.network},#{linkAccessLogs.locale},#{linkAccessLogs.cnt},NOW(), NOW(), 0) " +
+    @Insert("INSERT INTO t_link_access_logs (full_short_url, user, browser,os,ip,device,network,locale,cnt,create_time, update_time, del_flag) " +
+            "VALUES( #{linkAccessLogs.fullShortUrl},  #{linkAccessLogs.user}, #{linkAccessLogs.browser}, #{linkAccessLogs.os},#{linkAccessLogs.ip},#{linkAccessLogs.device},#{linkAccessLogs.network},#{linkAccessLogs.locale},#{linkAccessLogs.cnt},NOW(), NOW(), 0) " +
             "ON DUPLICATE KEY UPDATE cnt = cnt +  #{linkAccessLogs.cnt},update_time = VALUES(update_time);")
     void shortLinkBrowserState(@Param("linkAccessLogs") LinkAccessLogsDO linkAccessLogsDO);
     
     /**
      * 根据短链接获取指定日期内高频访问IP数据
      */
-    @Select("SELECT " +
-            "    ip, " +
-            "    COUNT(ip) AS count " +
-            "FROM " +
-            "    t_link_access_logs " +
-            "WHERE " +
-            "    full_short_url = #{param.fullShortUrl} " +
-            "    AND gid = #{param.gid} " +
-            "    AND create_time BETWEEN #{param.startDate} and #{param.endDate} " +
-            "GROUP BY " +
-            "    full_short_url, gid, ip " +
-            "ORDER BY " +
-            "    count DESC " +
-            "LIMIT 5;")
+    @Select("""
+        SELECT
+           tlal.ip,
+           COUNT(tlal.ip) AS count
+        FROM
+           t_link_access_logs tlal inner join t_link tl
+        WHERE
+           tlal.full_short_url = tl.full_short_url
+        AND tl.gid =  #{param.gid}
+        AND tl.del_flag = '0'
+        AND tl.enable_status =  #{param.enableStatus}
+        AND tlal.create_time BETWEEN #{param.startDate} and #{param.endDate}
+        GROUP BY
+          tlal.full_short_url, tl.gid,tlal.ip
+        ORDER BY count DESC
+        LIMIT 5;
+        """)
     List<HashMap<String, Object>> listTopIpByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
     
     /**
      * 分组根据短链接获取指定日期内高频访问IP数据
      */
-    @Select("SELECT " +
-            "    ip, " +
-            "    COUNT(ip) AS count " +
-            "FROM " +
-            "    t_link_access_logs " +
-            "WHERE " +
-            "    gid = #{param.gid} " +
-            "    AND create_time BETWEEN #{param.startDate} and #{param.endDate} " +
-            "GROUP BY " +
-            "    gid, ip " +
-            "ORDER BY " +
-            "    count DESC " +
-            "LIMIT 5;")
+    @Select("""
+        SELECT
+           tlal.ip,
+           COUNT(tlal.ip) AS count
+        FROM
+           t_link_access_logs tlal inner join t_link tl
+        WHERE
+            tl.gid =  #{param.gid}
+        AND tl.del_flag = '0'
+        AND tl.enable_status =  #{param.enableStatus}
+        AND tlal.create_time BETWEEN #{param.startDate} and #{param.endDate}
+        GROUP BY
+          tl.gid,tlal.ip
+        ORDER BY count DESC
+        LIMIT 5;""")
     List<HashMap<String, Object>> listTopIpByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
     
     /**
      * 根据短链接获取指定日期内新旧访客数据
      */
-    @Select("SELECT " +
-            "    SUM(old_user) AS oldUserCnt, " +
-            "    SUM(new_user) AS newUserCnt " +
-            "FROM ( " +
-            "    SELECT " +
-            "        CASE WHEN COUNT(DISTINCT DATE(create_time)) > 1 THEN 1 ELSE 0 END AS old_user, " +
-            "        CASE WHEN COUNT(DISTINCT DATE(create_time)) = 1 AND MAX(create_time) >= #{param.startDate} AND MAX(create_time) <= #{param.endDate} THEN 1 ELSE 0 END AS new_user " +
-            "    FROM " +
-            "        t_link_access_logs " +
-            "    WHERE " +
-            "        full_short_url = #{param.fullShortUrl} " +
-            "        AND gid = #{param.gid} " +
-            "    GROUP BY " +
-            "        user " +
-            ") AS user_counts;")
+    @Select("""
+        SELECT
+            SUM(old_user) AS oldUserCnt,
+            SUM(new_user) AS newUserCnt
+        FROM (
+            SELECT
+                CASE WHEN COUNT(DISTINCT DATE(tlal.create_time)) > 1 THEN 1 ELSE 0 END AS old_user,
+                CASE WHEN COUNT(DISTINCT DATE(tlal.create_time)) = 1 AND MAX(tlal.create_time) >= #{param.startDate} AND MAX(tlal.create_time) <= #{param.endDate} THEN 1 ELSE 0 END AS new_user
+            FROM
+                t_link_access_logs tlal inner join t_link tl
+            on tlal.full_short_url = tl.full_short_url
+            WHERE
+                tlal.full_short_url = #{param.fullShortUrl}
+                AND tl.gid = #{param.gid}
+                AND tl.del_flag = '0'
+                AND tl.enable_status =  #{param.enableStatus}
+            GROUP BY
+                tlal.user
+        ) AS user_counts;""")
     HashMap<String, Object> findUvTypeCntByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
     
     /**
      * 根据短链接获取指定日期内新旧访客数据
      */
-    @Select("SELECT " +
-            "    SUM(old_user) AS oldUserCnt, " +
-            "    SUM(new_user) AS newUserCnt " +
-            "FROM ( " +
-            "    SELECT " +
-            "        CASE WHEN COUNT(DISTINCT DATE(create_time)) > 1 THEN 1 ELSE 0 END AS old_user, " +
-            "        CASE WHEN COUNT(DISTINCT DATE(create_time)) = 1 AND MAX(create_time) >= #{param.startDate} AND MAX(create_time) <= #{param.endDate} THEN 1 ELSE 0 END AS new_user " +
-            "    FROM " +
-            "        t_link_access_logs " +
-            "    WHERE " +
-            "        gid = #{param.gid} " +
-            "    GROUP BY " +
-            "        user " +
-            ") AS user_counts;")
+    @Select("""
+        SELECT
+            SUM(old_user) AS oldUserCnt,
+            SUM(new_user) AS newUserCnt
+        FROM (
+            SELECT
+                CASE WHEN COUNT(DISTINCT DATE(tlal.create_time)) > 1 THEN 1 ELSE 0 END AS old_user,
+                CASE WHEN COUNT(DISTINCT DATE(tlal.create_time)) = 1 AND MAX(tlal.create_time) >= #{param.startDate} AND MAX(tlal.create_time) <= #{param.endDate} THEN 1 ELSE 0 END AS new_user
+            FROM
+                t_link_access_logs tlal inner join t_link tl
+            on tlal.full_short_url = tl.full_short_url
+            WHERE
+                tl.gid = #{param.gid}
+                AND tl.del_flag = '0'
+                AND tl.enable_status =  #{param.enableStatus}
+            GROUP BY
+                tlal.user
+        ) AS user_counts;""")
     HashMap<String, Object> findUvTypeCntByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
     
     /**
      * 分页查询短链接新老访客访问记录
      */
-    @Select("<script> " +
-            "SELECT " +
-            "    user, " +
-            "    CASE " +
-            "        WHEN MIN(create_time) BETWEEN #{requestParam.startDate} AND #{requestParam.endDate} THEN '新访客' " +
-            "        ELSE '老访客' " +
-            "    END AS uvType " +
-            "FROM " +
-            "    t_link_access_logs " +
-            "WHERE " +
-            "    full_short_url = #{requestParam.fullShortUrl} " +
-            "    AND gid = #{requestParam.gid} " +
-            "    AND user IN " +
-            "    <foreach item='item' index='index' collection='requestParam.userAccessLogsList' open='(' separator=',' close=')'> " +
-            "        #{item} " +
-            "    </foreach> " +
-            "GROUP BY " +
-            "    user;" +
-            "    </script>"
-    )
+    @Select("""
+          <script>
+           SELECT
+               tlal.user,
+               CASE
+                   WHEN MIN(tlal.create_time) BETWEEN #{requestParam.startDate} AND #{requestParam.endDate} THEN '新访客'
+                   ELSE '老访客'
+               END AS uvType
+           FROM
+               t_link_access_logs tlal INNER JOIN t_link tl
+          ON tlal.full_short_url = tl.full_short_url
+           WHERE
+             tlal.full_short_url = #{requestParam.fullShortUrl}
+             AND tl.gid = #{requestParam.gid}
+             AND tlal.del_flag = '0'
+             AND tl.enable_status = #{requestParam.enableStatus}
+           AND tlal.user IN
+           <foreach item='item' index='index' collection='requestParam.userAccessLogsList' open='(' separator=',' close=')'>
+               #{item}
+           </foreach>
+           GROUP BY
+              tlal. user;
+          </script>""")
     List<HashMap<String, Object>> listAccessRecordByShortLink(@Param("requestParam") LinkPageStatsDO requestParam);
     
     /**
      * 分组分页查询短链接新老访客访问记录
      */
-    @Select("<script> " +
-            "SELECT " +
-            "    user, " +
-            "    CASE " +
-            "        WHEN MIN(create_time) BETWEEN #{requestParam.startDate} AND #{requestParam.endDate} THEN '新访客' " +
-            "        ELSE '老访客' " +
-            "    END AS uvType " +
-            "FROM " +
-            "    t_link_access_logs " +
-            "WHERE " +
-            "    gid = #{requestParam.gid} " +
-            "    AND user IN " +
-            "    <foreach item='item' index='index' collection='requestParam.userAccessLogsList' open='(' separator=',' close=')'> " +
-            "        #{item} " +
-            "    </foreach> " +
-            "GROUP BY " +
-            "    user;" +
-            "    </script>"
-    )
+    @Select("""
+          <script>
+           SELECT
+               tlal.user,
+               CASE
+                   WHEN MIN(tlal.create_time) BETWEEN #{requestParam.startDate} AND #{requestParam.endDate} THEN '新访客'
+                   ELSE '老访客'
+               END AS uvType
+           FROM
+               t_link_access_logs tlal INNER JOIN t_link tl
+          ON tlal.full_short_url = tl.full_short_url
+           WHERE
+              tl.gid = #{requestParam.gid}
+             AND tlal.del_flag = '0'
+             AND tl.enable_status = #{requestParam.enableStatus}
+           AND tlal.user IN
+           <foreach item='item' index='index' collection='requestParam.userAccessLogsList' open='(' separator=',' close=')'>
+               #{item}
+           </foreach>
+           GROUP BY
+              tlal. user;
+          </script>""")
     List<HashMap<String, Object>> listGroupAccessRecordByShortLink(@Param("requestParam") LinkPageStatsGroupDO requestParam);
 }
