@@ -26,7 +26,7 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
     @Insert("INSERT INTO t_link_access_logs (full_short_url, user, browser,os,ip,device,network,locale,cnt,create_time, update_time, del_flag) " +
             "VALUES( #{linkAccessLogs.fullShortUrl},  #{linkAccessLogs.user}, #{linkAccessLogs.browser}, #{linkAccessLogs.os},#{linkAccessLogs.ip},#{linkAccessLogs.device},#{linkAccessLogs.network},#{linkAccessLogs.locale},#{linkAccessLogs.cnt},NOW(), NOW(), 0) " +
             "ON DUPLICATE KEY UPDATE cnt = cnt +  #{linkAccessLogs.cnt},update_time = VALUES(update_time);")
-    void shortLinkBrowserState(@Param("linkAccessLogs") LinkAccessLogsDO linkAccessLogsDO);
+    void shortLinkAccessLogState (@Param("linkAccessLogs") LinkAccessLogsDO linkAccessLogsDO);
     
     /**
      * 根据短链接获取指定日期内高频访问IP数据
@@ -36,12 +36,11 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
            tlal.ip,
            COUNT(tlal.ip) AS count
         FROM
-           t_link_access_logs tlal inner join t_link tl
+           t_link_access_logs tlal inner join t_link tl ON tl.full_short_url = tlal.full_short_url COLLATE utf8mb4_general_ci
         WHERE
-           tlal.full_short_url = tl.full_short_url
+           tlal.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci
         AND tl.gid =  #{param.gid}
         AND tl.del_flag = '0'
-        AND tl.enable_status =  #{param.enableStatus}
         AND tlal.create_time BETWEEN #{param.startDate} and #{param.endDate}
         GROUP BY
           tlal.full_short_url, tl.gid,tlal.ip
@@ -58,11 +57,10 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
            tlal.ip,
            COUNT(tlal.ip) AS count
         FROM
-           t_link_access_logs tlal inner join t_link tl
+           t_link_access_logs tlal inner join t_link tl ON tl.full_short_url = tlal.full_short_url COLLATE utf8mb4_general_ci
         WHERE
             tl.gid =  #{param.gid}
         AND tl.del_flag = '0'
-        AND tl.enable_status =  #{param.enableStatus}
         AND tlal.create_time BETWEEN #{param.startDate} and #{param.endDate}
         GROUP BY
           tl.gid,tlal.ip
@@ -83,12 +81,11 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
                 CASE WHEN COUNT(DISTINCT DATE(tlal.create_time)) = 1 AND MAX(tlal.create_time) >= #{param.startDate} AND MAX(tlal.create_time) <= #{param.endDate} THEN 1 ELSE 0 END AS new_user
             FROM
                 t_link_access_logs tlal inner join t_link tl
-            on tlal.full_short_url = tl.full_short_url
+            on tlal.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci
             WHERE
                 tlal.full_short_url = #{param.fullShortUrl}
                 AND tl.gid = #{param.gid}
                 AND tl.del_flag = '0'
-                AND tl.enable_status =  #{param.enableStatus}
             GROUP BY
                 tlal.user
         ) AS user_counts;""")
@@ -107,11 +104,10 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
                 CASE WHEN COUNT(DISTINCT DATE(tlal.create_time)) = 1 AND MAX(tlal.create_time) >= #{param.startDate} AND MAX(tlal.create_time) <= #{param.endDate} THEN 1 ELSE 0 END AS new_user
             FROM
                 t_link_access_logs tlal inner join t_link tl
-            on tlal.full_short_url = tl.full_short_url
+            on tlal.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci
             WHERE
                 tl.gid = #{param.gid}
                 AND tl.del_flag = '0'
-                AND tl.enable_status =  #{param.enableStatus}
             GROUP BY
                 tlal.user
         ) AS user_counts;""")
@@ -130,12 +126,11 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
                END AS uvType
            FROM
                t_link_access_logs tlal INNER JOIN t_link tl
-          ON tlal.full_short_url = tl.full_short_url
+          ON tlal.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci
            WHERE
              tlal.full_short_url = #{requestParam.fullShortUrl}
              AND tl.gid = #{requestParam.gid}
              AND tlal.del_flag = '0'
-             AND tl.enable_status = #{requestParam.enableStatus}
            AND tlal.user IN
            <foreach item='item' index='index' collection='requestParam.userAccessLogsList' open='(' separator=',' close=')'>
                #{item}
@@ -158,11 +153,10 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
                END AS uvType
            FROM
                t_link_access_logs tlal INNER JOIN t_link tl
-          ON tlal.full_short_url = tl.full_short_url
+          ON tlal.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci
            WHERE
               tl.gid = #{requestParam.gid}
              AND tlal.del_flag = '0'
-             AND tl.enable_status = #{requestParam.enableStatus}
            AND tlal.user IN
            <foreach item='item' index='index' collection='requestParam.userAccessLogsList' open='(' separator=',' close=')'>
                #{item}

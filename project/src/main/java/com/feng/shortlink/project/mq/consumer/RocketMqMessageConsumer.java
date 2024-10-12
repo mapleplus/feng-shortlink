@@ -154,7 +154,7 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
                     .cnt (1)
                     .os (statsRecord.getOs ())
                     .build ();
-            linkOsStatsMapper.shortLinkBrowserState (linkOsStatsDO);
+            linkOsStatsMapper.shortLinkOsState (linkOsStatsDO);
             
             // 浏览器统计
             LinkBrowserStatsDO linkBrowserStatsDO = LinkBrowserStatsDO.builder ()
@@ -195,7 +195,7 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
                     .locale (StrUtil.join ("-","中国",actualProvince,actualCity))
                     .cnt (1)
                     .build ();
-            linkAccessLogsMapper.shortLinkBrowserState (linkAccessLogsDO);
+            linkAccessLogsMapper.shortLinkAccessLogState (linkAccessLogsDO);
             
             //total pv uv uip
             ShortLinkUpdatePvUvUipDO shortLinkUpdatePvUvUipDO = ShortLinkUpdatePvUvUipDO.builder ()

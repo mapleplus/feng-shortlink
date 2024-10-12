@@ -37,7 +37,6 @@ public interface LinkDeviceStatsMapper extends BaseMapper<LinkDeviceStatsDO> {
         WHERE tlds.full_short_url  = #{param.fullShortUrl}
           AND tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlds.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlds.full_short_url, tl.gid, tlds.device;""")
     List<LinkDeviceStatsDO> listDeviceStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
@@ -53,7 +52,6 @@ public interface LinkDeviceStatsMapper extends BaseMapper<LinkDeviceStatsDO> {
                             ON tlds.full_short_url = tl.full_short_url
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlds.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlds.full_short_url, tl.gid, tlds.device;""")
     List<LinkDeviceStatsDO> listDeviceStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);

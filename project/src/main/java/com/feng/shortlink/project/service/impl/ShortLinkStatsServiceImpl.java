@@ -239,7 +239,6 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         // 查询要请求的数据
         LambdaQueryWrapper<LinkAccessLogsDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkAccessLogsDO> ()
                 .eq (LinkAccessLogsDO::getFullShortUrl, requestParam.getFullShortUrl ())
-                .eq (LinkAccessLogsDO::getGid, requestParam.getGid ())
                 .eq (LinkAccessLogsDO::getDelFlag,0)
                 .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate () +" 00:00:00",requestParam.getEndDate () + " 23:59:59")
                 .orderByAsc (LinkAccessLogsDO::getCreateTime );
@@ -473,7 +472,6 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     public IPage<ShortLinkPageStatsGroupRespDTO> pageGroupShortLinkStats (ShortLinkPageStatsGroupReqDTO requestParam) {
         // 查询要请求的数据
         LambdaQueryWrapper<LinkAccessLogsDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkAccessLogsDO> ()
-                .eq (LinkAccessLogsDO::getGid, requestParam.getGid ())
                 .eq (LinkAccessLogsDO::getDelFlag,0)
                 .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate () +" 00:00:00",requestParam.getEndDate () + " 23:59:59")
                 .orderByAsc (LinkAccessLogsDO::getCreateTime );
@@ -488,7 +486,6 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             return result;
         }
         LinkPageStatsGroupDO logMapperRequestParam = LinkPageStatsGroupDO.builder ()
-                .gid (requestParam.getGid ())
                 .startDate (requestParam.getStartDate ())
                 .endDate (requestParam.getEndDate ())
                 .userAccessLogsList (userAccessLogsList)

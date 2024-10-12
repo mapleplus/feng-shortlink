@@ -38,7 +38,7 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
                 .eq (ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
                 .eq (ShortLinkDO::getEnableStatus,0)
                 .eq(ShortLinkDO::getDelFlag,0);
-        baseMapper.update (ShortLinkDO.builder ().enableStatus (1).build (), lambdaUpdateWrapper);
+        baseMapper.update (ShortLinkDO.builder ().enableStatus (1).delTime (0L).build (), lambdaUpdateWrapper);
         // 删除缓存
         stringRedisTemplate.delete (String.format (SHORTLINK_GOTO_KEY , requestParam.getFullShortUrl ()));
     }
@@ -75,7 +75,7 @@ public class RecycleBinServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLin
                 .eq (ShortLinkDO::getGid, requestParam.getGid())
                 .eq (ShortLinkDO::getFullShortUrl, requestParam.getFullShortUrl())
                 .eq (ShortLinkDO::getEnableStatus,1)
-                .eq(ShortLinkDO::getDelTime, 0)
+                .eq(ShortLinkDO::getDelTime, 0L)
                 .eq (ShortLinkDO::getDelFlag,0);
         ShortLinkDO delShortLinkDO = ShortLinkDO.builder()
                 .delTime(System.currentTimeMillis ())

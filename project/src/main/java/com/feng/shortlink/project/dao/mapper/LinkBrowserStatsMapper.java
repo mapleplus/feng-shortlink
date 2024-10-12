@@ -31,14 +31,13 @@ public interface LinkBrowserStatsMapper extends BaseMapper<LinkBrowserStatsDO> {
      */
     @Select("""
         SELECT tlbs.browser,
-               SUM(tlbs.cnt) AS cnt
+               SUM(tlbs.cnt) AS count
         FROM t_link_browser_stats tlbs
                  INNER JOIN t_link tl
-                            ON tlbs.full_short_url = tl.full_short_url
+                            ON tlbs.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci
         WHERE tlbs.full_short_url  = #{param.fullShortUrl}
           AND tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlbs.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlbs.full_short_url, tl.gid, tlbs.browser;""")
     List<HashMap<String, Object>> listBrowserStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
@@ -51,10 +50,9 @@ public interface LinkBrowserStatsMapper extends BaseMapper<LinkBrowserStatsDO> {
                SUM(tlbs.cnt) AS cnt
         FROM t_link_browser_stats tlbs
                  INNER JOIN t_link tl
-                            ON tlbs.full_short_url = tl.full_short_url
+                            ON tlbs.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlbs.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlbs.full_short_url, tl.gid, tlbs.browser;""")
     List<HashMap<String, Object>> listBrowserStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);

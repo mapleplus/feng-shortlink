@@ -161,7 +161,6 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
         Week dayOfWeekEnum = DateUtil.dayOfWeekEnum (fullDate);
         int weekday = dayOfWeekEnum.getIso8601Value ();
         LinkAccessStatsDO linkAccessStatsDO = LinkAccessStatsDO.builder ()
-                .gid(gid)
                 .fullShortUrl (fullShortLink)
                 .date (fullDate)
                 .pv (1)
@@ -189,7 +188,6 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
             String province = localeObject.getString ("province");
             boolean unKnown = StrUtil.equals (province,"[]");
             LinkLocaleStatsDO linkLocaleStatsDO = LinkLocaleStatsDO.builder ()
-                    .gid (gid)
                     .fullShortUrl (fullShortLink)
                     .date (fullDate)
                     .province (actualProvince = unKnown ? "未知" : province)
@@ -203,17 +201,15 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
         
         // 操作系统统计
         LinkOsStatsDO linkOsStatsDO = LinkOsStatsDO.builder ()
-                .gid (gid)
                 .fullShortUrl (fullShortLink)
                 .date (fullDate)
                 .cnt (1)
                 .os (statsRecord.getOs ())
                 .build ();
-        linkOsStatsMapper.shortLinkBrowserState (linkOsStatsDO);
+        linkOsStatsMapper.shortLinkOsState (linkOsStatsDO);
         
         // 浏览器统计
         LinkBrowserStatsDO linkBrowserStatsDO = LinkBrowserStatsDO.builder ()
-                .gid (gid)
                 .fullShortUrl (fullShortLink)
                 .date (fullDate)
                 .cnt (1)
@@ -223,7 +219,6 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
         
         // 访问设备统计
         LinkDeviceStatsDO linkDeviceStatsDO = LinkDeviceStatsDO.builder ()
-                .gid (gid)
                 .fullShortUrl (fullShortLink)
                 .date (fullDate)
                 .cnt (1)
@@ -233,7 +228,6 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
         
         // 访问网络统计
         LinkNetworkStatsDO linkNetworkStatsDO = LinkNetworkStatsDO.builder ()
-                .gid (gid)
                 .fullShortUrl (fullShortLink)
                 .date (fullDate)
                 .cnt (1)
@@ -243,7 +237,6 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
         
         // 日志统计
         LinkAccessLogsDO linkAccessLogsDO = LinkAccessLogsDO.builder ()
-                .gid (gid)
                 .fullShortUrl (fullShortLink)
                 .ip (statsRecord.getUserIpAddress ())
                 .user (statsRecord.getUv ())
@@ -254,7 +247,7 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
                 .locale (StrUtil.join ("-","中国",actualProvince,actualCity))
                 .cnt (1)
                 .build ();
-        linkAccessLogsMapper.shortLinkBrowserState (linkAccessLogsDO);
+        linkAccessLogsMapper.shortLinkAccessLogState (linkAccessLogsDO);
         
         //total pv uv uip
         ShortLinkUpdatePvUvUipDO shortLinkUpdatePvUvUipDO = ShortLinkUpdatePvUvUipDO.builder ()
@@ -268,7 +261,6 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
         
         //今日统计
         LinkStatsTodayDO statsTodayDO = LinkStatsTodayDO.builder ()
-                .gid (gid)
                 .fullShortUrl (fullShortLink)
                 .date (fullDate)
                 .todayPv (1)

@@ -24,6 +24,11 @@ public class LinkPageStatsDO {
     private String fullShortUrl;
     
     /**
+     * GID
+     */
+    private String gid;
+    
+    /**
      * 开始日期
      */
     private String startDate;

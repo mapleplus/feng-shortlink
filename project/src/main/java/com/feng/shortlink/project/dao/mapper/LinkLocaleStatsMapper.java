@@ -32,11 +32,10 @@ public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsDO> {
                SUM(tlls.cnt) AS cnt
         FROM t_link_locale_stats tlls
                  INNER JOIN t_link tl
-                            ON tlls.full_short_url = tl.full_short_url
+                            ON tlls.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci
         WHERE tlls.full_short_url  = #{param.fullShortUrl}
           AND tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlls.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlls.full_short_url, tl.gid, tlls.province;""")
     List<LinkLocaleStatsDO> listLocaleByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
@@ -49,10 +48,9 @@ public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsDO> {
                SUM(tlls.cnt) AS cnt
         FROM t_link_locale_stats tlls
                  INNER JOIN t_link tl
-                            ON tlls.full_short_url = tl.full_short_url
+                            ON tlls.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlls.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlls.full_short_url, tl.gid, tlls.province;""")
     List<LinkLocaleStatsDO> listLocaleByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);

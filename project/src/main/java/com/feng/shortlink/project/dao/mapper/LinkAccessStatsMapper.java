@@ -41,7 +41,6 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
         WHERE tlas.full_short_url = #{param.fullShortUrl}
           AND tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlas.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlas.full_short_url, tl.gid, tlas.date;""")
     List<LinkAccessStatsDO> listStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
@@ -59,7 +58,6 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
                             ON tlas.full_short_url = tl.full_short_url
         WHERE  tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlas.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlas.full_short_url, tl.gid, tlas.date;""")
     List<LinkAccessStatsDO> listStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
@@ -76,7 +74,6 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
         WHERE tlas.full_short_url = #{param.fullShortUrl}
           AND tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlas.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlas.full_short_url, tl.gid, tlas.hour;""")
     List<LinkAccessStatsDO> listHourStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
@@ -92,7 +89,6 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
                             ON tlas.full_short_url = tl.full_short_url
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlas.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlas.full_short_url, tl.gid, tlas.hour;""")
     List<LinkAccessStatsDO> listHourStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
@@ -109,7 +105,6 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
         WHERE tlas.full_short_url = #{param.fullShortUrl}
           AND tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlas.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlas.full_short_url, tl.gid, tlas.weekday;""")
     List<LinkAccessStatsDO> listWeekdayStatsByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
@@ -125,7 +120,6 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
                             ON tlas.full_short_url = tl.full_short_url
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
-          AND tl.enable_status =    #{param.enableStatus}
           AND tlas.date BETWEEN     #{param.startDate} and #{param.endDate}
         GROUP BY tlas.full_short_url, tl.gid, tlas.weekday;""")
     List<LinkAccessStatsDO> listWeekdayStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
