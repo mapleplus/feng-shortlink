@@ -104,7 +104,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .totalPv (0)
                 .totalUv (0)
                 .totalUip (0)
-                .delTime (null)
+                .delTime (0L)
                 .build ();
         LinkGotoDO linkGotoDO = LinkGotoDO.builder ()
                 .gid (requestParam.getGid ())
@@ -161,7 +161,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .fullShortUrl (requestParam.getFullShortUrl ())
                     .gid (requestParam.getGid ())
                     .originUrl (requestParam.getOriginUrl ())
-                    .favicon (requestParam.getFavicon ())
+                    .favicon (getFavicon(requestParam.getOriginUrl()))
                     .describe (requestParam.getDescribe ())
                     .validDateType (requestParam.getValidDateType ())
                     .validDate (requestParam.getValidDate ())
@@ -222,7 +222,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                         .totalUip(selectOne.getTotalUip())
                         .fullShortUrl(selectOne.getFullShortUrl())
                         .favicon(getFavicon(requestParam.getOriginUrl()))
-                        .delTime(0L)
+                        .delTime (0L)
                         .build();
                 baseMapper.insert(shortLinkDO);
                 // 更新GOTO表
