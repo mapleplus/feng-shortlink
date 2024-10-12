@@ -25,6 +25,11 @@ public class ShortLinkPageStatsGroupReqDTO extends Page {
     private String startDate;
     
     /**
+     * 启用状态
+     */
+    private Integer enableStatus;
+    
+    /**
      * 结束日期
      */
     private String endDate;

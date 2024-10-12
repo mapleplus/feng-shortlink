@@ -88,6 +88,7 @@ public interface ShortLinkActualRemoteService {
      Result<ShortLinkStatsRespDTO> getShortLinkStats (
                @RequestParam("fullShortUrl") String fullShortUrl
              , @RequestParam("gid") String gid
+             , @RequestParam("enableStatus") Integer enableStatus
              , @RequestParam("startDate") String startDate
              , @RequestParam("endDate") String endDate);
 
@@ -99,7 +100,11 @@ public interface ShortLinkActualRemoteService {
                @RequestParam("fullShortUrl") String fullShortUrl
              , @RequestParam("gid") String gid
              , @RequestParam("startDate") String startDate
-             , @RequestParam("endDate") String endDate);
+             , @RequestParam("endDate") String endDate
+             , @RequestParam("enableStatus") Integer enableStatus
+             , @RequestParam("current") Long current
+             , @RequestParam("size") Long size
+     );
 
      /**
      * 获取分组短链接监控统计数据
@@ -117,5 +122,9 @@ public interface ShortLinkActualRemoteService {
      Result<Page<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats (
              @RequestParam("gid") String gid
              , @RequestParam("startDate") String startDate
-             , @RequestParam("endDate") String endDate);
+             , @RequestParam("endDate") String endDate
+             , @RequestParam("enableStatus") Integer enableStatus
+             , @RequestParam("current") Long current
+             , @RequestParam("size") Long size
+     );
 }

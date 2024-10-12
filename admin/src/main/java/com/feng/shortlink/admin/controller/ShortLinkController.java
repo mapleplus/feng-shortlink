@@ -49,7 +49,12 @@ public class ShortLinkController {
      */
     @GetMapping("/api/fenglink/v1/admin/stats")
     public Result<ShortLinkStatsRespDTO> getShortLinkStats( ShortLinkStatsReqDTO requestParam) {
-        return shortLinkActualRemoteService.getShortLinkStats (requestParam.getFullShortUrl (),requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
+        return shortLinkActualRemoteService.getShortLinkStats (
+                requestParam.getFullShortUrl ()
+                ,requestParam.getGid ()
+                ,requestParam.getEnableStatus ()
+                ,requestParam.getStartDate ()
+                ,requestParam.getEndDate ());
     }
     
     /**
@@ -57,7 +62,15 @@ public class ShortLinkController {
      */
     @GetMapping("/api/fenglink/v1/admin/stats/page")
     public Result<Page<ShortLinkPageStatsRespDTO>> pageShortLinkStats( ShortLinkPageStatsReqDTO requestParam) {
-        return shortLinkActualRemoteService.pageShortLinkStats (requestParam.getFullShortUrl (),requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
+        return shortLinkActualRemoteService.pageShortLinkStats (
+                requestParam.getFullShortUrl ()
+                ,requestParam.getGid ()
+                ,requestParam.getStartDate ()
+                ,requestParam.getEndDate ()
+                ,requestParam.getEnableStatus ()
+                ,requestParam.getCurrent ()
+                ,requestParam.getSize ()
+        );
     }
     
     /**
@@ -65,7 +78,10 @@ public class ShortLinkController {
      */
     @GetMapping("/api/fenglink/v1/admin/stats/group")
     public Result<ShortLinkStatsRespDTO> groupShortLinkStats( ShortLinkStatsGroupReqDTO requestParam) {
-        return shortLinkActualRemoteService.groupShortLinkStats (requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
+        return shortLinkActualRemoteService.groupShortLinkStats (
+                requestParam.getGid ()
+                ,requestParam.getStartDate ()
+                ,requestParam.getEndDate ());
     }
     
     /**
@@ -73,6 +89,13 @@ public class ShortLinkController {
      */
     @GetMapping("/api/fenglink/v1/admin/stats/page/group")
     public Result<Page<ShortLinkPageStatsGroupRespDTO>> pageGroupShortLinkStats( ShortLinkPageStatsGroupReqDTO requestParam) {
-        return shortLinkActualRemoteService.pageGroupShortLinkStats (requestParam.getGid (),requestParam.getStartDate (),requestParam.getEndDate ());
+        return shortLinkActualRemoteService.pageGroupShortLinkStats (
+                requestParam.getGid ()
+                ,requestParam.getStartDate ()
+                ,requestParam.getEndDate ()
+                ,requestParam.getEnableStatus ()
+                ,requestParam.getCurrent ()
+                ,requestParam.getSize ()
+        );
     }
 }

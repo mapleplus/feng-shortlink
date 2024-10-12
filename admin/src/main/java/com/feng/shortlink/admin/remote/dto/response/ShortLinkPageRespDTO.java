@@ -47,6 +47,11 @@ public class ShortLinkPageRespDTO {
     /** 有效期类型 0：永久有效 1：用户自定义 */
     private Integer validDateType;
     
+    /**
+     * 启用标识 0：启用 1：未启用
+     */
+    private Integer enableStatus;
+    
     /** 有效期 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT + 8")
     private Date validDate;

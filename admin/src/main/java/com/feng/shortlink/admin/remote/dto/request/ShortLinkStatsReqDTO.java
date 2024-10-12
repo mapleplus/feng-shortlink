@@ -26,6 +26,11 @@ public class ShortLinkStatsReqDTO {
     private String startDate;
     
     /**
+     * 启用标识 0：启用 1：未启用
+     */
+    private Integer enableStatus;
+    
+    /**
      * 结束日期
      */
     private String endDate;
