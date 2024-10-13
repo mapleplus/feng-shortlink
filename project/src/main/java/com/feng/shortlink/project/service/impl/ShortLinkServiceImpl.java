@@ -512,7 +512,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * 获取网站图标
      *
      * @param url 网址
-     * @return {@code String }
+     * @return 网站图标链接
      */
     public String getFavicon(String url) {
         try {
@@ -539,7 +539,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      *
      * @param baseUrl 基本 URL
      * @param iconUrl 图标路径
-     * @return {@code String 绝对路径}
+     * @return 绝对路径
      */
     private String resolveUrl(String baseUrl, String iconUrl) {
         if (iconUrl.startsWith("http://") || iconUrl.startsWith("https://")) {
@@ -555,7 +555,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     /**
      * 距离一天结束毫秒数
      *
-     * @return long
+     * @return Long
      */
     public static Long millisecondsUntilEndOfDay() {
         // 获取当前时间

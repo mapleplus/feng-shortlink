@@ -26,6 +26,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.concurrent.TimeUnit;
 
@@ -69,6 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void registerUser (UserRegisterReqDTO requestParams) {
         if (!hasUserName (requestParams.getUsername ())){
             throw new ClientException (UserErrorCodeEnum.USER_NAME_EXISTS);
@@ -85,10 +87,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
             if (insert < 1) {
                 throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
             }
-            // 添加用户名到布隆过滤器
-            userRegisterCachePenetrationBloomFilter.add (requestParams.getUsername ());
             // 提供短链接默认分组给用户
             groupService.saveGroupByGid (requestParams.getUsername (),"默认分组");
+            // 添加用户名到布隆过滤器 （分组失败则不会添加user到布隆过滤器，布隆过滤器不会回滚 逻辑）
+            userRegisterCachePenetrationBloomFilter.add (requestParams.getUsername ());
         } catch (DuplicateKeyException e){
             throw new ClientException (UserErrorCodeEnum.USER_SAVE_ERROR);
         }finally {

@@ -1,9 +1,13 @@
 package com.feng.shortlink.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.feng.shortlink.project.common.biz.user.UserContext;
+import com.feng.shortlink.project.common.convention.exception.ServiceException;
 import com.feng.shortlink.project.dao.entity.*;
 import com.feng.shortlink.project.dao.mapper.*;
 import com.feng.shortlink.project.dto.request.ShortLinkPageStatsGroupReqDTO;
@@ -15,10 +19,7 @@ import com.feng.shortlink.project.service.ShortLinkStatsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -38,9 +39,11 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     private final LinkOsStatsMapper linkOsStatsMapper;
     private final LinkDeviceStatsMapper linkDeviceStatsMapper;
     private final LinkNetworkStatsMapper linkNetworkStatsMapper;
+    private final LinkGroupMapper linkGroupMapper;
     
     @Override
     public ShortLinkStatsRespDTO getShortLinkStats (ShortLinkStatsReqDTO requestParam) {
+        checkGroupBelongToUser(requestParam.getGid ());
         /*
         基础监控统计
          */
@@ -236,6 +239,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     
     @Override
     public IPage<ShortLinkPageStatsRespDTO> pageShortLinkStats (ShortLinkPageStatsReqDTO requestParam) {
+        checkGroupBelongToUser(requestParam.getGid ());
         // 查询要请求的数据
         LambdaQueryWrapper<LinkAccessLogsDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkAccessLogsDO> ()
                 .eq (LinkAccessLogsDO::getFullShortUrl, requestParam.getFullShortUrl ())
@@ -243,6 +247,9 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
                 .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate () +" 00:00:00",requestParam.getEndDate () + " 23:59:59")
                 .orderByAsc (LinkAccessLogsDO::getCreateTime );
         IPage<LinkAccessLogsDO> pageStatsReqDTO = linkAccessLogsMapper.selectPage (requestParam , lambdaQueryWrapper);
+        if (CollUtil.isEmpty (pageStatsReqDTO.getRecords ())) {
+            return new Page<> ();
+        }
         // convert成响应对象
         IPage<ShortLinkPageStatsRespDTO> result = pageStatsReqDTO.convert (each -> BeanUtil.toBean (each , ShortLinkPageStatsRespDTO.class));
         // 设置db查询参数 设置uvType
@@ -275,6 +282,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     
     @Override
     public ShortLinkStatsGroupRespDTO groupShortLinkStats (ShortLinkStatsGroupReqDTO requestParam) {
+        checkGroupBelongToUser(requestParam.getGid ());
         /*
         基础监控统计
          */
@@ -470,12 +478,16 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     
     @Override
     public IPage<ShortLinkPageStatsGroupRespDTO> pageGroupShortLinkStats (ShortLinkPageStatsGroupReqDTO requestParam) {
+        checkGroupBelongToUser(requestParam.getGid ());
         // 查询要请求的数据
         LambdaQueryWrapper<LinkAccessLogsDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkAccessLogsDO> ()
                 .eq (LinkAccessLogsDO::getDelFlag,0)
                 .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate () +" 00:00:00",requestParam.getEndDate () + " 23:59:59")
                 .orderByAsc (LinkAccessLogsDO::getCreateTime );
         IPage<LinkAccessLogsDO> pageStatsReqDTO = linkAccessLogsMapper.selectPage (requestParam , lambdaQueryWrapper);
+        if (CollUtil.isEmpty (pageStatsReqDTO.getRecords ())) {
+            return new Page<> ();
+        }
         // convert成响应对象
         IPage<ShortLinkPageStatsGroupRespDTO> result = pageStatsReqDTO.convert (each -> BeanUtil.toBean (each , ShortLinkPageStatsGroupRespDTO.class));
         // 设置db查询参数 设置uvType
@@ -502,5 +514,17 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             each.setUvType (uvType);
         });
         return result;
+    }
+    
+    public void checkGroupBelongToUser(String gid){
+        String userName = Optional.ofNullable (UserContext.getUsername ())
+                .orElseThrow (() -> new ServiceException ("用户未登录"));
+        LambdaQueryWrapper<GroupDO> lambdaQueryWrapper = new LambdaQueryWrapper<GroupDO> ()
+                .eq (GroupDO::getGid,gid)
+                .eq(GroupDO::getUsername,userName);
+        List<GroupDO> groupDoList = linkGroupMapper.selectList (lambdaQueryWrapper);
+        if (CollUtil.isEmpty (groupDoList)) {
+            throw new ServiceException ("用户信息和分组不匹配");
+        }
     }
 }

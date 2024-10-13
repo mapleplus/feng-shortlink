@@ -2,6 +2,7 @@ package com.feng.shortlink.admin.remote;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.feng.shortlink.admin.common.convention.result.Result;
+import com.feng.shortlink.admin.config.OpenFeignConfiguration;
 import com.feng.shortlink.admin.remote.dto.request.*;
 import com.feng.shortlink.admin.remote.dto.response.*;
 import org.springframework.cloud.openfeign.FeignClient;
@@ -18,7 +19,9 @@ import java.util.List;
  * @project feng-shortlink
  * @description 微服务中台调用
  **/
-@FeignClient("feng-shortlink-project")
+@FeignClient(
+        value = "feng-shortlink-project",
+        configuration = OpenFeignConfiguration.class)
 public interface ShortLinkActualRemoteService {
     
     /**

@@ -25,7 +25,7 @@ public class UserTransmitFilter implements Filter {
         if (StrUtil.isNotBlank(username)) {
             String userId = httpServletRequest.getHeader("userId");
             String realName = httpServletRequest.getHeader("realName");
-            UserInfoDTO userInfoDTO = new UserInfoDTO(userId, username, realName);
+            UserInfoDTO userInfoDTO = new UserInfoDTO (userId, username, realName);
             UserContext.setUser(userInfoDTO);
         }
         try {
