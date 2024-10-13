@@ -10,7 +10,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.feng.shortlink.project.common.convention.exception.ClientException;
@@ -266,10 +265,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .map(each -> ":" + each)
                 .orElse ("");
         String fullLink = serverName + serverPort + "/" + shortLink;
-        // 查询缓存的link
+        // 1.查询缓存的link
         String originalLink = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_GOTO_KEY , fullLink));
-        // 如果缓存有数据直接返回
-        if (StringUtils.isNotBlank (originalLink)) {
+        // 1.1 如果缓存数据不为NULL直接返回
+        if (!StrUtil.equals (originalLink, "-")) {
             ShortLinkStatsRecordDTO statsRecord = buildLinkStatsRecordAndSetUser(fullLink, request, response);
             shortLinkStats(fullLink, statsRecord);
             // 返回重定向链接
@@ -281,9 +280,18 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             }
             return;
         }
-        // 如果缓存没有数据 查询布隆过滤器（短链接存入数据库是就添加入了布隆过滤器）
+        // 1.2 缓存为空值
+        if (StrUtil.equals (originalLink, "-")) {
+            try {
+                response.sendRedirect ("/page/notfound");
+            } catch (IOException e) {
+                throw new ClientException ("重定向不存在页面失败");
+            }
+            return;
+        }
+        // 2.如果缓存没有数据 查询布隆过滤器（短链接存入数据库是就添加入了布隆过滤器）
         boolean contains = linkUriCreateCachePenetrationBloomFilter.contains (fullLink);
-        // 布隆过滤器不存在 则数据库也没有数据 直接返回
+        // 2.1 布隆过滤器不存在 则数据库也没有数据 直接返回
         if (!contains) {
             try {
                 response.sendRedirect ("/page/notfound");
@@ -292,26 +300,15 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             }
             return;
         }
-        // 布隆过滤器存在值 判断缓存是否有link空值
-        String linkIsNull = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink));
-        if (StringUtils.isNotBlank (linkIsNull)) {
-            try {
-                response.sendRedirect ("/page/notfound");
-            } catch (IOException e) {
-                throw new ClientException ("重定向不存在页面失败");
-            }
-            return;
-        }
-        // 缓存没有空值
-        // 缓存数据过期 获取分布式🔒查询数据库
+        // 3.缓存数据过期 布隆过滤器有数据 获取分布式🔒查询数据库
         RLock lock = redissonClient.getLock (String.format (LOCK_SHORTLINK_GOTO_KEY , fullLink));
         lock.lock ();
         try {
-            // 双重判断🔒缓存数据 如果上一个线程已经在缓存设置新数据 可直接返回
+            // 3.1 双重判断🔒缓存数据 如果上一个线程已经在缓存设置新数据 可直接返回
             // 查询缓存的link
             originalLink = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_GOTO_KEY , fullLink));
-            // 如果缓存有数据直接返回
-            if (StringUtils.isNotBlank (originalLink)) {
+            // 如果缓存数据不为NULL直接返回
+            if (!StrUtil.equals (originalLink, "-")) {
                 ShortLinkStatsRecordDTO statsRecord = buildLinkStatsRecordAndSetUser(fullLink, request, response);
                 shortLinkStats(fullLink, statsRecord);
                 // 返回重定向链接
@@ -321,9 +318,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 } catch (IOException e) {
                     throw new ClientException ("短链接重定向失败");
                 }
+                return;
             }
-            // 再次查询空值是否存在 如果已经有线程设置了缓存，就直接返回
-            if(StrUtil.isNotBlank (stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink)))){
+            if (StrUtil.equals (originalLink, "-")) {
                 try {
                     response.sendRedirect ("/page/notfound");
                 } catch (IOException e) {
@@ -331,13 +328,15 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 }
                 return;
             }
-            // 查询路由表中的短链接（短链接做分片键 因为短链接表用gid分片键 不能直接根据完整短链接快速查询结果）
+            // 缓存还是没有任何数据 说明这时候是第一个线程查询
+            // 3.2 查询路由表中的短链接（短链接做分片键 因为短链接表用gid分片键 不能直接根据完整短链接快速查询结果）
             LambdaQueryWrapper<LinkGotoDO> linkGotoDoLambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
                     .eq (LinkGotoDO::getFullShortUrl , fullLink);
             LinkGotoDO linkGotoDO = linkGotoMapper.selectOne (linkGotoDoLambdaQueryWrapper);
+            // 3.3 路由表没有数据
             if (linkGotoDO == null) {
                 // 设置空值 直接返回 该链接在数据库是不存在值的 但是布隆过滤器没有删除值
-                stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
+                stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
                 // 严谨 需要进行风控
                 try {
                     response.sendRedirect ("/page/notfound");
@@ -346,7 +345,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 }
                 return;
             }
-            // 使用路由表的gid快速查询短链接表的数据
+            // 3.4 路由表有数据 使用路由表的gid快速查询短链接表的数据
             LambdaQueryWrapper<ShortLinkDO> shortLinkDoLambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
                     .eq (ShortLinkDO::getGid , linkGotoDO.getGid ())
                     .eq (ShortLinkDO::getFullShortUrl , fullLink)
@@ -354,8 +353,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq (ShortLinkDO::getDelFlag , 0);
             ShortLinkDO shortLinkDO = baseMapper.selectOne (shortLinkDoLambdaQueryWrapper);
             if (shortLinkDO == null || shortLinkDO.getValidDate () != null && shortLinkDO.getValidDate ().before (new Date ())) {
-                // 如果数据库的链接过期
-                stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
+                // 3.4.1 如果数据库的链接过期
+                stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
                 // 严谨 需要进行风控
                 try {
                     response.sendRedirect ("/page/notfound");
@@ -453,7 +452,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     /**
      * 链接统计
      *
-     * @param gid           GID
      * @param fullShortLink 完整短链接
      */
     @Override
