@@ -23,11 +23,13 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
         strictInsertFill (metaObject, "createTime", Date.class, new Date ());
         strictInsertFill (metaObject, "updateTime", Date.class,new Date ());
         strictInsertFill (metaObject , "delFlag" , () -> 0, Integer.class);
+        log.info (metaObject.toString () );
     }
     
     @Override
     public void updateFill (MetaObject metaObject) {
         log.info ("开始更新填充");
         strictUpdateFill (metaObject, "updateTime", Date.class, new Date ());
+        log.info (metaObject.toString () );
     }
 }

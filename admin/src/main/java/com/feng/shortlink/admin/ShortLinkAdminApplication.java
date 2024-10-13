@@ -6,6 +6,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 
+import java.util.TimeZone;
+
 /**
  * @author FENGXIN
  * @date 2024/9/24
@@ -18,6 +20,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients("com.feng.shortlink.admin.remote")
 public class ShortLinkAdminApplication {
     public static void main(String[] args) {
+        TimeZone.setDefault(TimeZone.getTimeZone("Asia/Shanghai"));
         SpringApplication.run(ShortLinkAdminApplication.class, args);
     }
     
