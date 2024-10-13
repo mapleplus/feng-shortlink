@@ -51,6 +51,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -431,6 +432,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         String browser = ShortLinkUtil.getBrowser (request);
         String device = ShortLinkUtil.getDevice (request);
         String network = ShortLinkUtil.getUserNetwork (request);
+        LocalDateTime fullDate = LocalDateTime.now ();
         Long uipAdd = stringRedisTemplate.opsForSet ().add (String.format (SHORTLINK_STATS_UIP_KEY , fullShortLink) , userIpAddress);
         boolean uipFlag = uipAdd != null && uipAdd > 0L;
         if(uipFlag == Boolean.TRUE) {
@@ -447,6 +449,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .browser(browser)
                 .device(device)
                 .network(network)
+                .createTime (fullDate)
                 .build();
     }
     

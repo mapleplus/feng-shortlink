@@ -20,6 +20,11 @@ import java.util.List;
 public class LinkPageStatsGroupDO {
     
     /**
+     * GID
+     */
+    private String gid;
+    
+    /**
      * 开始日期
      */
     private String startDate;

@@ -1,21 +1,23 @@
 package com.feng.shortlink.project.dao.entity;
 
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 /**
  * @author FENGXIN
  * @date 2024/10/4
  * @project feng-shortlink
  * @description 短链接监控 基础数据统计
  **/
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName(value = "t_link_access_stats")
-public class LinkAccessStatsDO{
+public class LinkAccessStatsDO extends BaseDO {
     // 主键ID
     private Long id;
     
@@ -23,7 +25,7 @@ public class LinkAccessStatsDO{
     private String fullShortUrl;
     
     // 日期
-    private Date date;
+    private LocalDateTime date;
     
     // 访问量
     private Integer pv;
@@ -41,20 +43,5 @@ public class LinkAccessStatsDO{
     
     // 星期
     private Integer weekday;
-    
-    /**
-     * 创建时间
-     */
-    private Date createTime;
-    
-    /**
-     * 更新时间
-     */
-    private Date updateTime;
-    
-    /**
-     * del flag
-     */
-    private Integer delFlag;
     
 }

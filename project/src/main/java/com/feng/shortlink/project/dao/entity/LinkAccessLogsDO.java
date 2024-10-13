@@ -16,7 +16,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName(value = "t_link_access_logs")
-public class LinkAccessLogsDO extends BaseDO {
+public class LinkAccessLogsDO  extends BaseDO {
     /**
      * 自增主键 ID
      */

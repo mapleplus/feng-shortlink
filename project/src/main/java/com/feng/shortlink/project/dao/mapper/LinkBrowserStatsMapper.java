@@ -47,7 +47,7 @@ public interface LinkBrowserStatsMapper extends BaseMapper<LinkBrowserStatsDO> {
      */
     @Select("""
         SELECT tlbs.browser,
-               SUM(tlbs.cnt) AS cnt
+               SUM(tlbs.cnt) AS count
         FROM t_link_browser_stats tlbs
                  INNER JOIN t_link tl
                             ON tlbs.full_short_url = tl.full_short_url COLLATE utf8mb4_general_ci

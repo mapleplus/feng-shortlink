@@ -5,6 +5,7 @@ import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
 import org.springframework.data.annotation.Id;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -35,7 +36,7 @@ public class LinkBrowserStatsDO extends BaseDO {
     /**
      * 统计日期
      */
-    private Date date;
+    private LocalDateTime date;
     
     /**
      * 访问量

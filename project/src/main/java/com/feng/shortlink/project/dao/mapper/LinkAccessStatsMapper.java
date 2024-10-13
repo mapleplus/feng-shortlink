@@ -31,7 +31,7 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
      * 根据短链接获取指定日期内基础监控数据
      */
     @Select("""
-        SELECT date,
+        SELECT tlas.date,
                SUM(tlas.pv)  AS pv,
                SUM(tlas.uv)  AS uv,
                SUM(tlas.uip) AS uip
@@ -49,7 +49,7 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
      * 分组根据短链接获取指定日期内基础监控数据
      */
     @Select("""
-        SELECT date,
+        SELECT tlas.date,
                SUM(tlas.pv)  AS pv,
                SUM(tlas.uv)  AS uv,
                SUM(tlas.uip) AS uip

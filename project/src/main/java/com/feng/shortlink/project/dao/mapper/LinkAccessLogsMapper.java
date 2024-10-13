@@ -136,7 +136,7 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
                #{item}
            </foreach>
            GROUP BY
-              tlal. user;
+              tlal.user;
           </script>""")
     List<HashMap<String, Object>> listAccessRecordByShortLink(@Param("requestParam") LinkPageStatsDO requestParam);
     
@@ -162,7 +162,7 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
                #{item}
            </foreach>
            GROUP BY
-              tlal. user;
+              tlal.user;
           </script>""")
     List<HashMap<String, Object>> listGroupAccessRecordByShortLink(@Param("requestParam") LinkPageStatsGroupDO requestParam);
 }

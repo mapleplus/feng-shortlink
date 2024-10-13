@@ -17,6 +17,7 @@ import com.feng.shortlink.project.dto.request.ShortLinkStatsReqDTO;
 import com.feng.shortlink.project.dto.response.*;
 import com.feng.shortlink.project.service.ShortLinkStatsService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -28,6 +29,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @project feng-shortlink
  * @description
  **/
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
@@ -244,12 +246,17 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         LambdaQueryWrapper<LinkAccessLogsDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkAccessLogsDO> ()
                 .eq (LinkAccessLogsDO::getFullShortUrl, requestParam.getFullShortUrl ())
                 .eq (LinkAccessLogsDO::getDelFlag,0)
-                .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate () +" 00:00:00",requestParam.getEndDate () + " 23:59:59")
+                .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate (),requestParam.getEndDate () )
                 .orderByAsc (LinkAccessLogsDO::getCreateTime );
         IPage<LinkAccessLogsDO> pageStatsReqDTO = linkAccessLogsMapper.selectPage (requestParam , lambdaQueryWrapper);
         if (CollUtil.isEmpty (pageStatsReqDTO.getRecords ())) {
             return new Page<> ();
         }
+        pageStatsReqDTO.getRecords ().forEach (each -> {
+            each.setCreateTime (each.getCreateTime ().plusHours (16));
+            each.setUpdateTime (each.getUpdateTime ().plusHours (16));
+            log.info (each.getCreateTime ().toString ());
+        });
         // convert成响应对象
         IPage<ShortLinkPageStatsRespDTO> result = pageStatsReqDTO.convert (each -> BeanUtil.toBean (each , ShortLinkPageStatsRespDTO.class));
         // 设置db查询参数 设置uvType
@@ -482,7 +489,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         // 查询要请求的数据
         LambdaQueryWrapper<LinkAccessLogsDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkAccessLogsDO> ()
                 .eq (LinkAccessLogsDO::getDelFlag,0)
-                .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate () +" 00:00:00",requestParam.getEndDate () + " 23:59:59")
+                .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate (),requestParam.getEndDate ())
                 .orderByAsc (LinkAccessLogsDO::getCreateTime );
         IPage<LinkAccessLogsDO> pageStatsReqDTO = linkAccessLogsMapper.selectPage (requestParam , lambdaQueryWrapper);
         if (CollUtil.isEmpty (pageStatsReqDTO.getRecords ())) {
@@ -498,6 +505,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             return result;
         }
         LinkPageStatsGroupDO logMapperRequestParam = LinkPageStatsGroupDO.builder ()
+                .gid (requestParam.getGid ())
                 .startDate (requestParam.getStartDate ())
                 .endDate (requestParam.getEndDate ())
                 .userAccessLogsList (userAccessLogsList)

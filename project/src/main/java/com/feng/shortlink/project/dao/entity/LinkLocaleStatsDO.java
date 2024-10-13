@@ -4,7 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author FENGXIN
@@ -32,7 +32,7 @@ public class LinkLocaleStatsDO extends BaseDO {
     /**
      * 日期
      */
-    private Date date;
+    private LocalDateTime date;
     
     /**
      * 访问量

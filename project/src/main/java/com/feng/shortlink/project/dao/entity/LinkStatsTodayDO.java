@@ -3,6 +3,7 @@ package com.feng.shortlink.project.dao.entity;
 import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -30,7 +31,7 @@ public class LinkStatsTodayDO extends BaseDO {
     /**
      * 日期
      */
-    private Date date;
+    private LocalDateTime date;
     
     /**
      * 今日PV

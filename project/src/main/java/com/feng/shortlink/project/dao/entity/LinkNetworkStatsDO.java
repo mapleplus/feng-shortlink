@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 /**
@@ -32,7 +33,7 @@ public class LinkNetworkStatsDO extends BaseDO {
     /**
      * 访问日期
      */
-    private Date date;
+    private LocalDateTime date;
     
     /**
      * 访问量

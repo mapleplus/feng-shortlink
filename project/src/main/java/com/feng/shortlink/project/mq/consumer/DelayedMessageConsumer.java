@@ -26,6 +26,7 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
@@ -156,9 +157,10 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
                     .eq(LinkGotoDO::getFullShortUrl, fullShortLink);
             gid = linkGotoMapper.selectOne(lambdaQueryWrapper).getGid();
         }
-        Date fullDate = DateUtil.date (new Date ());
-        int hour = DateUtil.hour (fullDate , true);
-        Week dayOfWeekEnum = DateUtil.dayOfWeekEnum (fullDate);
+        LocalDateTime fullDate = LocalDateTime.now ();
+        Date date = new Date ();
+        int hour = DateUtil.hour ( date , true);
+        Week dayOfWeekEnum = DateUtil.dayOfWeekEnum (date);
         int weekday = dayOfWeekEnum.getIso8601Value ();
         LinkAccessStatsDO linkAccessStatsDO = LinkAccessStatsDO.builder ()
                 .fullShortUrl (fullShortLink)
@@ -168,8 +170,6 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
                 .uip (statsRecord.getUipFlag () ? 1 : 0)
                 .hour (hour)
                 .weekday (weekday)
-                .createTime (fullDate)
-                .updateTime (fullDate)
                 .build ();
         linkAccessStatsMapper.shortLinkAccessState (linkAccessStatsDO);
         

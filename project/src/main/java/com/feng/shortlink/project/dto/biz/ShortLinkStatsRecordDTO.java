@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * @author FENGXIN
  * @date 2024/10/8
@@ -62,4 +64,9 @@ public class ShortLinkStatsRecordDTO {
      * UIP访问标识
      */
     private Boolean uipFlag;
+    
+    /**
+     * 创建时间
+     */
+    private LocalDateTime createTime;
 }

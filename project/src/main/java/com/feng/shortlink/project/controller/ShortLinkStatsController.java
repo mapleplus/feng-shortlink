@@ -41,7 +41,8 @@ public class ShortLinkStatsController {
      */
     @GetMapping("/api/fenglink/v1/stats/page")
     public Result<IPage<ShortLinkPageStatsRespDTO>> pageShortLinkStats(ShortLinkPageStatsReqDTO requestParam) {
-        return Results.success (shortLinkStatsService.pageShortLinkStats (requestParam));
+        IPage<ShortLinkPageStatsRespDTO> shortLinkPageStatsRespDTOIPage = shortLinkStatsService.pageShortLinkStats (requestParam);
+        return Results.success (shortLinkPageStatsRespDTOIPage);
     }
     
     /**

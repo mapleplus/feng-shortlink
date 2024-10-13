@@ -6,8 +6,6 @@ import org.apache.ibatis.reflection.MetaObject;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 
 /**
  * @author FENGXIN
@@ -21,15 +19,13 @@ public class MyMetaObjectHandler implements MetaObjectHandler {
     
     @Override
     public void insertFill(MetaObject metaObject) {
-        log.info("开始插入填充");
-        strictInsertFill(metaObject, "createTime", Date.class, Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
-        strictInsertFill(metaObject, "updateTime", Date.class, Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        strictInsertFill(metaObject, "createTime", LocalDateTime.class , LocalDateTime.now ());
+        strictInsertFill(metaObject, "updateTime", LocalDateTime.class , LocalDateTime.now ());
         strictInsertFill(metaObject, "delFlag", () -> 0, Integer.class);
     }
     
     @Override
     public void updateFill(MetaObject metaObject) {
-        log.info("开始更新填充");
-        strictUpdateFill(metaObject, "updateTime", Date.class, Date.from(LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant()));
+        strictInsertFill(metaObject, "updateTime", LocalDateTime.class , LocalDateTime.now ());
     }
 }
