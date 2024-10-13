@@ -303,11 +303,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             return;
         }
         // 缓存没有空值
-        //如果缓存数据过期 获取分布式🔒查询数据库
+        // 缓存数据过期 获取分布式🔒查询数据库
         RLock lock = redissonClient.getLock (String.format (LOCK_SHORTLINK_GOTO_KEY , fullLink));
         lock.lock ();
         try {
-            // 双重判断缓存数据 如果上一个线程已经在缓存设置新数据 可直接返回
+            // 双重判断🔒缓存数据 如果上一个线程已经在缓存设置新数据 可直接返回
             // 查询缓存的link
             originalLink = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_GOTO_KEY , fullLink));
             // 如果缓存有数据直接返回
@@ -321,6 +321,15 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 } catch (IOException e) {
                     throw new ClientException ("短链接重定向失败");
                 }
+            }
+            // 再次查询空值是否存在 如果已经有线程设置了缓存，就直接返回
+            if(StrUtil.isNotBlank (stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_ISNULL_GOTO_KEY , fullLink)))){
+                try {
+                    response.sendRedirect ("/page/notfound");
+                } catch (IOException e) {
+                    throw new ClientException ("重定向不存在页面失败");
+                }
+                return;
             }
             // 查询路由表中的短链接（短链接做分片键 因为短链接表用gid分片键 不能直接根据完整短链接快速查询结果）
             LambdaQueryWrapper<LinkGotoDO> linkGotoDoLambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
