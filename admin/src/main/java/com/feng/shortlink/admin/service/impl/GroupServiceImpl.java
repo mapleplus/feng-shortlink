@@ -81,6 +81,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
                     GroupDO groupDO = GroupDO.builder ()
                             .gid (gid)
                             .username (username)
+                            .name (requestParam)
                             .sortOrder (0)
                             .delFlag (0)
                             .build ();

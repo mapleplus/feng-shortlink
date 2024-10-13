@@ -220,6 +220,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                         .totalUv(selectOne.getTotalUv())
                         .totalUip(selectOne.getTotalUip())
                         .fullShortUrl(selectOne.getFullShortUrl())
+                        .clickNum (selectOne.getClickNum())
                         .favicon(getFavicon(requestParam.getOriginUrl()))
                         .delTime (0L)
                         .build();
