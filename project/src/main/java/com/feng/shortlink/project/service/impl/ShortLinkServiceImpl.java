@@ -139,6 +139,11 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     public void updateShortLink (ShortLinkUpdateReqDTO requestParam) {
         // 校验原始链接是否可更新
         verificationWhitelist (requestParam.getOriginUrl ());
+        // 处理有效期
+        // 处理有效期
+        if (Objects.equals (requestParam.getValidDateType (),ValidDateTypeEnum.PERMANENT.getValue ())) {
+            requestParam.setValidDate (null);
+        }
         // 查询db里的短链接
         LambdaQueryWrapper<ShortLinkDO> lambdaQueryWrapper = new LambdaQueryWrapper<ShortLinkDO> ()
                 .eq (ShortLinkDO::getGid , requestParam.getOriginGid ())
@@ -171,9 +176,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq (ShortLinkDO::getGid , requestParam.getGid ())
                     .eq (ShortLinkDO::getFullShortUrl , requestParam.getFullShortUrl ())
                     .eq (ShortLinkDO::getEnableStatus , 0)
-                    .eq (ShortLinkDO::getDelFlag , 0)
-                    // 如果是永久有效 则不设置有效期
-                    .set (Objects.equals (requestParam.getValidDateType (),ValidDateTypeEnum.PERMANENT.getValue ()),ShortLinkDO::getValidDate , null );
+                    .eq (ShortLinkDO::getDelFlag , 0);
             baseMapper.update (shortLinkDO,lambdaUpdateWrapper);
             // 更新缓存的有效期
             stringRedisTemplate.opsForValue ()

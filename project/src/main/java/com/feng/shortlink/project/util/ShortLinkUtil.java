@@ -32,6 +32,7 @@ public class ShortLinkUtil {
                     Date validDate = DateUtil.date(validTime);
                     return DateUtil.between (new Date (),validDate, DateUnit.MS);
                 })
+                // 永久设置30天默认有效
                 .orElse(SHORT_LINK_VALID_TIME);
     }
     
