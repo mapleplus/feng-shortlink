@@ -1,5 +1,6 @@
 package com.feng.shortlink.project.dao.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
 
@@ -16,6 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@TableName(value = "t_link_stats_today")
 public class LinkStatsTodayDO extends BaseDO {
     /**
      * 主键ID
