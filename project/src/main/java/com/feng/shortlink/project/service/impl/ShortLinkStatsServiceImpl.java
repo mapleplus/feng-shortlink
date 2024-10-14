@@ -42,6 +42,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     private final LinkDeviceStatsMapper linkDeviceStatsMapper;
     private final LinkNetworkStatsMapper linkNetworkStatsMapper;
     private final LinkGroupMapper linkGroupMapper;
+    private final LinkGotoMapper linkGotoMapper;
     
     @Override
     public ShortLinkStatsRespDTO getShortLinkStats (ShortLinkStatsReqDTO requestParam) {
@@ -253,8 +254,8 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             return new Page<> ();
         }
         pageStatsReqDTO.getRecords ().forEach (each -> {
-            each.setCreateTime (each.getCreateTime ().plusHours (16));
-            each.setUpdateTime (each.getUpdateTime ().plusHours (16));
+            each.setCreateTime (each.getCreateTime ().plusHours (-8));
+            each.setUpdateTime (each.getUpdateTime ().plusHours (-8));
             log.info (each.getCreateTime ().toString ());
         });
         // convert成响应对象
@@ -486,9 +487,14 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
     @Override
     public IPage<ShortLinkPageStatsGroupRespDTO> pageGroupShortLinkStats (ShortLinkPageStatsGroupReqDTO requestParam) {
         checkGroupBelongToUser(requestParam.getGid ());
+        LambdaQueryWrapper<LinkGotoDO> linkGotoDoLambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
+                .eq (LinkGotoDO::getGid,requestParam.getGid ());
+        List<LinkGotoDO> linkGotoDOList = linkGotoMapper.selectList (linkGotoDoLambdaQueryWrapper);
+        List<String> fullLinkList = linkGotoDOList.stream ().map (LinkGotoDO::getFullShortUrl).toList ();
         // 查询要请求的数据
         LambdaQueryWrapper<LinkAccessLogsDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkAccessLogsDO> ()
                 .eq (LinkAccessLogsDO::getDelFlag,0)
+                .in (LinkAccessLogsDO::getFullShortUrl,fullLinkList)
                 .between (LinkAccessLogsDO::getCreateTime,requestParam.getStartDate (),requestParam.getEndDate ())
                 .orderByAsc (LinkAccessLogsDO::getCreateTime );
         IPage<LinkAccessLogsDO> pageStatsReqDTO = linkAccessLogsMapper.selectPage (requestParam , lambdaQueryWrapper);
@@ -496,6 +502,11 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             return new Page<> ();
         }
         // convert成响应对象
+        pageStatsReqDTO.getRecords ().forEach (each -> {
+            each.setCreateTime (each.getCreateTime ().plusHours (-8));
+            each.setUpdateTime (each.getUpdateTime ().plusHours (-8));
+            log.info (each.getCreateTime ().toString ());
+        });
         IPage<ShortLinkPageStatsGroupRespDTO> result = pageStatsReqDTO.convert (each -> BeanUtil.toBean (each , ShortLinkPageStatsGroupRespDTO.class));
         // 设置db查询参数 设置uvType
         List<String> userAccessLogsList = result.getRecords ().stream ()
