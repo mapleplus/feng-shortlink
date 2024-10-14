@@ -42,7 +42,6 @@
                   </el-dropdown-menu>
                 </template>
               </el-dropdown>
-              <span class="item-length">{{ item.shortLinkCount ?? 0 }}</span>
             </div>
           </div>
         </li>
@@ -381,6 +380,8 @@ import EditLink from './components/editLink/EditLink.vue'
 import { ElMessage } from 'element-plus'
 import defaultImg from '@/assets/png/短链默认图标.png'
 import QRCode from './components/qrCode/QRCode.vue'
+import {CaretBottom, Connection, Delete, HelpFilled, Histogram, Share, Tools} from "@element-plus/icons-vue";
+
 
 // 查看图表的时候传过去展示的，没什么用
 const nums = ref(0)
