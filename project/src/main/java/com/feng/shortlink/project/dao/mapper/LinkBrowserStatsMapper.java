@@ -54,6 +54,6 @@ public interface LinkBrowserStatsMapper extends BaseMapper<LinkBrowserStatsDO> {
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
           AND tlbs.date BETWEEN     #{param.startDate} and #{param.endDate}
-        GROUP BY tlbs.full_short_url, tl.gid, tlbs.browser;""")
+        GROUP BY tl.gid, tlbs.browser;""")
     List<HashMap<String, Object>> listBrowserStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
 }

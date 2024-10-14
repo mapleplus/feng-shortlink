@@ -66,4 +66,9 @@ public class LinkAccessLogsDO  extends BaseDO {
      * 访问量
      */
     private Integer cnt;
+    
+    /**
+     * 删除时间
+     */
+    private Long delTime;
 }

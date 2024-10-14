@@ -58,4 +58,9 @@ public class LinkLocaleStatsDO extends BaseDO {
      * 国家标识
      */
     private String country;
+    
+    /**
+     * 删除时间
+     */
+    private Long delTime;
 }

@@ -5,7 +5,6 @@ import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * @author FENGXIN
@@ -44,4 +43,9 @@ public class LinkDeviceStatsDO extends BaseDO {
      * 访问设备
      */
     private String device;
+    
+    /**
+     * 删除时间
+     */
+    private Long delTime;
 }

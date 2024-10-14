@@ -44,4 +44,8 @@ public class LinkAccessStatsDO extends BaseDO {
     // 星期
     private Integer weekday;
     
+    /**
+     * 删除时间
+     */
+    private Long delTime;
 }

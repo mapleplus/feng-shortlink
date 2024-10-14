@@ -45,4 +45,8 @@ public class LinkOsStatsDO extends BaseDO {
      */
     private String os;
     
+    /**
+     * 删除时间
+     */
+    private Long delTime;
 }

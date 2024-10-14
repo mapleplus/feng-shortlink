@@ -53,6 +53,6 @@ public interface LinkNetworkStatsMapper extends BaseMapper<LinkNetworkStatsDO> {
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
           AND tlns.date BETWEEN     #{param.startDate} and #{param.endDate}
-        GROUP BY tlns.full_short_url, tl.gid, tlns.network;""")
+        GROUP BY tl.gid, tlns.network;""")
     List<LinkNetworkStatsDO> listNetworkStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
 }

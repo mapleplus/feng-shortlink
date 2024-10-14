@@ -59,7 +59,7 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
         WHERE  tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
           AND tlas.date BETWEEN     #{param.startDate} and #{param.endDate}
-        GROUP BY tlas.full_short_url, tl.gid, tlas.date;""")
+        GROUP BY tl.gid, tlas.date;""")
     List<LinkAccessStatsDO> listStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
     
     /**
@@ -90,7 +90,7 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
           AND tlas.date BETWEEN     #{param.startDate} and #{param.endDate}
-        GROUP BY tlas.full_short_url, tl.gid, tlas.hour;""")
+        GROUP BY tl.gid, tlas.hour;""")
     List<LinkAccessStatsDO> listHourStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
     
     /**
@@ -121,6 +121,6 @@ public interface LinkAccessStatsMapper extends BaseMapper<LinkAccessStatsDO> {
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
           AND tlas.date BETWEEN     #{param.startDate} and #{param.endDate}
-        GROUP BY tlas.full_short_url, tl.gid, tlas.weekday;""")
+        GROUP BY tl.gid, tlas.weekday;""")
     List<LinkAccessStatsDO> listWeekdayStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
 }

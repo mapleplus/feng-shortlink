@@ -6,7 +6,6 @@ import lombok.*;
 import org.springframework.data.annotation.Id;
 
 import java.time.LocalDateTime;
-import java.util.Date;
 
 /**
  * @author FENGXIN
@@ -48,4 +47,8 @@ public class LinkBrowserStatsDO extends BaseDO {
      */
     private String browser;
     
+    /**
+     * 删除时间
+     */
+    private Long delTime;
 }

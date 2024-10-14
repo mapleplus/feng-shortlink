@@ -53,6 +53,6 @@ public interface LinkDeviceStatsMapper extends BaseMapper<LinkDeviceStatsDO> {
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
           AND tlds.date BETWEEN     #{param.startDate} and #{param.endDate}
-        GROUP BY tlds.full_short_url, tl.gid, tlds.device;""")
+        GROUP BY tl.gid, tlds.device;""")
     List<LinkDeviceStatsDO> listDeviceStatsByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
 }
