@@ -173,7 +173,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq (ShortLinkDO::getEnableStatus , 0)
                     .eq (ShortLinkDO::getDelFlag , 0)
                     // 如果是永久有效 则不设置有效期
-                    .set (Objects.equals (requestParam.getValidDateType (),ValidDateTypeEnum.PERMANENT.getValue ()),ShortLinkDO::getValidDateType , 0 );
+                    .set (Objects.equals (requestParam.getValidDateType (),ValidDateTypeEnum.PERMANENT.getValue ()),ShortLinkDO::getValidDate , null );
             baseMapper.update (shortLinkDO,lambdaUpdateWrapper);
             // 更新缓存的有效期
             stringRedisTemplate.opsForValue ()
