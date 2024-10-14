@@ -16,7 +16,11 @@ import org.apache.ibatis.annotations.Update;
  **/
 public interface ShortLinkMapper extends BaseMapper<ShortLinkDO> {
     @Update ("""
-    update t_link set click_num = click_num + #{requestParam.clickNum}, total_pv = total_pv + #{requestParam.totalPv},total_uv = total_uv + #{requestParam.totalUv},total_uip = total_uip + #{requestParam.totalUip}
+    update t_link
+    set click_num = click_num + 1,
+        total_pv = total_pv + #{requestParam.totalPv},
+        total_uv = total_uv + #{requestParam.totalUv},
+        total_uip = total_uip + #{requestParam.totalUip}
     where gid = #{requestParam.gid} and full_short_url = #{requestParam.fullShortUrl};
     """)
     void totalPvUvUipUpdate(@Param ("requestParam") ShortLinkUpdatePvUvUipDO requestParam);

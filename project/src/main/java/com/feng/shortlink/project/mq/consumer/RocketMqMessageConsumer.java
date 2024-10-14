@@ -198,7 +198,6 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
             ShortLinkUpdatePvUvUipDO shortLinkUpdatePvUvUipDO = ShortLinkUpdatePvUvUipDO.builder ()
                     .gid (gid)
                     .fullShortUrl (fullShortLink)
-                    .clickNum (1)
                     .totalPv (1)
                     .totalUv (statsRecord.getUvFlag () ? 1 : 0)
                     .totalUip (statsRecord.getUipFlag () ? 1 : 0)
