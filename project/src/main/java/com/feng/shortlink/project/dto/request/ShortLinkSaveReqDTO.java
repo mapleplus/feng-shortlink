@@ -6,7 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author FENGXIN
@@ -38,7 +38,7 @@ public class ShortLinkSaveReqDTO {
     
     /** 有效期 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT + 8")
-    private Date validDate;
+    private LocalDateTime validDate;
     
     /** 描述 */
     private String describe;
