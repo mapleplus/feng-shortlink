@@ -6,6 +6,7 @@ import cn.hutool.core.util.StrUtil;
 import jakarta.servlet.http.HttpServletRequest;
 
 import java.net.URI;
+import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.Optional;
 
@@ -24,9 +25,13 @@ public class ShortLinkUtil {
      * @param validTime 有效时间
      * @return {@code Long }
      */
-    public static Long getShortLinkValidTime(Date validTime) {
+    public static Long getShortLinkValidTime(LocalDateTime validTime) {
         return Optional.ofNullable(validTime)
-                .map(each -> DateUtil.between (new Date (),validTime, DateUnit.MS))
+                .map(each -> {
+                    // 将 LocalDateTime 转换为 Date
+                    Date validDate = DateUtil.date(validTime);
+                    return DateUtil.between (new Date (),validDate, DateUnit.MS);
+                })
                 .orElse(SHORT_LINK_VALID_TIME);
     }
     

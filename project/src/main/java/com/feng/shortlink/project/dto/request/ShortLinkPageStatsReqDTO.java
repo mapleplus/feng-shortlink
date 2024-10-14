@@ -25,11 +25,6 @@ public class ShortLinkPageStatsReqDTO extends Page<LinkAccessLogsDO> {
     private String gid;
     
     /**
-     * 启用状态
-     */
-    private Integer enableStatus;
-    
-    /**
      * 开始日期
      */
     private String startDate;

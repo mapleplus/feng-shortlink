@@ -173,7 +173,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq (ShortLinkDO::getEnableStatus , 0)
                     .eq (ShortLinkDO::getDelFlag , 0)
                     // 如果是永久有效 则不设置有效期
-                    .set (Objects.equals (requestParam.getValidDateType (),ValidDateTypeEnum.PERMANENT.getValue ()),ShortLinkDO::getValidDateType , null );
+                    .set (Objects.equals (requestParam.getValidDateType (),ValidDateTypeEnum.PERMANENT.getValue ()),ShortLinkDO::getValidDateType , 0 );
             baseMapper.update (shortLinkDO,lambdaUpdateWrapper);
             // 更新缓存的有效期
             stringRedisTemplate.opsForValue ()
@@ -244,10 +244,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 !Objects.equals (selectOne.getOriginUrl (),requestParam.getOriginUrl ())) {
                 stringRedisTemplate.delete(SHORTLINK_GOTO_KEY);
                 // 如果旧链接在数据库过期了 但是更新的链接有有效期 删除缓存的null link
-                Date currentDate = new Date ();
-                if (selectOne.getValidDate() != null && selectOne.getValidDate ().before (currentDate)) {
+                LocalDateTime currentDate = LocalDateTime.now ();
+                if (selectOne.getValidDate() != null && selectOne.getValidDate ().isBefore (currentDate)) {
                     if (requestParam.getValidDateType ().equals(ValidDateTypeEnum.PERMANENT.getValue ()) ||
-                        requestParam.getValidDate ().after (currentDate)) {
+                        requestParam.getValidDate ().isAfter (currentDate)) {
                         stringRedisTemplate.delete (SHORTLINK_ISNULL_GOTO_KEY);
                     }
                 }
@@ -354,7 +354,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     .eq (ShortLinkDO::getEnableStatus , 0)
                     .eq (ShortLinkDO::getDelFlag , 0);
             ShortLinkDO shortLinkDO = baseMapper.selectOne (shortLinkDoLambdaQueryWrapper);
-            if (shortLinkDO == null || shortLinkDO.getValidDate () != null && shortLinkDO.getValidDate ().before (new Date ())) {
+            if (shortLinkDO == null || shortLinkDO.getValidDate () != null && shortLinkDO.getValidDate ().isBefore (LocalDateTime.now ())) {
                 // 3.4.1 如果数据库的链接过期
                 stringRedisTemplate.opsForValue ().set (String.format (SHORTLINK_GOTO_KEY , fullLink), "-",30, TimeUnit.SECONDS);
                 // 严谨 需要进行风控

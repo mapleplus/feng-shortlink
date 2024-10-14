@@ -5,7 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableName;
 import com.feng.shortlink.project.common.database.BaseDO;
 import lombok.*;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 
 /**
@@ -55,7 +55,7 @@ public class ShortLinkDO extends BaseDO {
     private Integer validDateType;
     
     /** 有效期 */
-    private Date validDate;
+    private LocalDateTime validDate;
     
     /** 描述 */
     @TableField("`describe`")
