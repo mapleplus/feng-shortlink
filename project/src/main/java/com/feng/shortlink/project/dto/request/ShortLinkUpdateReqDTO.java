@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 
-import java.sql.Date;
+import java.time.LocalDateTime;
 
 /**
  * @author FENGXIN
@@ -38,7 +38,7 @@ public class ShortLinkUpdateReqDTO {
     
     /** 有效期 */
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss",timezone = "GMT + 8")
-    private Date validDate;
+    private LocalDateTime validDate;
     
     /** 描述 */
     private String describe;
