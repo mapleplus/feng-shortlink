@@ -7,6 +7,13 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>feng-shortlink</name>
     <description>枫短链</description>
+    <developers>
+        <developer>
+            <name>冯鑫</name>
+            <email>fx20031215@163.com</email>
+            <url>https://github.com/FENGXIN-FENG003</url>
+        </developer>
+    </developers>
     <modules>
         <module>project</module>
         <module>admin</module>
@@ -30,6 +37,7 @@
         <redisson.version>3.27.2</redisson.version>
         <guava.version>30.0-jre</guava.version>
         <rocketmq.version>2.3.0</rocketmq.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencyManagement>

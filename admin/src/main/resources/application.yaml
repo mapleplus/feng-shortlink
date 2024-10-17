@@ -8,15 +8,15 @@ spring:
     url: jdbc:shardingsphere:classpath:shardingsphere-config.yaml
   data:
     redis:
-      host: 192.168.187.101
+      host: 122.51.165.51
       port: 6379
-      password: 51213002
+      password: xWBbAP7d2tSGdnES
   application:
     name: feng-shortlink-admin
   cloud:
     nacos:
       discovery:
-        server-addr: 192.168.187.101:8848
+        server-addr: 122.51.165.51:8848
 short-link:
   group:
     max-num: 20

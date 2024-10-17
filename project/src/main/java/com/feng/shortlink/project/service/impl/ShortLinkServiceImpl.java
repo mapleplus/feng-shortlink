@@ -590,7 +590,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         }
         List<String> details = gotoDomainWhiteListConfiguration.getDetails();
         if (!details.contains(domain)) {
-            throw new ClientException("演示环境为避免恶意攻击，请生成以下网站跳转链接：" + gotoDomainWhiteListConfiguration.getNames());
+            throw new ClientException("为避免恶意攻击，请生成安全网站跳转链接：" + gotoDomainWhiteListConfiguration.getNames());
         }
     }
 }

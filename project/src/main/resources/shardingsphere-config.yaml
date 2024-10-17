@@ -5,7 +5,7 @@ dataSources:
     driverClassName: com.mysql.cj.jdbc.Driver
     jdbcUrl: jdbc:mysql://127.0.0.1:3306/feng_shortlink
     username: root
-    password: 51213002
+    password: xWBbAP7d2tSGdnES
 
 rules:
   - !SHARDING
