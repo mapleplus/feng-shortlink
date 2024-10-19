@@ -26,23 +26,23 @@ public class MessageQueueIdempotentHandler {
      * @param messageId 消息 ID
      * @return boolean
      */
-    public boolean isMessageQueueIdempotent(String messageId) {
-        return Boolean.TRUE.equals (stringRedisTemplate
+    public boolean isMessageQueueIdempotent(String messageKey) {
+        return Boolean.FALSE.equals (stringRedisTemplate
                 .opsForValue ()
-                .setIfAbsent (String.format (SHORTLINK_MESSAGE_QUEUE_IDEMPOTENT_KEY , messageId)
-                , "0"
-                , 2 ,
-                TimeUnit.MINUTES));
+                .setIfAbsent (String.format (SHORTLINK_MESSAGE_QUEUE_IDEMPOTENT_KEY , messageKey)
+                        , "0"
+                        , 2 ,
+                        TimeUnit.MINUTES));
     }
     
     /**
      * 校验消息消费完成
      *
-     * @param messageId 消息 ID
+     * @param messageKey 消息 ID
      * @return boolean
      */
-    public boolean isAccomplishMessageQueueIdempotent(String messageId) {
-        return StrUtil.equals (stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_MESSAGE_QUEUE_IDEMPOTENT_KEY,messageId)) , "1");
+    public boolean isAccomplishMessageQueueIdempotent(String messageKey) {
+        return StrUtil.equals (stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_MESSAGE_QUEUE_IDEMPOTENT_KEY , messageKey)) , "1");
     }
     
     /**
@@ -50,8 +50,8 @@ public class MessageQueueIdempotentHandler {
      *
      * @param messageId 消息 ID
      */
-    public void removeMessageQueueIdempotent(String messageId) {
-        stringRedisTemplate.delete (String.format (SHORTLINK_MESSAGE_QUEUE_IDEMPOTENT_KEY, messageId));
+    public void removeMessageQueueIdempotent(String messageKey) {
+        stringRedisTemplate.delete (String.format (SHORTLINK_MESSAGE_QUEUE_IDEMPOTENT_KEY, messageKey));
     }
     
     /**
@@ -59,9 +59,9 @@ public class MessageQueueIdempotentHandler {
      * 正确无异常完成消费后设置完成标识1
      * @param messageId 消息 ID
      */
-    public void setMessageQueueIdempotent(String messageId) {
+    public void setMessageQueueIdempotent(String messageKey) {
         stringRedisTemplate.opsForValue ()
-                .set (String.format (SHORTLINK_MESSAGE_QUEUE_IDEMPOTENT_KEY , messageId)
+                .set (String.format (SHORTLINK_MESSAGE_QUEUE_IDEMPOTENT_KEY , messageKey)
                 , "1"
                 , 2
                 , TimeUnit.MINUTES);

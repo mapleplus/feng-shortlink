@@ -1,23 +1,19 @@
 package com.feng.shortlink.project.mq.consumer;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.date.Week;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.feng.shortlink.project.common.convention.exception.ServiceException;
 import com.feng.shortlink.project.dao.entity.*;
 import com.feng.shortlink.project.dao.mapper.*;
 import com.feng.shortlink.project.dto.biz.ShortLinkStatsMqToDbDTO;
-import com.feng.shortlink.project.dto.biz.ShortLinkStatsRecordDTO;
 import com.feng.shortlink.project.dto.request.ShortLinkUpdatePvUvUipDO;
 import com.feng.shortlink.project.handler.MessageQueueIdempotentHandler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.rocketmq.common.message.MessageExt;
 import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
 import org.apache.rocketmq.spring.core.RocketMQListener;
 import org.redisson.api.RLock;
@@ -44,7 +40,7 @@ import static com.feng.shortlink.project.common.constant.ShortLinkConstant.SHORT
 @Service
 @RequiredArgsConstructor
 @RocketMQMessageListener(topic = "shortlink-stats-topic", consumerGroup = "shortlink-stats-consumer-group")
-public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
+public class RocketMqMessageConsumer implements RocketMQListener<Map<String,String>> {
 
     private final LinkGotoMapper linkGotoMapper;
     private final RedissonClient redissonClient;
@@ -63,32 +59,34 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
     private String amapKey;
     
     @Override
-    public void onMessage (MessageExt message) {
+    public void onMessage (Map<String, String> producerMap) {
+        String keys = producerMap.get ("keys");
         // 幂等 如果同一个消息已经消费则跳过并返回
-        if(!messageQueueIdempotentHandler.isMessageQueueIdempotent (message.getMsgId ())){
+        if(messageQueueIdempotentHandler.isMessageQueueIdempotent (keys)){
             // 预防在插入数据失败后但是未执行异常处理 此时需要重试消费确保数据完整插入 因此需要处理异常时删除redis原有的messageId
             // 未完成抛出异常 rocketMQ重试机制
             // 完成了则幂等 直接返回
-            if(!messageQueueIdempotentHandler.isAccomplishMessageQueueIdempotent (message.getMsgId ())){
-                throw new ServiceException ("消费失败 请重试");
+            if(messageQueueIdempotentHandler.isAccomplishMessageQueueIdempotent (keys)){
+                return;
             }
-            return;
+            throw new ServiceException ("消费失败 请重试 messageKey:{}" + keys);
         }
         // 第一次消费
         try {
-            ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = JSON.parseObject (new String (message.getBody ()) , ShortLinkStatsMqToDbDTO.class);
+            
+            ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = JSON.parseObject (producerMap.get("statsRecord") , ShortLinkStatsMqToDbDTO.class);
             actualShortLinkStats (shortLinkStatsMqToDbDTO);
         } catch (Throwable e) {
-            log.error ("数据插入异常 重试消费");
-            messageQueueIdempotentHandler.removeMessageQueueIdempotent (message.getMsgId ());
+            log.error ("数据插入异常 重试消费" + e.getMessage());
+            messageQueueIdempotentHandler.removeMessageQueueIdempotent (keys);
             throw e;
         }
         // 正确无异常消费后设置完成标志
-        messageQueueIdempotentHandler.setMessageQueueIdempotent (message.getMsgId ());
+        messageQueueIdempotentHandler.setMessageQueueIdempotent (keys);
     }
-    public void actualShortLinkStats(ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO) {
-        String fullShortLink = shortLinkStatsMqToDbDTO.getFullShortLink ();
-        ShortLinkStatsRecordDTO statsRecord = BeanUtil.copyProperties (shortLinkStatsMqToDbDTO , ShortLinkStatsRecordDTO.class);
+    
+    public void actualShortLinkStats(ShortLinkStatsMqToDbDTO statsRecord) {
+        String fullShortLink = statsRecord.getFullShortLink ();
         RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(String.format(LOCK_GID_UPDATE_KEY, fullShortLink));
         RLock rLock = readWriteLock.readLock();
         // 如果修改短链接时有用户访问 则延迟统计数据
@@ -99,10 +97,9 @@ public class RocketMqMessageConsumer implements RocketMQListener<MessageExt> {
         rLock.lock ();
         try{
             // 一般数据统计
-            LambdaQueryWrapper<LinkGotoDO> lambdaQueryWrapper = new LambdaQueryWrapper<LinkGotoDO> ()
-                    .eq(LinkGotoDO::getFullShortUrl,fullShortLink);
-            String gid = linkGotoMapper.selectOne (lambdaQueryWrapper).getGid();
-            LocalDateTime fullDate = shortLinkStatsMqToDbDTO.getCreateTime ();
+            LinkGotoDO linkGotoDO = linkGotoMapper.selectGoto (fullShortLink);
+            String gid = linkGotoDO.getGid();
+            LocalDateTime fullDate = statsRecord.getCreateTime ();
             Date date = new Date ();
             int hour = DateUtil.hour (date , true);
             Week dayOfWeekEnum = DateUtil.dayOfWeekEnum (date);

@@ -72,11 +72,11 @@ public class DelayedMessageConsumer implements RocketMQListener<MessageExt>{
     @Override
     public void onMessage (MessageExt message) {
         // 幂等 如果同一个消息已经消费则跳过并返回
-        if(!messageQueueIdempotentHandler.isMessageQueueIdempotent (message.getMsgId ())){
+        if(messageQueueIdempotentHandler.isMessageQueueIdempotent (message.getMsgId ())){
             // 预防在插入数据失败后但是未执行异常处理 此时需要重试消费确保数据完整插入 因此需要处理异常时删除redis原有的messageId
             // 未完成抛出异常 rocketMQ重试机制
             // 完成了则幂等 直接返回
-            if(!messageQueueIdempotentHandler.isAccomplishMessageQueueIdempotent (message.getMsgId ())){
+            if(messageQueueIdempotentHandler.isAccomplishMessageQueueIdempotent (message.getMsgId ())){
                 throw new ServiceException ("消费失败 请重试");
             }
             return;

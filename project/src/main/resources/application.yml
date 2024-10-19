@@ -20,7 +20,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 122.51.165.51:8848
+        server-addr: 39.105.15.60:8848
 short-link:
   stats:
     locale:
@@ -261,7 +261,7 @@ short-link:
         - zhimg.com
         - zhongguose.com
 rocketmq:
-  name-server: 122.51.165.51:9876  # RocketMQ NameServer 地址
+  name-server: 39.105.15.60:9876  # RocketMQ NameServer 地址
   producer:
     group: shortlink-stats-producer-group  # 生产者组
   consumer:

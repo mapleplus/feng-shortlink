@@ -11,7 +11,7 @@ spring:
   cloud:
     nacos:
       discovery:
-        server-addr: 122.51.165.51:8848
+        server-addr: 39.105.15.60:8848
     gateway:
       routes:
         - id: feng-shortlink-admin

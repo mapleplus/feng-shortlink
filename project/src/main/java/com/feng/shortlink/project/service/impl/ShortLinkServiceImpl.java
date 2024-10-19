@@ -464,7 +464,9 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     @Override
      public void shortLinkStats (String fullShortLink, ShortLinkStatsRecordDTO statsRecord) {
         ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = BeanUtil.copyProperties (statsRecord , ShortLinkStatsMqToDbDTO.class);
-        rocketMqMessageService.sendMessage ("shortlink-stats-topic", JSON.toJSONString (shortLinkStatsMqToDbDTO));
+        Map<String,String> producerMap = new HashMap<> ();
+        producerMap.put ("statsRecord",JSON.toJSONString (shortLinkStatsMqToDbDTO));
+        rocketMqMessageService.sendMessage ("shortlink-stats-topic", producerMap);
     }
     
     @Override
