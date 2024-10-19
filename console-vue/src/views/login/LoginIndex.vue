@@ -1,6 +1,6 @@
 <template>
   <div class="login-page">
-    <h1 class="title">枫 短 链 接 平 台</h1>
+    <h1 class="title">枫 短 链 平 台</h1>
     <div class="login-box">
       <!-- 登录 -->
       <div class="logon" :class="{ hidden: !isLogin }">
