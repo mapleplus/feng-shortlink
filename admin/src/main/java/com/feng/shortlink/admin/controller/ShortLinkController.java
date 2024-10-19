@@ -41,7 +41,12 @@ public class ShortLinkController {
      */
     @GetMapping("/api/fenglink/v1/admin/shortlink")
     public Result<Page<ShortLinkPageRespDTO>> pageShortLink( ShortLinkPageReqDTO requestParam) {
-        return shortLinkActualRemoteService.pageShortLink(requestParam.getGid (),requestParam.getOrderTag ());
+        return shortLinkActualRemoteService.pageShortLink(
+                requestParam.getGid ()
+                ,requestParam.getOrderTag ()
+                ,requestParam.getCurrent ()
+                ,requestParam.getSize ()
+        );
     }
     
     /**
