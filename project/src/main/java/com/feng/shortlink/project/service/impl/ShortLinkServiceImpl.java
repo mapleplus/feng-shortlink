@@ -534,7 +534,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             Element iconElement = document.select("link[rel~=(icon|shortcut icon)]").first();
             if (iconElement != null) {
                 String iconUrl = iconElement.attr("href");
-                return resolveUrl(url, iconUrl);
+                return resolveUrl(iconUrl);
             } else {
                 return "未找到网站图标";
             }
@@ -550,14 +550,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      * @param iconUrl 图标路径
      * @return 绝对路径
      */
-    private String resolveUrl(String baseUrl, String iconUrl) {
+    private String resolveUrl(String iconUrl) {
         if (iconUrl.startsWith("http://") || iconUrl.startsWith("https://")) {
             // 如果是绝对路径，直接返回
             return iconUrl;
         } else {
             // 如果是相对路径，拼接成绝对路径
             // 根据需要，可以使用URL的解析方法
-            return baseUrl + iconUrl;
+            return "https:" + iconUrl;
         }
     }
     
