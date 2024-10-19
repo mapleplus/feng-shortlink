@@ -525,18 +525,16 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
      */
     public String getFavicon(String url) {
         try {
-            // 通过Jsoup连接到指定的URL并解析HTML文档
             Document document = Jsoup.connect(url)
-                    // 设置超时时间
                     .timeout(5000)
                     .get();
-            // 尝试查找<link>标签中包含favicon的元素
-            Element iconElement = document.select("link[rel~=(icon|shortcut icon)]").first();
+            // 查找link标签中可能的favicon元素
+            Element iconElement = document.select("link[rel~=(icon|shortcut icon|apple-touch-icon)]").first();
             if (iconElement != null) {
-                String iconUrl = iconElement.attr("href");
-                return resolveUrl(iconUrl);
+                return resolveUrl(iconElement.attr("href"), url);
             } else {
-                return "未找到网站图标";
+                // 尝试使用默认路径
+                return resolveUrl("/favicon.ico", url);
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -546,18 +544,19 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     /**
      * 解析相对URL为绝对URL
      *
-     * @param baseUrl 基本 URL
      * @param iconUrl 图标路径
      * @return 绝对路径
      */
-    private String resolveUrl(String iconUrl) {
+    private String resolveUrl(String iconUrl,String baseUrl) {
         if (iconUrl.startsWith("http://") || iconUrl.startsWith("https://")) {
-            // 如果是绝对路径，直接返回
             return iconUrl;
         } else {
-            // 如果是相对路径，拼接成绝对路径
-            // 根据需要，可以使用URL的解析方法
-            return "https:" + iconUrl;
+            // 使用URL拼接生成绝对路径
+            try {
+                return new java.net.URI(new java.net.URI(baseUrl).resolve(iconUrl).toString()).toString();
+            } catch (Exception e) {
+                return "图标路径解析失败";
+            }
         }
     }
     

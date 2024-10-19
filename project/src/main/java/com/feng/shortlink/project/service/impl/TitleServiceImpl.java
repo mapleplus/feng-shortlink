@@ -34,7 +34,7 @@ public class TitleServiceImpl implements TitleService {
             if (titleElement != null) {
                 return titleElement.text();
             } else {
-                return "页面中未找到标题。";
+                return "页面中未找到标题,你可以自己输入相应标题";
             }
             
         } catch (MalformedURLException e) {
