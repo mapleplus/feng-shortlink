@@ -147,46 +147,9 @@ public class ShortLinkUtil {
      */
     public static String getUserNetwork(HttpServletRequest request) {
         String actualIp = getUserIpAddress(request);
-        String networkType;
-        
-        // 检查请求头中的代理信息
-        String userAgent = request.getHeader("User-Agent");
-        String forwardedFor = request.getHeader("X-Forwarded-For");
-        
-        // 简单的IP判断逻辑
-        if (actualIp.startsWith("192.168.") || actualIp.startsWith("10.")) {
-            networkType = "WIFI";
-        } else if (actualIp.startsWith("172.")) {
-            // 进一步检查172.x.x.x范围
-            String[] parts = actualIp.split("\\.");
-            int secondOctet = Integer.parseInt(parts[1]);
-            if (secondOctet >= 16 && secondOctet <= 31) {
-                networkType = "WIFI";
-            } else {
-                networkType = "Mobile";
-            }
-        } else {
-            // 进一步通过用户代理信息判断
-            if (userAgent != null && (userAgent.contains("Mobile") || userAgent.contains("Android") || userAgent.contains("iPhone"))) {
-                networkType = "Mobile";
-            } else {
-                // 默认假设为WIFI
-                networkType = "WIFI";
-            }
-        }
-        // 进一步通过X-Forwarded-For判断
-        if (forwardedFor != null) {
-            String[] ips = forwardedFor.split(",");
-            for (String ip : ips) {
-                ip = ip.trim();
-                if (ip.startsWith("192.168.") || ip.startsWith("10.")) {
-                    networkType = "WIFI";
-                    break;
-                }
-            }
-        }
-        
-        return networkType;
+        // 这里简单判断IP地址范围，您可能需要更复杂的逻辑
+        // 例如，通过调用IP地址库或调用第三方服务来判断网络类型
+        return actualIp.startsWith("192.168.") || actualIp.startsWith("10.") ? "WIFI" : "Mobile";
     }
     
     

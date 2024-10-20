@@ -385,7 +385,10 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         }
     }
     
-    private ShortLinkStatsRecordDTO buildLinkStatsRecordAndSetUser(String fullShortLink,  HttpServletRequest request , HttpServletResponse response) {
+    private ShortLinkStatsRecordDTO buildLinkStatsRecordAndSetUser(
+            String fullShortLink,
+            HttpServletRequest request ,
+            HttpServletResponse response) {
         AtomicBoolean uvFlag = new AtomicBoolean ();
         Cookie[] cookies = request.getCookies ();
         AtomicReference<String> uv = new AtomicReference<> ();

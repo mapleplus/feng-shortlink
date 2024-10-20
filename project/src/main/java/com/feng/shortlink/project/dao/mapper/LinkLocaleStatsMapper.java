@@ -37,7 +37,8 @@ public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsDO> {
           AND tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
           AND tlls.date BETWEEN     #{param.startDate} and #{param.endDate}
-        GROUP BY tlls.full_short_url, tl.gid, tlls.province;""")
+        GROUP BY tlls.full_short_url, tl.gid, tlls.province
+        ORDER BY cnt DESC;""")
     List<LinkLocaleStatsDO> listLocaleByShortLink(@Param("param") ShortLinkStatsReqDTO requestParam);
     
     /**
@@ -52,6 +53,7 @@ public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsDO> {
         WHERE tl.gid =              #{param.gid}
           AND tl.del_flag = '0'
           AND tlls.date BETWEEN     #{param.startDate} and #{param.endDate}
-        GROUP BY tl.gid, tlls.province;""")
+        GROUP BY tl.gid, tlls.province
+        ORDER BY cnt DESC;""")
     List<LinkLocaleStatsDO> listLocaleByShortLinkGroup(@Param("param") ShortLinkStatsGroupReqDTO requestParam);
 }
