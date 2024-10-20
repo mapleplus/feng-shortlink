@@ -199,7 +199,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             double ratio = (double) each.getCnt () / deviceCnt;
             double actualRatio = Math.round (ratio * 100.0) / 100.0;
             ShortLinkStatsDeviceRespDTO build = ShortLinkStatsDeviceRespDTO.builder ()
-                    .cnt (deviceCnt)
+                    .cnt (each.getCnt ())
                     .ratio (actualRatio)
                     .device (each.getDevice ())
                     .build ();
@@ -253,11 +253,11 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         if (CollUtil.isEmpty (pageStatsReqDTO.getRecords ())) {
             return new Page<> ();
         }
-        pageStatsReqDTO.getRecords ().forEach (each -> {
-            each.setCreateTime (each.getCreateTime ().plusHours (-8));
-            each.setUpdateTime (each.getUpdateTime ().plusHours (-8));
-            log.info (each.getCreateTime ().toString ());
-        });
+        // pageStatsReqDTO.getRecords ().forEach (each -> {
+        //     each.setCreateTime (each.getCreateTime ().plusHours (-8));
+        //     each.setUpdateTime (each.getUpdateTime ().plusHours (-8));
+        //     log.info (each.getCreateTime ().toString ());
+        // });
         // convert成响应对象
         IPage<ShortLinkPageStatsRespDTO> result = pageStatsReqDTO.convert (each -> BeanUtil.toBean (each , ShortLinkPageStatsRespDTO.class));
         // 设置db查询参数 设置uvType
@@ -443,7 +443,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             double ratio = (double) each.getCnt () / deviceCnt;
             double actualRatio = Math.round (ratio * 100.0) / 100.0;
             ShortLinkStatsDeviceRespDTO build = ShortLinkStatsDeviceRespDTO.builder ()
-                    .cnt (deviceCnt)
+                    .cnt (each.getCnt ())
                     .ratio (actualRatio)
                     .device (each.getDevice ())
                     .build ();
@@ -502,11 +502,11 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
             return new Page<> ();
         }
         // convert成响应对象
-        pageStatsReqDTO.getRecords ().forEach (each -> {
-            each.setCreateTime (each.getCreateTime ().plusHours (-8));
-            each.setUpdateTime (each.getUpdateTime ().plusHours (-8));
-            log.info (each.getCreateTime ().toString ());
-        });
+        // pageStatsReqDTO.getRecords ().forEach (each -> {
+        //     each.setCreateTime (each.getCreateTime ().plusHours (-8));
+        //     each.setUpdateTime (each.getUpdateTime ().plusHours (-8));
+        //     log.info (each.getCreateTime ().toString ());
+        // });
         IPage<ShortLinkPageStatsGroupRespDTO> result = pageStatsReqDTO.convert (each -> BeanUtil.toBean (each , ShortLinkPageStatsGroupRespDTO.class));
         // 设置db查询参数 设置uvType
         List<String> userAccessLogsList = result.getRecords ().stream ()

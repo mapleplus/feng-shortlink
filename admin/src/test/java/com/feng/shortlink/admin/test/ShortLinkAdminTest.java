@@ -205,8 +205,9 @@ public class ShortLinkAdminTest {
             )
                 comment '路由表';""";
     public static void main (String[] args) {
-        for (int i = 0; i < 16; i++) {
-            System.out.printf ((sql) + "%n" , i, i, i, i);
-        }
+        // for (int i = 0; i < 16; i++) {
+        //     System.out.printf ((sql) + "%n" , i, i, i, i);
+        // }
     }
+    public static void statsOs(){}
 }
