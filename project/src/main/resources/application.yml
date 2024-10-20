@@ -25,14 +25,11 @@ short-link:
   stats:
     locale:
       amap-key: d8ff1fbaa0db78890a8659a25ace740f
-  thread:
-      max-retry-times: 5
-      retry-interval-millis: 1000
   domain: "s.fxink.cn"
   goto-domain:
     white-list:
       enable: true
-      names: '哔哩哔哩, 知乎, 掘金, 博客园, 抖音, 百度......'
+      names: '哔哩哔哩, 知乎, 掘金, 博客园, 抖音, 淘宝......'
       details:
         - nageoffer.com
         - bilibili.com
