@@ -20,7 +20,7 @@ import java.util.List;
 public interface LinkLocaleStatsMapper extends BaseMapper<LinkLocaleStatsDO> {
    
     @Insert(" INSERT INTO t_link_locale_stats ( full_short_url, date, cnt, province, city, adcode, country, create_time, update_time, del_flag) " +
-            "VALUES ( #{linkLocaleStats.fullShortUrl}, #{linkLocaleStats.date}, #{linkLocaleStats.cnt}, #{linkLocaleStats.province}, #{linkLocaleStats.city}, #{linkLocaleStats.adcode}, #{linkLocaleStats.country},DATE_ADD(NOW(), INTERVAL 8 HOUR), DATE_ADD(NOW(), INTERVAL 8 HOUR), 0) " +
+            "VALUES ( #{linkLocaleStats.fullShortUrl}, #{linkLocaleStats.date}, #{linkLocaleStats.cnt}, #{linkLocaleStats.province}, #{linkLocaleStats.city}, #{linkLocaleStats.adcode}, #{linkLocaleStats.country},NOW(),NOW(), 0) " +
             "ON DUPLICATE KEY UPDATE cnt = cnt + #{linkLocaleStats.cnt},update_time = VALUES(update_time);")
     void shortLinkLocaleState (@Param("linkLocaleStats") LinkLocaleStatsDO linkLocaleStatsDO);
     
