@@ -51,7 +51,7 @@ public class UserFlowRiskControlFilter implements Filter {
             return;
         }
         if (result == null || result > userFlowRiskControlConfiguration.getMaxAccessCount()) {
-            returnJson((HttpServletResponse) response, JSON.toJSONString(Results.failure(new ClientException(FLOW_LIMIT_ERROR))));
+            returnJson((HttpServletResponse) response, JSON.toJSONString(Results.failure(new ClientException (FLOW_LIMIT_ERROR))));
             return;
         }
         filterChain.doFilter(request, response);

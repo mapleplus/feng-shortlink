@@ -112,12 +112,14 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             linkGotoMapper.insert (linkGotoDO);
         } catch (DuplicateKeyException e) {
             log.warn ("short link already exists, short link = {}" , savedLinkDO.getFullShortUrl ());
+            // 判断布隆过滤器是否存在 防止布隆过滤器丢失而数据库新增成功
+            if(!linkUriCreateCachePenetrationBloomFilter.contains (fullLink)){
+                linkUriCreateCachePenetrationBloomFilter.add (fullLink);
+            }
             throw new ServiceException ("短链接生成重复");
         }
         // 不冲突 添加短链接进入布隆过滤器 并响应前端
-        boolean add = linkUriCreateCachePenetrationBloomFilter.add (fullLink);
-        log.info ("add short link = {}" , savedLinkDO.getFullShortUrl ());
-        log.info ("bloom add: {}" , add );
+        linkUriCreateCachePenetrationBloomFilter.add (fullLink);
         // 缓存预热
         stringRedisTemplate.opsForValue ()
                 .set (  String.format (SHORTLINK_GOTO_KEY , fullLink)
@@ -136,7 +138,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
     public void updateShortLink (ShortLinkUpdateReqDTO requestParam) {
         // 校验原始链接是否可更新
         verificationWhitelist (requestParam.getOriginUrl ());
-        // 处理有效期
         // 处理有效期
         if (Objects.equals (requestParam.getValidDateType (),ValidDateTypeEnum.PERMANENT.getValue ())) {
             requestParam.setValidDate (null);
@@ -252,7 +253,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                     }
                 }
             }
-            
         }
     }
     
@@ -456,11 +456,6 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 .build();
     }
     
-    /**
-     * 链接统计
-     *
-     * @param fullShortLink 完整短链接
-     */
     @Override
      public void shortLinkStats (String fullShortLink, ShortLinkStatsRecordDTO statsRecord) {
         ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = BeanUtil.copyProperties (statsRecord , ShortLinkStatsMqToDbDTO.class);
@@ -478,7 +473,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
             return result;
         });
     }
-
+    
     @Override
     public List<ShortLinkGroupQueryRespDTO> listShortLinkGroup (List<String> requestParam) {
         QueryWrapper<ShortLinkDO> queryWrapper = new QueryWrapper<ShortLinkDO> ()
