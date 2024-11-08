@@ -75,7 +75,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, GroupDO> implemen
             int retryCount = 0;
             int maxRetry = 10;
             while (retryCount < maxRetry) {
-                gid =saveUniqueGroupGid ();
+                gid = saveUniqueGroupGid ();
                 retryCount++;
                 if (StrUtil.isNotBlank (gid)){
                     GroupDO groupDO = GroupDO.builder ()
