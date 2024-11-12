@@ -269,16 +269,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         String fullLink = serverName + serverPort + "/" + shortLink;
         // 1.查询缓存的link
         String originalLink = stringRedisTemplate.opsForValue ().get (String.format (SHORTLINK_GOTO_KEY , fullLink));
-        if (StrUtil.isBlank (originalLink)){
-            try {
-                response.sendRedirect ("/page/notfound");
-            } catch (IOException e) {
-                throw new ClientException ("重定向不存在页面失败");
-            }
-            return;
-        }
         // 1.1 如果缓存数据不为NULL直接返回
-        if (!StrUtil.equals (originalLink, "-")) {
+        if (StrUtil.isNotBlank (originalLink) && !StrUtil.equals (originalLink, "-")) {
             ShortLinkStatsRecordDTO statsRecord = buildLinkStatsRecordAndSetUser(fullLink, request, response);
             shortLinkStats(fullLink, statsRecord);
             // 返回重定向链接
