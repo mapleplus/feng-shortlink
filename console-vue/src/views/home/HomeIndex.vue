@@ -6,7 +6,9 @@
           <div @click="toMySpace" class="logo">枫短链-为企业服务的分布式架构</div>
           <div style="display: flex; align-items: center">
             <a class="link-span" style="text-decoration: none" target="_blank"
-              href="https://github.com/FENGXIN-FENG003">Github</a>
+              href="https://github.com/mapleplus">MyGithub</a>
+            <a class="link-span" style="text-decoration: none" target="_blank"
+              href="https://blog.fxink.cn">MyBlog</a>
             <el-dropdown>
               <div class="block">
                 <span class="name-span" style="text-decoration: none">{{username}}</span>
