@@ -34,6 +34,7 @@
 
 > 项目实现过程中会充分考虑以上问题，最终实现高可用、可扩展、支持海并发以及存储的 SaaS 短链接系统。
 ## 项目演示
+### 在线地址：http://www.fxink.cn
 ![](./readme_image/url_1.jpg)
 ![](./readme_image/url_2.jpg)
 ![](./readme_image/url_3.jpg)
