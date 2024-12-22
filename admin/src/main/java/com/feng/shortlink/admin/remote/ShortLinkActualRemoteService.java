@@ -65,7 +65,7 @@ public interface ShortLinkActualRemoteService {
      */
      @PostMapping("/api/fenglink/v1/shortlink/recycle-bin")
      void saveRecycleBin (ShortLinkRecycleBinSaveReqDTO requestParam);
-
+    
      /**
      * 分页查询回收站短链接
      */
@@ -73,19 +73,19 @@ public interface ShortLinkActualRemoteService {
      Result<Page<ShortLinkPageRespDTO>> pageRecycleBinShortLink(@RequestParam("gidList") List<String> gidList
              ,@RequestParam("current") Long current
              ,@RequestParam("size") Long size);
-
+    
      /**
      * 恢复短链接
      */
      @PostMapping("/api/fenglink/v1/shortlink/recycle-bin/recover")
      void recoverRecycleBin (ShortLinkRecycleBinRecoverReqDTO requestParam);
-
+    
      /**
      * 移除短链接
      */
      @PostMapping("/api/fenglink/v1/shortlink/recycle-bin/remove")
      void removeRecycleBin (ShortLinkRecycleBinRemoveReqDTO requestParam);
-
+    
      /**
      * 获取单条短链接监控统计数据
      */
@@ -96,7 +96,7 @@ public interface ShortLinkActualRemoteService {
              , @RequestParam("enableStatus") Integer enableStatus
              , @RequestParam("startDate") String startDate
              , @RequestParam("endDate") String endDate);
-
+    
      /**
      * 分页短链接监控统计
      */
@@ -110,7 +110,7 @@ public interface ShortLinkActualRemoteService {
              , @RequestParam("current") Long current
              , @RequestParam("size") Long size
      );
-
+    
      /**
      * 获取分组短链接监控统计数据
      */
@@ -119,7 +119,7 @@ public interface ShortLinkActualRemoteService {
                @RequestParam("gid") String gid
              , @RequestParam("startDate") String startDate
              , @RequestParam("endDate") String endDate);
-
+    
      /**
      * 分组分页短链接监控统计
      */
