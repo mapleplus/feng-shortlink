@@ -36,6 +36,33 @@
 ```shell
   git clone https://github.com/mapleplus/feng-shortlink.git
 ```
+### 后端
+> 我的 Redis Nacos MySQL RocketMQ 都是部署在Ubuntu下
+> 这4个应用的版本大家选择稳定版就好 想尝试最新版也没问题
+> 根据个人情况修改配置文件的ip和端口即可
+1. 部署启动Nacos https://nacos.io/docs/v2/guide/admin/deployment/
+2. Redis & MySQL 这里不多说 网上都有教程
+3. 部署启动RocketMQ [官方文档](https://rocketmq.apache.org/zh/docs/quick-start/) [B站部署成功版本教程](https://www.bilibili.com/video/BV1jL41187ny?vd_source=0237c188b05cdd4b34e80198f868122f&p=2&spm_id_from=333.788.videopod.episodes)
+> 这里附上相应命令链接(直接复制粘贴 帮你解放双手😁) [快速命令](https://blog.fxink.cn/java-shortlink-2024-11-28-shortlink/)
+3. [Windows修改本地hosts](https://blog.csdn.net/Everglow___/article/details/120734455) [Mac修改本地hosts](https://blog.csdn.net/YangljHjr/article/details/133804674) 然后配置好域名`127.0.0.1 baidu.com`
+4. JDK要求17+ [Windows JDK](https://www.azul.com/downloads/?version=java-17-lts&os=Windows&package=jdk#zulu) [Mac JDK](https://www.azul.com/downloads/?version=java-17-lts&os=Macos&package=jdk#zulu)
+5. 服务配置
+* 后管admin: 
+  * application.yml
+![admin_app](./readme_image/admin_app.png)
+  * shardingsphere-config.yml
+![admin_sharding](./readme_image/admin_sharding.png)
+* 网关gateway:
+  * application.yml
+![gateway_app](./readme_image/gateway_app.png)
+* 短链接project:
+  * application.yml
+![project_app.png](readme_image/project_app.png)
+  * shardingsphere-config.yml
+![project_sharding.png](readme_image/project_sharding.png)
+6. 启动项目
+分别启动3个后端服务后再启动前端
+![back](./readme_image/start.png)
 ### 前端
 1. 需要node `16.20.1` 环境，下载地址：https://nodejs.org/download/release/v16.20.1 安装完成后分别执行检验是否显示版本号（有就代表成功）：`node -v` 和 `npm -v`
 2. [Windows安装多版本node环境教程](https://blog.csdn.net/qq_38405436/article/details/132279098)
@@ -55,30 +82,9 @@
    npm install
    npm run dev
 ```
-### 后端
-1. 部署启动Nacos https://nacos.io/docs/v2/guide/admin/deployment/
-2. Redis & MySQL 这里不多说 网上都有教程
-3. 部署启动RocketMQ https://rocketmq.apache.org/zh/docs/quick-start/
-3. [Windows修改本地hosts](https://blog.csdn.net/Everglow___/article/details/120734455) [Mac修改本地hosts](https://blog.csdn.net/YangljHjr/article/details/133804674) 然后配置好域名`127.0.0.1 baidu.com`
-4. JDK要求17+ [Windows JDK](https://www.azul.com/downloads/?version=java-17-lts&os=Windows&package=jdk#zulu) [Mac JDK](https://www.azul.com/downloads/?version=java-17-lts&os=Macos&package=jdk#zulu)
-5. 服务配置
-* 后管admin: 
-  * application.yml
-![admin_app](./readme_image/admin_app.png)
-  * shardingsphere-config.yml
-![admin_sharding](./readme_image/admin_sharding.png)
-* 网关gateway:
-  * application.yml
-![gateway_app](./readme_image/gateway_app.png)
-* 短链接project:
-  * application.yml
-![project_app.png](readme_image/project_app.png)
-  * shardingsphere-config.yml
-![project_sharding.png](readme_image/project_sharding.png)
-6. 启动项目
-分别启动3个后端服务后再前启动前端
-![back](./readme_image/start.png)
 ![front](./readme_image/front.png)
+> 访问上面的连接可能会跳转到 http://localhost:5173/home/space ，但是这个页面是没有数据的，再刷新就好，会跳转到登录页面
+或者可以直接访问 http://localhost:5173/login 进行登录
 ## 项目演示
 ### 在线地址：http://www.fxink.cn
 ![](./readme_image/url_1.jpg)
