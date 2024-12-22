@@ -41,7 +41,7 @@
 > 这4个应用的版本大家选择稳定版就好 想尝试最新版也没问题
 > 根据个人情况修改配置文件的ip和端口即可
 1. 部署启动Nacos https://nacos.io/docs/v2/guide/admin/deployment/
-2. Redis & MySQL 这里不多说 网上都有教程
+2. Redis & MySQL(**将sql文件夹下的sql文件导入数据库!!!**) 这里不多说 网上都有教程
 3. 部署启动RocketMQ [官方文档](https://rocketmq.apache.org/zh/docs/quick-start/) [B站部署成功版本教程](https://www.bilibili.com/video/BV1jL41187ny?vd_source=0237c188b05cdd4b34e80198f868122f&p=2&spm_id_from=333.788.videopod.episodes)
 > 这里附上相应命令链接(直接复制粘贴 帮你解放双手😁) [快速命令](https://blog.fxink.cn/java-shortlink-2024-11-28-shortlink/)
 3. [Windows修改本地hosts](https://blog.csdn.net/Everglow___/article/details/120734455) [Mac修改本地hosts](https://blog.csdn.net/YangljHjr/article/details/133804674) 然后配置好域名`127.0.0.1 baidu.com`
