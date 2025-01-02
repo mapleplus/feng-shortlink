@@ -1,12 +1,15 @@
 package com.feng.shortlink.admin.config;
 
 import com.feng.shortlink.admin.common.biz.user.UserFlowRiskControlFilter;
-import com.feng.shortlink.admin.common.biz.user.UserTransmitFilter;
+import com.feng.shortlink.admin.common.biz.user.UserTransmitInterceptor;
+import lombok.RequiredArgsConstructor;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.StringRedisTemplate;
+import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * @author FENGXIN
@@ -15,18 +18,16 @@ import org.springframework.data.redis.core.StringRedisTemplate;
  * @description
  **/
 @Configuration
-public class UserConfiguration {
-
+@RequiredArgsConstructor
+public class UserConfiguration implements WebMvcConfigurer {
+    private final UserTransmitInterceptor userTransmitInterceptor;
+    
     /**
-     * 用户信息传递过滤器
+     * 用户信息传递拦截器
      */
-    @Bean
-    public FilterRegistrationBean<UserTransmitFilter> globalUserTransmitFilter() {
-        FilterRegistrationBean<UserTransmitFilter> registration = new FilterRegistrationBean<>();
-        registration.setFilter(new UserTransmitFilter());
-        registration.addUrlPatterns("/*");
-        registration.setOrder(0);
-        return registration;
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(userTransmitInterceptor);
     }
     
     /**

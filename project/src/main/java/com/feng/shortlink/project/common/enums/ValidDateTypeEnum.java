@@ -10,6 +10,7 @@ import lombok.RequiredArgsConstructor;
  * @description 短链接有效期类型枚举
  **/
 
+@Getter
 @RequiredArgsConstructor
 public enum ValidDateTypeEnum {
     
@@ -21,6 +22,5 @@ public enum ValidDateTypeEnum {
      * 用户自定义
      */
     CUSTOMER(1);
-    @Getter
     private final int value;
 }
