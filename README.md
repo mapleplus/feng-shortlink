@@ -86,7 +86,6 @@
 > 访问上面的连接可能会跳转到 http://localhost:5173/home/space ，但是这个页面是没有数据的，再刷新就好，会跳转到登录页面
 或者可以直接访问 http://localhost:5173/login 进行登录
 ## 项目演示
-### 在线地址：http://www.fxink.cn
 ![](./readme_image/url_1.jpg)
 ![](./readme_image/url_2.jpg)
 ![](./readme_image/url_3.jpg)
