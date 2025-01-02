@@ -1,0 +1,34 @@
+spring:
+# 本地虚拟机
+#  data:
+#    redis:
+#      host: 192.168.187.101
+#      port: 6379
+#      password: 51213002
+#  cloud:
+#    nacos:
+#      discovery:
+#        server-addr: 192.168.187.101:8848
+  # tx服务器
+  data:
+    redis:
+      host: 122.51.165.51
+      port: 6379
+      password: xWBbAP7d2tSGdnES
+  cloud:
+    nacos:
+      discovery:
+        server-addr: 122.51.165.51:8848
+short-link:
+  stats:
+    locale:
+      amap-key: d8ff1fbaa0db78890a8659a25ace740f
+  domain: "baidu.com:8001"
+  goto-domain:
+    white-list:
+      enable: false
+rocketmq:
+  name-server: 122.51.165.51:9876  # tx 地址
+#  name-server: 192.168.187.101:9876  # 本地虚拟机 地址
+  producer:
+    group: shortlink-stats-producer-group  # 生产者组

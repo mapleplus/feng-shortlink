@@ -39,7 +39,6 @@ public class RocketMqMessageService {
             log.info("[消息访问统计监控] 消息发送结果：{}，消息ID：{}，消息Keys：{}", sendResult.getSendStatus(), sendResult.getMsgId(), keys);
         } catch (Throwable ex) {
             log.error("[消息访问统计监控] 消息发送失败，消息体：{}", JSON.toJSONString (producerMap) , ex);
-            // 自定义行为...
         }
         
     }
