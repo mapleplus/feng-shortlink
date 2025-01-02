@@ -185,8 +185,8 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
         }else {
             // gid 不一致 说明需要换组 需要删除之前的短链接gid用selectOne的 再新增到新组里
             /*
-            获取写锁 如果用户正在访问短链接 则读锁被占有 那么此链接将无法被修改
-            如果写锁获取成功 那么读锁将无法被获取 但是用户正常重定向访问 只是使用延迟队列 延迟一会儿再统计链接访问数据，此时链接已经修改好 统计的就是最新的数据
+                获取写锁 如果用户正在访问短链接 则读锁被占有 那么此链接将无法被修改
+                如果写锁获取成功 那么读锁将无法被获取 但是用户正常重定向访问 只是使用延迟队列 延迟一会儿再统计链接访问数据，此时链接已经修改好 统计的就是最新的数据
              */
             RReadWriteLock readWriteLock = redissonClient.getReadWriteLock(String.format(LOCK_GID_UPDATE_KEY, requestParam.getFullShortUrl()));
             RLock rLock = readWriteLock.writeLock();
@@ -239,7 +239,7 @@ public class ShortLinkServiceImpl extends ServiceImpl<ShortLinkMapper, ShortLink
                 rLock.unlock();
             }
             // 更新链接相关缓存
-            // 如果新链接和旧链接的有效期或原始链接不一致，应该删除旧链接的缓存 确保下一次访问的时候正确重新设置缓存（方便）
+            // 如果新链接和旧链接的有效期或原始链接不一致，应该删除旧链接的缓存 确保下一次访问的时候正确重新设置缓存
             if (!Objects.equals (selectOne.getValidDateType (),requestParam.getValidDateType ()) ||
                 !Objects.equals (selectOne.getValidDate (),requestParam.getValidDate ()) ||
                 !Objects.equals (selectOne.getOriginUrl (),requestParam.getOriginUrl ())) {

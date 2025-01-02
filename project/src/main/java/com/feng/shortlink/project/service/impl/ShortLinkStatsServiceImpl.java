@@ -52,7 +52,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
          */
         List<LinkAccessStatsDO> listStatsByShortLink = linkAccessStatsMapper.listStatsByShortLink (requestParam);
         /*
-        PVC UV UIP
+        PV UV UIP
          */
         AtomicInteger pv = new AtomicInteger();
         AtomicInteger uv = new AtomicInteger();
@@ -75,7 +75,7 @@ public class ShortLinkStatsServiceImpl implements ShortLinkStatsService {
         // 统计百分比 并赋值响应体
         listLocaleByShortLink
                 .forEach (each ->{
-                    double ratio = (double) each.getCnt () /localeStatsCnSum;
+                    double ratio = (double) each.getCnt () / localeStatsCnSum;
                     double actualRatio = Math.round (ratio * 100.0) / 100.0;
                     ShortLinkStatsLocaleCNRespDTO build = ShortLinkStatsLocaleCNRespDTO.builder ()
                             .cnt (each.getCnt ())

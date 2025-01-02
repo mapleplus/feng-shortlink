@@ -39,11 +39,11 @@ public interface LinkAccessLogsMapper extends BaseMapper<LinkAccessLogsDO> {
            t_link_access_logs tlal inner join t_link tl ON tl.full_short_url = tlal.full_short_url COLLATE utf8mb4_general_ci
         WHERE
            tlal.full_short_url = #{param.fullShortUrl}
-        AND tl.gid =  #{param.gid}
+        AND tl.gid = #{param.gid}
         AND tl.del_flag = '0'
         AND tlal.create_time BETWEEN #{param.startDate} and #{param.endDate}
         GROUP BY
-          tlal.full_short_url, tl.gid,tlal.ip
+          tlal.full_short_url,tl.gid,tlal.ip
         ORDER BY count DESC
         LIMIT 5;
         """)

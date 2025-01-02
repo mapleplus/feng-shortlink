@@ -73,7 +73,6 @@ public class RocketMqMessageConsumer implements RocketMQListener<Map<String,Stri
         }
         // 第一次消费
         try {
-            
             ShortLinkStatsMqToDbDTO shortLinkStatsMqToDbDTO = JSON.parseObject (producerMap.get("statsRecord") , ShortLinkStatsMqToDbDTO.class);
             actualShortLinkStats (shortLinkStatsMqToDbDTO);
         } catch (Throwable e) {
