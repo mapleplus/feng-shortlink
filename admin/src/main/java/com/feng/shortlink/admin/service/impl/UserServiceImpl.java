@@ -102,8 +102,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, UserDO> implements 
     
     @Override
     public void updateUser (UserUpdateReqDTO requestParams) {
-        if (StrUtil.equals (requestParams.getUsername () , UserContext.getUserName ())) {
-            throw new ClientException ("用户更新信息异常");
+        String paramsUsername = requestParams.getUsername ();
+        String userName = UserContext.getUserName ();
+        if (!StrUtil.equals ( paramsUsername,userName )) {
+            throw new ClientException ("req_username: "+ paramsUsername + "username: "+ userName + "异常");
         }
         LambdaQueryWrapper<UserDO> updateWrapper = new LambdaQueryWrapper<UserDO>()
                 .eq(UserDO::getUsername, requestParams.getUsername ());
