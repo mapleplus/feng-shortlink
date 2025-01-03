@@ -5,18 +5,11 @@ spring:
     # ShardingSphere 对 Driver 自定义，实现分库分表等隐藏逻辑
     driver-class-name: org.apache.shardingsphere.driver.ShardingSphereDriver
     # ShardingSphere 配置文件路径
-    url: jdbc:shardingsphere:classpath:shardingsphere-config.yaml
-  data:
-    redis:
-      host: 192.168.187.101
-      port: 6379
-      password: 51213002
+    url: jdbc:shardingsphere:classpath:shardingsphere-config-${database.env:dev}.yaml
   application:
     name: feng-shortlink-admin
-  cloud:
-    nacos:
-      discovery:
-        server-addr: 192.168.187.101:8848
+  profiles:
+    active: dev
 short-link:
   group:
     max-num: 20

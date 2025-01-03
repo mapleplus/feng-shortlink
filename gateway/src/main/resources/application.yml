@@ -3,15 +3,9 @@ server:
 spring:
   application:
     name: short-link-gateway
-  data:
-    redis:
-      host: 192.168.187.101
-      port: 6379
-      password: 51213002
+  profiles:
+    active: dev
   cloud:
-    nacos:
-      discovery:
-        server-addr: 192.168.187.101:8848
     gateway:
       routes:
         - id: feng-shortlink-admin
