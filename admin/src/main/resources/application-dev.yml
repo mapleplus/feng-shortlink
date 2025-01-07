@@ -10,12 +10,12 @@ spring:
   #      discovery:
   #        server-addr: 192.168.187.101:8848
   # tx服务器
-  data:
-    redis:
-      host: 122.51.165.51
-      port: 6379
-      password: xWBbAP7d2tSGdnES
   cloud:
     nacos:
       discovery:
         server-addr: 122.51.165.51:8848
+  data:
+    redis:
+      host: 122.51.165.51
+      port: 6379
+      password: xWfhdsajklfh@@991
