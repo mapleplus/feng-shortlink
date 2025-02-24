@@ -4,6 +4,7 @@ spring:
       host: 122.51.165.51
       port: 6379
       password: xWfhdsajklfh@@991
+      database: 0
   cloud:
     nacos:
       discovery:

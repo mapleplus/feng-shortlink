@@ -4,6 +4,7 @@ spring:
       host: 122.51.165.51
       port: 6379
       password: xWfhdsajklfh@@991
+      database: 0
   cloud:
     nacos:
       discovery:
@@ -12,7 +13,7 @@ short-link:
   stats:
     locale:
       amap-key: d8ff1fbaa0db78890a8659a25ace740f
-  domain: "s.fxink.cn"
+  domain: "s.mapleplus.club"
   goto-domain:
     white-list:
       enable: true
@@ -249,4 +250,4 @@ short-link:
 rocketmq:
   name-server: 122.51.165.51:9876  # RocketMQ NameServer 地址
   producer:
-    group: shortlink-stats-producer-group  # 生产者组
+    group: prod_shortlink-stats-producer-group  # 生产者组

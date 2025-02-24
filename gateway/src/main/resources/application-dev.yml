@@ -1,20 +1,10 @@
 spring:
-  # 本地虚拟机
-  #  data:
-  #    redis:
-  #      host: 192.168.187.101
-  #      port: 6379
-  #      password: 51213002
-  #  cloud:
-  #    nacos:
-  #      discovery:
-  #        server-addr: 192.168.187.101:8848
-  # tx服务器
   data:
     redis:
       host: 122.51.165.51
       port: 6379
       password: xWfhdsajklfh@@991
+      database: 3
   cloud:
     nacos:
       discovery:

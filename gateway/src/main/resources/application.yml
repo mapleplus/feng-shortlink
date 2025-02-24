@@ -4,7 +4,7 @@ spring:
   application:
     name: short-link-gateway
   profiles:
-    active: prod
+    active: dev
   cloud:
     gateway:
       routes:
