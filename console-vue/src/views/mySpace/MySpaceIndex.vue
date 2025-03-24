@@ -107,7 +107,8 @@
                   </el-tooltip>
                   <div class="time" style="display: flex">
                     <span>{{ scope.row.createTime }}</span>
-                    <el-tooltip show-after="500" v-if="scope?.row?.validDate" :content="'到期时间：' + scope?.row?.validDate">
+                    <el-tooltip show-after="500" v-if="scope?.row?.validDate"
+                      :content="'到期时间：' + scope?.row?.validDate">
                       <img v-if="isExpire(scope?.row?.validDate)" width="18" height="18" src="@/assets/png/沙漏倒计时.png"
                         alt="" />
                       <div v-else><span>已失效</span></div>
@@ -365,6 +366,7 @@
       <CreateLinks ref="createLink2Ref" :groupInfo="editableTabs" @onSubmit="addLink" @cancel="cancelAddLink"
         :defaultGid="pageParams.gid"></CreateLinks>
     </el-dialog>
+    <a href="https://beian.miit.gov.cn/" target="_blank" class="beian-link">备案号：黔ICP备2024038408号-1</a>
   </div>
 </template>
 
@@ -380,7 +382,7 @@ import EditLink from './components/editLink/EditLink.vue'
 import { ElMessage } from 'element-plus'
 import defaultImg from '@/assets/png/短链默认图标.png'
 import QRCode from './components/qrCode/QRCode.vue'
-import {CaretBottom, Connection, Delete, HelpFilled, Histogram, Share, Tools} from "@element-plus/icons-vue";
+import { CaretBottom, Connection, Delete, HelpFilled, Histogram, Share, Tools } from "@element-plus/icons-vue";
 
 
 // 查看图表的时候传过去展示的，没什么用
@@ -842,6 +844,7 @@ const removeLink = (data) => {
   width: 190px;
   border-right: 1px solid rgba(0, 0, 0, 0.1);
   background-color: #dde8ee;
+
   .item-box {
     height: 43px;
     width: 190px;
@@ -993,6 +996,7 @@ const removeLink = (data) => {
   display: -webkit-box; //作为弹性伸缩盒子模型显示。
   -webkit-box-orient: vertical; //设置伸缩盒子的子元素排列方式--从上到下垂直排列
   -webkit-line-clamp: 1; //显示的行
+  line-clamp: 1; //显示的行
 }
 
 .table-link-box {
@@ -1011,7 +1015,6 @@ const removeLink = (data) => {
       text-overflow: ellipsis;
       display: -webkit-box; //作为弹性伸缩盒子模型显示。
       -webkit-box-orient: vertical; //设置伸缩盒子的子元素排列方式--从上到下垂直排列
-      -webkit-line-clamp: 1; //显示的行
     }
 
     .time {
@@ -1071,7 +1074,6 @@ const removeLink = (data) => {
     text-overflow: ellipsis;
     display: -webkit-box; //作为弹性伸缩盒子模型显示。
     -webkit-box-orient: vertical; //设置伸缩盒子的子元素排列方式--从上到下垂直排列
-    -webkit-line-clamp: 1; //显示的行
     color: rgba(0, 0, 0, 0.4);
   }
 }
@@ -1135,5 +1137,20 @@ const removeLink = (data) => {
   // height: 100%;
   overflow-y: auto;
   overflow-x: hidden;
+}
+
+.beian-link {
+  position: fixed;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+  z-index: 999;
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 </style>

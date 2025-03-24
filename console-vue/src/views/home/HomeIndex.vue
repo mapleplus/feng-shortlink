@@ -6,9 +6,9 @@
           <div @click="toMySpace" class="logo">枫短链-为企业服务的分布式架构</div>
           <div style="display: flex; align-items: center">
             <a class="link-span" style="text-decoration: none" target="_blank"
-              href="https://github.com/mapleplus">MyGithub</a>
+              href="https://github.com/mapleplus">Github</a>
             <a class="link-span" style="text-decoration: none" target="_blank"
-              href="https://blog.fxink.cn">MyBlog</a>
+              href="https://blog.fxink.cn">博客</a>
             <el-dropdown>
               <div class="block">
                 <span class="name-span" style="text-decoration: none">{{username}}</span>
@@ -28,26 +28,6 @@
           <RouterView class="content-space" />
         </div>
       </el-main>
-      <!-- <el-container>
-        <el-aside width="180px">
-          <el-menu
-            active-text-color="#073372"
-            background-color="#0e5782"
-            class="el-menu-vertical-demo"
-            :default-active="getLasteRoute(route.path)"
-            text-color="#fff"
-            @select="handleSelect"
-          >
-            <template v-for="item in menuInfos" :key="item.name">
-              <el-menu-item :index="item.path">
-                <el-icon><icon-menu /></el-icon>
-                <span>{{ item.name }}</span>
-              </el-menu-item>
-            </template>
-          </el-menu></el-aside
-        >
-
-      </el-container> -->
     </el-container>
   </div>
 </template>

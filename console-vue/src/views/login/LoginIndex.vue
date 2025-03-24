@@ -91,16 +91,17 @@
       <div class="move" ref="moveRef">
         <span style="font-size: 18px; margin-bottom: 25px; color: rgb(225, 238, 250)">{{
           !isLogin ? '已有账号？' : '还没有账号？'
-          }}</span>
+        }}</span>
         <span style="font-size: 16px; color: rgb(225, 238, 250)">{{
           !isLogin ? '欢迎登录账号！' : '欢迎注册账号！'
-          }}</span>
+        }}</span>
         <el-button style="width: 100px; margin-top: 30px" @click="changeLogin">{{
           !isLogin ? '去登录' : '去注册'
-          }}</el-button>
+        }}</el-button>
       </div>
     </div>
     <div ref="vantaRef" class="vanta"></div>
+    <a href="https://beian.miit.gov.cn/" target="_blank" class="beian-link">备案号：黔ICP备2024038408号-1</a>
   </div>
   <el-dialog v-model="isWC" title="人机验证" width="40%" :before-close="handleClose">
     <div class="verification-flex">
@@ -478,10 +479,10 @@ const changeLogin = () => {
   align-items: center;
   background: #06beb6;
   /* fallback for old browsers */
-  background: -webkit-linear-gradient(to right, #0519c4de,#09e312);
+  background: -webkit-linear-gradient(to right, #0519c4de, #09e312);
   /* Chrome 10-25, Safari 5.1-6 */
   background: linear-gradient(to right,
-    #1126e0de,
+      #1126e0de,
       #3df643);
   /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
 }
@@ -515,12 +516,27 @@ const changeLogin = () => {
   align-items: flex-start;
 
   .img {
-    margin-top: 10px;
     align-self: center;
   }
+
   .form {
     transform: translateY(15px);
     width: 90%;
+  }
+}
+
+.beian-link {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+  z-index: 999;
+
+  &:hover {
+    text-decoration: underline;
   }
 }
 </style>
