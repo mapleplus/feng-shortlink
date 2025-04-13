@@ -101,7 +101,7 @@
       </div>
     </div>
     <div ref="vantaRef" class="vanta"></div>
-    <a href="https://beian.miit.gov.cn/" target="_blank" class="beian-link">备案号：黔ICP备2024038408号-1</a>
+    <a href="https://beian.miit.gov.cn/" target="_blank" class="beian-link">备案号：黔ICP备 2024038408号</a>
   </div>
   <el-dialog v-model="isWC" title="人机验证" width="40%" :before-close="handleClose">
     <div class="verification-flex">

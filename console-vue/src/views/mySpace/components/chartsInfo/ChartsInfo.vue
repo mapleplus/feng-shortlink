@@ -12,11 +12,11 @@
           }}</span>
         </div>
       </div>
-<!--      <span v-if="isGroup" style="margin: 5px 0 0 5px">共{{ props.nums }}条短链接</span>-->
+      <!--      <span v-if="isGroup" style="margin: 5px 0 0 5px">共{{ props.nums }}条短链接</span>-->
     </template>
     <div style="position: absolute; right: 30px; z-index: 999">
-      <el-date-picker v-model="dateValue" :clearable="true" type="daterange" range-separator="To" start-placeholder="开始时间"
-        end-placeholder="结束时间" value-format="YYYY-MM-DD" :shortcuts="shortcuts" :size="size" />
+      <el-date-picker v-model="dateValue" :clearable="true" type="daterange" range-separator="To"
+        start-placeholder="开始时间" end-placeholder="结束时间" value-format="YYYY-MM-DD" :shortcuts="shortcuts" :size="size" />
     </div>
     <!-- 具体展示内容 -->
     <el-tabs v-model="showPane">
@@ -146,19 +146,53 @@
           <!-- 访客类型 -->
           <TitleContent v-if="!isGroup" class="chart-item" title="访客类型" style="width: 390px">
             <template #content>
-              <ProgressPie style="height: 100%; width: 100%" :labels="['新访客', '旧访客']" :data="userTypeList"></ProgressPie>
+              <ProgressPie style="height: 100%; width: 100%" :labels="['新访客', '旧访客']" :data="userTypeList">
+              </ProgressPie>
             </template>
           </TitleContent>
           <!-- 访问网络 -->
           <TitleContent class="chart-item" title="访问网络" style="width: 390px">
             <template #content>
-              <ProgressPie style="height: 100%; width: 100%" :labels="['WIFI', '移动数据']" :data="netWorkList"></ProgressPie>
+              <ProgressPie style="height: 100%; width: 100%" :labels="['WIFI', '移动数据']" :data="netWorkList">
+              </ProgressPie>
             </template>
           </TitleContent>
           <!-- 访问设备 -->
           <TitleContent class="chart-item" title="访问设备" style="width: 390px">
             <template #content>
               <ProgressPie style="height: 100%; width: 100%" :labels="['电脑', '移动设备']" :data="deviceList"></ProgressPie>
+            </template>
+          </TitleContent>
+
+          <!-- 智能分析区块 -->
+          <TitleContent class="chart-item" title="智能分析" style="width: 800px">
+            <template #content>
+              <div class="analysis-container">
+                <div class="analysis-item" v-if="hasTimeAnalysis">
+                  <div class="analysis-icon">⏰</div>
+                  <div class="analysis-text">
+                    {{ getTimeAnalysis() }}
+                  </div>
+                </div>
+                <div class="analysis-item" v-if="hasWeekdayAnalysis">
+                  <div class="analysis-icon">📅</div>
+                  <div class="analysis-text">
+                    {{ getWeekdayAnalysis() }}
+                  </div>
+                </div>
+                <div class="analysis-item" v-if="hasDeviceAnalysis">
+                  <div class="analysis-icon">💻</div>
+                  <div class="analysis-text">
+                    {{ getDeviceAnalysis() }}
+                  </div>
+                </div>
+                <div class="analysis-item" v-if="props.info?.browserStats?.length">
+                  <div class="analysis-icon">🌐</div>
+                  <div class="analysis-text">
+                    {{ getBrowserAnalysis() }}
+                  </div>
+                </div>
+              </div>
             </template>
           </TitleContent>
         </div>
@@ -193,7 +227,7 @@
 </template>
 
 <script setup>
-import { ref, watch, reactive } from 'vue'
+import { ref, watch, reactive, computed } from 'vue'
 import TitleContent from './TitleContent.vue'
 import * as echarts from 'echarts'
 import 'echarts/map/js/china.js'
@@ -324,7 +358,7 @@ const getUrl3 = (img) => {
 // 访问网络（wifi和移动网络）
 const getUrl4 = (img) => {
   if (img) {
-    img = img.toLowerCase()
+    img.toLowerCase()
   }
   if (img?.includes('Mobile')) {
     return MobileDevices
@@ -904,6 +938,72 @@ watch(
     immediate: true
   }
 )
+
+const hasTimeAnalysis = computed(() => {
+  return props.info?.hourStats?.some(count => count > 0)
+})
+
+const hasWeekdayAnalysis = computed(() => {
+  return props.info?.weekdayStats?.some(count => count > 0)
+})
+
+const hasDeviceAnalysis = computed(() => {
+  return props.info?.deviceStats?.length > 0
+})
+
+const getTimeAnalysis = () => {
+  const hourStats = props.info?.hourStats
+  if (!hourStats) return ''
+
+  let peakHour = hourStats.indexOf(Math.max(...hourStats))
+  let period = ''
+
+  if (peakHour >= 9 && peakHour <= 18) {
+    period = '工作时段(9:00-18:00)'
+  } else if (peakHour >= 19 && peakHour <= 23) {
+    period = '夜晚时段(19:00-23:00)'
+  } else {
+    period = '凌晨时段(0:00-8:00)'
+  }
+
+  return `链接在${period}访问频繁，建议在该时段加强营销推广。`
+}
+
+const getWeekdayAnalysis = () => {
+  const weekdayStats = props.info?.weekdayStats
+  if (!weekdayStats) return ''
+
+  const weekdays = ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+  let maxDay = weekdayStats.indexOf(Math.max(...weekdayStats))
+
+  if (maxDay <= 4) {
+    return `链接在${weekdays[maxDay]}访问量较大，建议在工作日进行重点推广。`
+  } else {
+    return `链接在${weekdays[maxDay]}访问量较大，周末用户活跃度较高。`
+  }
+}
+
+const getDeviceAnalysis = () => {
+  const deviceStats = props.info?.deviceStats
+  if (!deviceStats?.length) return ''
+
+  const pcRatio = deviceStats.find(item => item.device === 'PC')?.ratio || 0
+  const mobileRatio = deviceStats.find(item => item.device === 'Mobile')?.ratio || 0
+
+  if (pcRatio > mobileRatio) {
+    return '电脑端访问占比较大，建议优化PC端体验。'
+  } else {
+    return '移动端访问占比较大，建议优化移动端体验。'
+  }
+}
+
+const getBrowserAnalysis = () => {
+  const browserStats = props.info?.browserStats
+  if (!browserStats?.length) return ''
+
+  const topBrowser = browserStats.sort((a, b) => b.ratio - a.ratio)[0]
+  return `主要通过${topBrowser.browser}浏览器访问，访问占比${(topBrowser.ratio * 100).toFixed(1)}%。`
+}
 </script>
 
 <style lang="less" scoped>
@@ -983,6 +1083,28 @@ watch(
 .pagination-block {
   .el-pagination {
     margin-left: 20%;
+  }
+}
+
+.analysis-container {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+
+  .analysis-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    .analysis-icon {
+      font-size: 24px;
+    }
+
+    .analysis-text {
+      font-size: 14px;
+      color: #606266;
+    }
   }
 }
 </style>
